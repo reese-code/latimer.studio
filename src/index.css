@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'PPPlayground';
+  src: url('./assets/PPPlayground-Light.otf') format('opentype');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'OTNeueMontreal';
+  src: url('./assets/OTNeueMontreal-MediumSqueezed.otf') format('opentype');
+  font-weight: 500;
+}
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -13,8 +25,8 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'OTNeueMontreal', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'PPPlayground', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -70,12 +82,16 @@ body {
 
 h1,
 h2 {
-  font-family: var(--heading);
   font-weight: 500;
   color: var(--text-h);
 }
 
+h2 {
+  font-family: var(--sans);
+}
+
 h1 {
+  font-family: var(--heading);
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
