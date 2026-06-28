@@ -53,7 +53,10 @@ export default function ScrollVideo() {
     canvas.width = CANVAS_WIDTH
     canvas.height = CANVAS_HEIGHT
 
-    function drawCover(img) {
+    function drawFit(img) {
+      // Cover the entire canvas (no letterbox), pinned to the top.
+      // Uses Math.max so the image always fills both dimensions, bleeding
+      // to the sides if needed. y = 0 keeps the top of the image anchored.
       const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight)
       const w = img.naturalWidth * scale
       const h = img.naturalHeight * scale
@@ -76,7 +79,7 @@ export default function ScrollVideo() {
       }
       if (lastDrawnFrame.current === drawIdx) return
       lastDrawnFrame.current = drawIdx
-      drawCover(img)
+      drawFit(img)
     }
 
     function onScroll() {
@@ -107,7 +110,7 @@ export default function ScrollVideo() {
         const idx = nearestLoadedIndex(images, 0)
         if (idx >= 0 && lastDrawnFrame.current !== idx) {
           lastDrawnFrame.current = idx
-          drawCover(images[idx])
+          drawFit(images[idx])
         }
       }
       rafRef.current = requestAnimationFrame(tick)
