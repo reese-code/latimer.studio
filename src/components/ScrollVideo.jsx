@@ -2,8 +2,8 @@ import { useRef, useEffect, useState } from 'react'
 import useFrameLoader from '../hooks/useFrameLoader'
 
 const TOTAL_FRAMES = 432
-const CANVAS_WIDTH = 956
-const CANVAS_HEIGHT = 720
+const CANVAS_WIDTH = 1920
+const CANVAS_HEIGHT = 1080
 
 function frameSrc(index) {
   const n = String(index + 1).padStart(4, '0')
@@ -53,6 +53,15 @@ export default function ScrollVideo() {
     canvas.width = CANVAS_WIDTH
     canvas.height = CANVAS_HEIGHT
 
+    function drawCover(img) {
+      const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight)
+      const w = img.naturalWidth * scale
+      const h = img.naturalHeight * scale
+      const x = (canvas.width - w) / 2
+      const y = (canvas.height - h) / 2
+      ctx.drawImage(img, x, y, w, h)
+    }
+
     function drawFrame(index) {
       const images = loader.current && loader.current.images()
       if (!images) return
@@ -67,7 +76,7 @@ export default function ScrollVideo() {
       }
       if (lastDrawnFrame.current === drawIdx) return
       lastDrawnFrame.current = drawIdx
-      ctx.drawImage(img, 0, 0)
+      drawCover(img)
     }
 
     function onScroll() {
@@ -98,7 +107,7 @@ export default function ScrollVideo() {
         const idx = nearestLoadedIndex(images, 0)
         if (idx >= 0 && lastDrawnFrame.current !== idx) {
           lastDrawnFrame.current = idx
-          ctx.drawImage(images[idx], 0, 0)
+          drawCover(images[idx])
         }
       }
       rafRef.current = requestAnimationFrame(tick)
