@@ -1,21 +1,18 @@
 import { useRef, useEffect, useState } from 'react'
 import useFrameLoader from '../hooks/useFrameLoader'
 
-const TOTAL_FRAMES = 432
-const CANVAS_WIDTH = 1920
+const TOTAL_FRAMES   = 122
+const LOCK_PROGRESS  = 0.60
+const CANVAS_WIDTH = 1434
 const CANVAS_HEIGHT = 1080
 
 function frameSrc(index) {
   const n = String(index + 1).padStart(4, '0')
-  return `/frames/frame_${n}.webp`
+  return `/frames/scene_1/frame_${n}.webp`
 }
 
-// Fallback strategy: if the target frame isn't loaded yet, walk backwards
-// to the nearest decoded frame. That way the user never sees a blank canvas —
-// they see the most recent available frame until the new one arrives.
 function nearestLoadedIndex(images, target) {
   if (!images) return -1
-  // Search outward from target, alternating left/right for stability.
   const max = images.length
   for (let d = 0; d < max; d++) {
     if (target - d >= 0 && images[target - d]) return target - d
@@ -24,7 +21,7 @@ function nearestLoadedIndex(images, target) {
   return -1
 }
 
-export default function ScrollVideo() {
+export default function ScrollVideo({ onProgress }) {
   const canvasRef = useRef(null)
   const targetFrame = useRef(0)
   const currentFrame = useRef(0)
@@ -42,7 +39,6 @@ export default function ScrollVideo() {
     maxLiveFrames: 200,
   })
 
-  // Track readiness separately so we can render the first frame ASAP.
   const [, force] = useState(0)
   const bump = () => force((n) => (n + 1) & 0x3fffffff)
 
@@ -54,9 +50,6 @@ export default function ScrollVideo() {
     canvas.height = CANVAS_HEIGHT
 
     function drawFit(img) {
-      // Cover the entire canvas (no letterbox), pinned to the top.
-      // Uses Math.max so the image always fills both dimensions, bleeding
-      // to the sides if needed. y = 0 keeps the top of the image anchored.
       const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight)
       const w = img.naturalWidth * scale
       const h = img.naturalHeight * scale
@@ -73,8 +66,6 @@ export default function ScrollVideo() {
       const img = images[drawIdx]
       if (!img) return
       if (drawIdx !== index) {
-        // Drawing a placeholder while waiting for target — keep lastDrawnFrame
-        // set so we redraw the proper frame the moment it arrives.
         lastDrawnFrame.current = -1
       }
       if (lastDrawnFrame.current === drawIdx) return
@@ -85,8 +76,11 @@ export default function ScrollVideo() {
     function onScroll() {
       const scrollTop = window.scrollY
       const maxScroll = document.body.scrollHeight - window.innerHeight
-      const progress = maxScroll > 0 ? scrollTop / maxScroll : 0
-      targetFrame.current = Math.round(progress * (TOTAL_FRAMES - 1))
+      const rawProgress = maxScroll > 0 ? scrollTop / maxScroll : 0
+      // Scale so all frames finish exactly at the scroll lock point (0.60)
+      const scaledProgress = Math.min(rawProgress / LOCK_PROGRESS, 1)
+      targetFrame.current = Math.round(scaledProgress * (TOTAL_FRAMES - 1))
+      onProgress?.(rawProgress)
     }
 
     function tick() {
@@ -97,15 +91,12 @@ export default function ScrollVideo() {
         const index = Math.round(currentFrame.current)
         drawFrame(index)
 
-        // Throttle "ensureAround" calls — only every ~120ms (~8 ticks @60fps).
-        // This keeps the loader responsive without thrashing.
         const now = performance.now()
         if (now - lastEnsureTick.current > 120) {
           lastEnsureTick.current = now
           handle.ensureAround(index)
         }
       } else if (handle && handle.images()) {
-        // Even before frame 0 decodes, try to draw whatever the loader has.
         const images = handle.images()
         const idx = nearestLoadedIndex(images, 0)
         if (idx >= 0 && lastDrawnFrame.current !== idx) {
@@ -120,8 +111,6 @@ export default function ScrollVideo() {
     window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
 
-    // Poll for "frame 0 ready" so we can clear the canvas background ASAP
-    // and reveal the first frame the moment it decodes.
     let ready = false
     const readyInterval = setInterval(() => {
       const handle = loader.current
@@ -138,25 +127,22 @@ export default function ScrollVideo() {
       cancelAnimationFrame(rafRef.current)
       clearInterval(readyInterval)
     }
-  }, [loader])
+  }, [loader, onProgress])
 
   return (
-    <>
-      <div style={{ height: '400vh' }} />
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          objectFit: 'cover',
-          display: 'block',
-          background: '#000',
-          willChange: 'transform',
-        }}
-      />
-    </>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        objectFit: 'cover',
+        display: 'block',
+        background: '#000',
+        willChange: 'transform',
+      }}
+    />
   )
 }
