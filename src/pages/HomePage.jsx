@@ -8,7 +8,15 @@ const LOCK_PROGRESS = 0.60
 
 export default function HomePage() {
   const [scrollProgress, setScrollProgress] = useState(0)
+  const [galleryPhase, setGalleryPhase] = useState('idle')
   const handleProgress = useCallback((p) => setScrollProgress(p), [])
+  const handlePhaseChange = useCallback((p) => setGalleryPhase(p), [])
+
+  // Once we're in the project section (ticket has popped up), the nav
+  // ticket drops fully out of view. It lifts back up once the user scrolls
+  // back away from the section, or once the theater transition begins.
+  const atLock = scrollProgress >= LOCK_PROGRESS - 0.02
+  const hideNavTicket = atLock && galleryPhase !== 'theater'
 
   useEffect(() => {
     function lockY() {
@@ -57,8 +65,8 @@ export default function HomePage() {
     <>
       <div style={{ height: '400vh' }} />
       <ScrollVideo onProgress={handleProgress} />
-      <PosterGallery scrollProgress={scrollProgress} />
-      <TicketMenu />
+      <PosterGallery scrollProgress={scrollProgress} onPhaseChange={handlePhaseChange} />
+      <TicketMenu forceHidden={hideNavTicket} />
     </>
   )
 }

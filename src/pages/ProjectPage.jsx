@@ -1,41 +1,31 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useRef, useEffect } from 'react'
-import gsap from 'gsap'
-import ciaoPoster from '../assets/ciao_poster.png'
-import forgePoster from '../assets/forge_poster.png'
-import studioRoPoster from '../assets/studioro_poster.png'
+import { PROJECTS as PROJECT_LIST } from '../data/projects'
 
-const PROJECTS = {
-  ciao: {
-    label:       'CIAO',
-    poster:      ciaoPoster,
-    year:        '2024',
-    type:        'Brand Identity',
-    tags:        ['Identity', 'Typography', 'Print'],
-    description: 'A warm, expressive identity rooted in Italian culture and modernist craft. Ciao brings together typographic warmth and considered simplicity.',
-  },
-  forge: {
-    label:       'FORGE',
-    poster:      forgePoster,
-    year:        '2024',
-    type:        'Digital Product',
-    tags:        ['Product', 'UI/UX', 'Digital'],
-    description: 'A product studio building tools at the intersection of craft and technology. Forge is built for makers who think with their hands.',
-  },
-  studioro: {
-    label:       'STUDIO RO',
-    poster:      studioRoPoster,
-    year:        '2023',
-    type:        'Creative Direction',
-    tags:        ['Direction', 'Spatial', 'Graphic'],
-    description: 'Creative direction for a multidisciplinary design practice. Studio RO operates across interior, graphic, and spatial design disciplines.',
-  },
+
+const PROJECTS = Object.fromEntries(PROJECT_LIST.map((p) => [p.id, p]))
+
+// The final frame of each project's joined poster→theater sequence — this is
+// exactly where the PosterGallery "See Project" transition leaves off, so
+// the project page picks up the shot with no visual jump.
+const THEATER_FINAL_FRAME = {
+  ciao:     '/frames/theater_transition_1/frame_0170.webp',
+  studioro: '/frames/theater_transition_2/frame_0170.webp',
+  forge:    '/frames/theater_transition_3/frame_0170.webp',
 }
 
 // Zoom thresholds (viewport heights of scroll on the project page)
 const ZOOM_END_VH   = 1.2   // zoom completes at 120vh
 const FADE_START_VH = 1.2   // theater fades starting at 120vh
 const FADE_END_VH   = 1.6   // theater gone at 160vh (content enters here)
+
+// The "See Project" punch-zoom (PosterGallery) leaves the canvas at 1.35x —
+// start the project-page scroll zoom from the same scale so the cut from
+// canvas → static frame is seamless, with no snap-back.
+const ZOOM_START_SCALE = 1.35
+const ZOOM_RANGE       = 3.15
+
+
 
 export default function ProjectPage() {
   const { id }    = useParams()
@@ -52,7 +42,8 @@ export default function ProjectPage() {
       const vh = window.innerHeight
 
       const zoomP  = Math.max(0, Math.min(1, y / (vh * ZOOM_END_VH)))
-      const scale  = 1 + zoomP * 3.5
+      const scale  = ZOOM_START_SCALE + zoomP * ZOOM_RANGE
+
 
       const fadeRange = vh * (FADE_END_VH - FADE_START_VH)
       const fadeP  = Math.max(0, Math.min(1, (y - vh * FADE_START_VH) / fadeRange))
@@ -100,6 +91,7 @@ export default function ProjectPage() {
         theaterEl={theaterEl}
         imgEl={imgEl}
         hintEl={hintEl}
+        finalFrame={THEATER_FINAL_FRAME[id]}
         onBack={() => navigate('/')}
       />
     </PageShell>
@@ -116,7 +108,7 @@ function PageShell({ children }) {
   )
 }
 
-function TheaterOverlay({ theaterEl, imgEl, hintEl, onBack }) {
+function TheaterOverlay({ theaterEl, imgEl, hintEl, finalFrame, onBack }) {
   return (
     <div
       ref={theaterEl}
@@ -129,10 +121,12 @@ function TheaterOverlay({ theaterEl, imgEl, hintEl, onBack }) {
         background: '#12100a',
       }}
     >
-      {/* Last frame of the scroll video — zooms in on scroll */}
+      {/* Final frame of the theater transition — scales up to fill the
+          screen from center, continuing the zoom the entrance animation
+          started, then keeps zooming further as the user scrolls. */}
       <img
         ref={imgEl}
-        src="/frames/frame_0432.webp"
+        src={finalFrame}
         alt=""
         draggable={false}
         style={{
@@ -146,6 +140,7 @@ function TheaterOverlay({ theaterEl, imgEl, hintEl, onBack }) {
           userSelect:      'none',
         }}
       />
+
 
       {/* Vignette */}
       <div style={{

@@ -2,23 +2,35 @@ import { useRef, useState, useEffect, useCallback } from 'react'
 import gsap from 'gsap'
 import ticketBg from '../assets/ticket_background.png'
 
-export default function TicketMenu() {
+export default function TicketMenu({ forceHidden = false }) {
   const links = ['CONTACT', 'ABOUT', 'SERVICES', 'PROJECTS']
   const ticketRef = useRef(null)
-  const [isOpen, setIsOpen] = useState(false)
+  // Not used in render — kept as a ref rather than state to avoid an
+  // unnecessary re-render / effect-cascade on every toggle.
+  const isOpenRef = useRef(false)
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth < 768 : false
   )
   const isTouch = useRef(false)
+  // Mirrors isTouch.current, but as state — used only for the cursor style
+  // (refs shouldn't be read during render). Computed lazily on mount so we
+  // never need to call setState synchronously inside an effect.
+  const [isTouchDevice] = useState(() =>
+    typeof window !== 'undefined'
+      ? 'ontouchstart' in window || navigator.maxTouchPoints > 0
+      : false
+  )
 
   // Detect touch + responsive width
   useEffect(() => {
-    isTouch.current = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+    isTouch.current = isTouchDevice
 
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  }, [isTouchDevice])
+
+
 
   // Set initial hidden state — translateY 50% so bottom half is off-screen
   useEffect(() => {
@@ -43,24 +55,47 @@ export default function TicketMenu() {
     })
   }, [])
 
+  // Fully drop the ticket out of view (used when the project ticket takes
+  // over) or lift it back to its normal peeking rest state.
+  const dropAway = useCallback(() => {
+    gsap.to(ticketRef.current, {
+      y: '120%',
+      duration: 0.5,
+      ease: 'power3.inOut',
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!ticketRef.current) return
+    if (forceHidden) {
+      dropAway()
+    } else {
+      slideDown()
+      isOpenRef.current = false
+    }
+  }, [forceHidden, dropAway, slideDown])
+
   const handleMouseEnter = () => {
-    if (!isTouch.current) slideUp()
+    if (!isTouch.current && !forceHidden) slideUp()
   }
   const handleMouseLeave = () => {
-    if (!isTouch.current) slideDown()
+    if (!isTouch.current && !forceHidden) slideDown()
   }
 
   const handleClick = () => {
+    if (forceHidden) return
     if (isTouch.current) {
-      if (isOpen) {
+      if (isOpenRef.current) {
         slideDown()
-        setIsOpen(false)
+        isOpenRef.current = false
       } else {
         slideUp()
-        setIsOpen(true)
+        isOpenRef.current = true
       }
     }
   }
+
+
 
   const handleScrollTo = (id) => {
     const el = document.getElementById(id.toLowerCase())
@@ -94,9 +129,10 @@ export default function TicketMenu() {
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}
         style={{
-          cursor: isTouch.current ? 'pointer' : 'default',
+          cursor: isTouchDevice ? 'pointer' : 'default',
           width: '100%',
         }}
+
       >
         <div style={{ position: 'relative', width: '100%' }}>
           <img
