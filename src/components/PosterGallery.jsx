@@ -11,6 +11,10 @@ const PRELOAD_EARLY = 0.42
 
 // Scene_2: auto-plays once when the scroll locks (concessions → ciao poster)
 const SCENE2 = { folder: '/frames/scene_2', total: 121 }
+// Playback-rate multiplier for the scene_1 → scene_2 hand-off — plays
+// faster than the standard 24fps used by the poster/theater transitions.
+const SCENE2_SPEED = 1.6
+
 
 // POSTER_TRANSITIONS[i] = transition between project i and project (i+1)%3
 const POSTER_TRANSITIONS = [
@@ -55,11 +59,15 @@ class SequencePlayer {
     if (this._raf) { cancelAnimationFrame(this._raf); this._raf = null }
   }
 
-  play(canvas, forward = true, onDone) {
+  // `speed` is a playback-rate multiplier (1 = normal 24fps, 2 = double speed, etc).
+  // Used to play the scene_1 → scene_2 hand-off faster than the rest of the
+  // sequences so that leg of the experience feels snappier.
+  play(canvas, forward = true, onDone, speed = 1) {
     this.stop()
     const ctx          = canvas.getContext('2d')
-    const frameDur     = 1000 / 24
+    const frameDur     = 1000 / (24 * speed)
     let frameIdx       = forward ? 0 : this.total - 1
+
     const step         = forward ? 1 : -1
     let lastTime       = null
 
@@ -172,7 +180,8 @@ export default function PosterGallery({ scrollProgress, onPhaseChange }) {
           ease: 'power3.out',
         })
       }
-    })
+    }, SCENE2_SPEED)
+
   }, [atLock, setPhase])
 
   // If the user scrolls back away from the project section before entering
@@ -207,12 +216,35 @@ export default function PosterGallery({ scrollProgress, onPhaseChange }) {
     player.preload()
     setPhase('transition')
 
+    // Current ticket slides down and out of view as the poster transition
+    // begins, so the "now showing" ticket doesn't just static-swap content —
+    // it feels like leaving and a new one is arriving from below.
+    if (ticketRef.current) {
+      gsap.to(ticketRef.current, {
+        y: '120%',
+        duration: 0.35,
+        ease: 'power2.in',
+      })
+    }
+
     player.play(canvas, trans.forward, () => {
       activeRef.current = next
       setActiveProject(PROJECTS[next])
       setPhase('poster')
+
+      // New ticket rises up from below the viewport into view once the
+      // transition frames finish and the new project's content is set.
+      if (ticketRef.current) {
+        gsap.set(ticketRef.current, { y: '120%' })
+        gsap.to(ticketRef.current, {
+          y: '0%',
+          duration: 0.5,
+          ease: 'power3.out',
+        })
+      }
     })
   }, [setPhase])
+
 
 
   const prev = () => goTo((activeRef.current - 1 + PROJECTS.length) % PROJECTS.length)
@@ -289,6 +321,7 @@ export default function PosterGallery({ scrollProgress, onPhaseChange }) {
         <>
           <button
             onClick={prev}
+            className="nav-arrow-btn"
             aria-label="Previous project"
             style={{ ...arrowBase, position: 'fixed', left: '4vw', bottom: '110px', zIndex: 920 }}
           >
@@ -296,11 +329,13 @@ export default function PosterGallery({ scrollProgress, onPhaseChange }) {
           </button>
           <button
             onClick={next}
+            className="nav-arrow-btn"
             aria-label="Next project"
             style={{ ...arrowBase, position: 'fixed', right: '4vw', bottom: '110px', zIndex: 920 }}
           >
             ›
           </button>
+
         </>
       )}
     </>

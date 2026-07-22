@@ -12,6 +12,11 @@ import blankTicket from '../assets/blank_ticket.png'
 // Mobile:  flaps are hidden (too narrow to read) and the classic round
 //          arrow buttons (rendered by the parent) are used instead, with
 //          the ticket centered.
+//
+// The outer wrapper below handles horizontal centering only (fixed +
+// translateX(-50%)); the forwarded ref sits on the inner element and is
+// used exclusively for GSAP's vertical slide animations (show / hide /
+// swap between projects), matching the pattern used by TicketMenu.
 // ---------------------------------------------------------------------------
 const ProjectTicket = forwardRef(function ProjectTicket(
   { project, onPrev, onNext, onEnter, isMobile },
@@ -23,17 +28,18 @@ const ProjectTicket = forwardRef(function ProjectTicket(
 
   return (
     <div
-      ref={ref}
       style={{
         position: 'fixed',
         bottom: 0,
         left: '50%',
+        transform: 'translateX(-50%)',
         width: isMobile ? 'min(92vw, 430px)' : '580px',
         zIndex: 900,
-        willChange: 'transform',
       }}
     >
-      <div style={{ position: 'relative', width: '100%' }}>
+      {/* ref lives here — GSAP animates this element's Y position only,
+          so it never fights with the horizontal centering transform above */}
+      <div ref={ref} style={{ position: 'relative', width: '100%', willChange: 'transform' }}>
         <img
           src={blankTicket}
           alt=""
@@ -52,12 +58,19 @@ const ProjectTicket = forwardRef(function ProjectTicket(
           >
             <span
               style={{
-                ...flapTextStyle,
-                transform: 'rotate(180deg)',
-                color: hoverPrev ? '#722F37' : 'rgba(114,47,55,0.65)',
+                ...flapTextWrapStyle,
+                borderColor: hoverPrev ? '#722F37' : 'rgba(114,47,55,0.4)',
               }}
             >
-              PREVIOUS PROJECT
+              <span
+                style={{
+                  ...flapTextStyle,
+                  transform: 'rotate(180deg)',
+                  color: hoverPrev ? '#722F37' : 'rgba(114,47,55,0.65)',
+                }}
+              >
+                PREVIOUS PROJECT
+              </span>
             </span>
           </button>
         )}
@@ -73,11 +86,18 @@ const ProjectTicket = forwardRef(function ProjectTicket(
           >
             <span
               style={{
-                ...flapTextStyle,
-                color: hoverNext ? '#722F37' : 'rgba(114,47,55,0.65)',
+                ...flapTextWrapStyle,
+                borderColor: hoverNext ? '#722F37' : 'rgba(114,47,55,0.4)',
               }}
             >
-              NEXT PROJECT
+              <span
+                style={{
+                  ...flapTextStyle,
+                  color: hoverNext ? '#722F37' : 'rgba(114,47,55,0.65)',
+                }}
+              >
+                NEXT PROJECT
+              </span>
             </span>
           </button>
         )}
@@ -141,11 +161,24 @@ const flapButtonStyle = {
   padding: 0,
 }
 
+// Thin border lines bracketing the vertical PREVIOUS/NEXT PROJECT text,
+// matching the ticket-stub mockup.
+const flapTextWrapStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderTop: '1px solid',
+  borderBottom: '1px solid',
+  borderColor: 'rgba(114,47,55,0.4)',
+  padding: '12px 4px',
+  transition: 'border-color 0.2s ease',
+}
+
 const flapTextStyle = {
   writingMode: 'vertical-rl',
   fontFamily: 'OTNeueMontreal, sans-serif',
   fontWeight: 500,
-  fontSize: '9px',
+  fontSize: '16px',
   letterSpacing: '0.2em',
   whiteSpace: 'nowrap',
   transition: 'color 0.2s ease',
@@ -181,7 +214,7 @@ const starStyle = {
 const brandTextStyle = {
   fontFamily: 'OTNeueMontreal, sans-serif',
   fontWeight: 500,
-  fontSize: '11px',
+  fontSize: '16px',
   letterSpacing: '0.22em',
   color: '#722F37',
   userSelect: 'none',
@@ -204,7 +237,7 @@ const metaRowStyle = {
   gap: '8px',
   fontFamily: 'OTNeueMontreal, sans-serif',
   fontWeight: 500,
-  fontSize: '11px',
+  fontSize: '16px',
   letterSpacing: '0.1em',
   color: '#4a3a42',
   userSelect: 'none',
@@ -222,7 +255,7 @@ const seeProjectBtnStyle = {
   color: '#f4ede2',
   fontFamily: 'OTNeueMontreal, sans-serif',
   fontWeight: 500,
-  fontSize: '11px',
+  fontSize: '16px',
   letterSpacing: '0.25em',
   padding: '9px 30px',
   borderRadius: '3px',

@@ -174,13 +174,14 @@ function TheaterOverlay({ theaterEl, imgEl, hintEl, finalFrame, onBack }) {
           border:      'none',
           color:       'rgba(255,255,255,0.45)',
           fontFamily:  'OTNeueMontreal, sans-serif',
-          fontSize:    '11px',
+          fontSize:    '16px',
           letterSpacing: '0.2em',
           cursor:      'pointer',
           padding:     '8px 0',
         }}
       >
         ← LOBBY
+
       </button>
 
       {/* Scroll hint */}
@@ -198,13 +199,14 @@ function TheaterOverlay({ theaterEl, imgEl, hintEl, finalFrame, onBack }) {
           gap:           '6px',
           color:         'rgba(255,255,255,0.35)',
           fontFamily:    'OTNeueMontreal, sans-serif',
-          fontSize:      '10px',
+          fontSize:      '16px',
           letterSpacing: '0.2em',
           userSelect:    'none',
           pointerEvents: 'none',
         }}
       >
         <span>scroll to enter</span>
+
         <span style={{ fontSize: '14px' }}>↓</span>
       </div>
     </div>
@@ -253,13 +255,14 @@ function ProjectHero({ project }) {
       <div style={{ paddingTop: '12px' }}>
         <p style={{
           fontFamily:    'OTNeueMontreal, sans-serif',
-          fontSize:      '10px',
+          fontSize:      '16px',
           letterSpacing: '0.35em',
           color:         '#722F37',
           margin:        '0 0 16px',
         }}>
           NOW SHOWING
         </p>
+
         <h1 style={{
           fontFamily:    'PPPlayground, serif',
           fontWeight:    300,
@@ -273,24 +276,26 @@ function ProjectHero({ project }) {
         </h1>
         <p style={{
           fontFamily:    'OTNeueMontreal, sans-serif',
-          fontSize:      '13px',
+          fontSize:      '16px',
           letterSpacing: '0.12em',
           color:         '#999',
           margin:        '0 0 32px',
         }}>
           {project.type} — {project.year}
         </p>
+
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {project.tags.map(tag => (
             <span key={tag} style={{
               fontFamily:    'OTNeueMontreal, sans-serif',
-              fontSize:      '11px',
+              fontSize:      '16px',
               letterSpacing: '0.14em',
               color:         '#722F37',
               border:        '1px solid #722F37',
               borderRadius:  '2px',
               padding:       '4px 10px',
             }}>
+
               {tag}
             </span>
           ))}
@@ -326,7 +331,7 @@ function ProjectFooter({ onBack }) {
           background:    'transparent',
           border:        'none',
           fontFamily:    'OTNeueMontreal, sans-serif',
-          fontSize:      '12px',
+          fontSize:      '16px',
           letterSpacing: '0.14em',
           color:         '#722F37',
           cursor:        'pointer',
@@ -334,6 +339,7 @@ function ProjectFooter({ onBack }) {
         }}
       >
         ← Back to Lobby
+
       </button>
     </div>
   )

@@ -29,7 +29,10 @@
   --heading: 'PPPlayground', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
+  /* Base body/paragraph font size — 16px sitewide (desktop + mobile alike),
+     matches every other "smaller" text element across the site (labels,
+     meta rows, buttons, captions) for one consistent type scale. */
+  font: 16px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;
   color: var(--text);
@@ -38,11 +41,8 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
+
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -74,12 +74,15 @@ body {
   box-sizing: border-box;
 }
 
-/* Arrow button hover */
-button[aria-label="Previous project"]:hover,
-button[aria-label="Next project"]:hover {
+/* Arrow button hover — scoped to the round mobile prev/next buttons only
+   (class="nav-arrow-btn"), NOT the ticket's full-height perforated flap
+   buttons, which use their own subtle text-color hover instead of a solid
+   fill (see ProjectTicket.jsx). */
+button.nav-arrow-btn:hover {
   background: #722F37 !important;
   color: #fff !important;
 }
+
 
 h1,
 h2 {

@@ -7,8 +7,9 @@ import studioRoPoster from '../assets/studioro_poster.png'
 export const PROJECTS = [
   {
     id: 'ciao',
-    label: 'CIAO',
+    label: 'Ciao',
     number: '01',
+
     year: '2024',
     type: 'Brand Identity',
     poster: ciaoPoster,
@@ -18,8 +19,9 @@ export const PROJECTS = [
   },
   {
     id: 'studioro',
-    label: 'STUDIO RO',
+    label: 'Studio Ro',
     number: '02',
+
     year: '2023',
     type: 'Creative Direction',
     poster: studioRoPoster,
@@ -29,8 +31,9 @@ export const PROJECTS = [
   },
   {
     id: 'forge',
-    label: 'FORGE',
+    label: 'Forge',
     number: '03',
+
     year: '2024',
     type: 'Digital Product',
     poster: forgePoster,

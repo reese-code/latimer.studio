@@ -23,28 +23,70 @@ export default function HomePage() {
       return (document.body.scrollHeight - window.innerHeight) * LOCK_PROGRESS
     }
 
-    // Block wheel scroll past the lock point
+    // Once the user reaches the lock point, `locked` flips permanently true —
+    // from then on scroll is trapped at exactly lockY() in BOTH directions
+    // (previously only forward/downward scroll past the lock was blocked,
+    // which let a small upward scroll slip through, drop scrollProgress
+    // below the lock threshold, and cause the "now showing" ticket to be
+    // yanked away). Once you're in the project section you stay there.
+    let locked = false
+
+    function engageLock() {
+      locked = true
+      window.scrollTo(0, lockY())
+    }
+
+    // Wheel scroll — block entirely once locked, regardless of direction
     function onWheel(e) {
-      if (window.scrollY >= lockY() - 2 && e.deltaY > 0) {
+      const ly = lockY()
+      if (locked) {
         e.preventDefault()
-        window.scrollTo(0, lockY())
+        if (Math.abs(window.scrollY - ly) > 1) window.scrollTo(0, ly)
+        return
+      }
+      if (window.scrollY >= ly - 2 && e.deltaY > 0) {
+        e.preventDefault()
+        engageLock()
       }
     }
 
-    // Block touch scroll past the lock point
+    // Touch scroll — block entirely once locked, regardless of direction
     let touchStartY = 0
     function onTouchStart(e) { touchStartY = e.touches[0].clientY }
     function onTouchMove(e) {
+      if (locked) {
+        e.preventDefault()
+        return
+      }
       const delta = touchStartY - e.touches[0].clientY
       if (window.scrollY >= lockY() - 2 && delta > 0) {
         e.preventDefault()
+        engageLock()
       }
     }
 
-    // Catch any scroll that slips through (keyboard, momentum)
+    // Catch any scroll that slips through (keyboard, momentum, etc.) and
+    // snap it back to the lock position once locked; also engages the lock
+    // the first time scroll reaches the threshold via any means.
     function onScroll() {
-      if (window.scrollY > lockY() + 2) {
-        window.scrollTo(0, lockY())
+      const ly = lockY()
+      if (locked) {
+        if (Math.abs(window.scrollY - ly) > 2) window.scrollTo(0, ly)
+        return
+      }
+      if (window.scrollY >= ly - 2) {
+        engageLock()
+      }
+    }
+
+    // Block ALL keyboard scroll keys (up and down) once locked — wheel/touch
+    // handlers above don't catch keyboard-driven scrolling.
+    const SCROLL_KEYS = new Set([
+      'ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' ',
+    ])
+    function onKeyDown(e) {
+      if (locked && SCROLL_KEYS.has(e.key)) {
+        e.preventDefault()
       }
     }
 
@@ -52,14 +94,18 @@ export default function HomePage() {
     window.addEventListener('touchstart', onTouchStart, { passive: true })
     window.addEventListener('touchmove',  onTouchMove,  { passive: false })
     window.addEventListener('scroll',     onScroll,     { passive: true })
+    window.addEventListener('keydown',    onKeyDown,    { passive: false })
 
     return () => {
       window.removeEventListener('wheel',      onWheel)
       window.removeEventListener('touchstart', onTouchStart)
       window.removeEventListener('touchmove',  onTouchMove)
       window.removeEventListener('scroll',     onScroll)
+      window.removeEventListener('keydown',    onKeyDown)
     }
   }, [])
+
+
 
   return (
     <>
