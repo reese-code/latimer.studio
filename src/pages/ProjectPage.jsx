@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useRef, useEffect } from 'react'
+import gsap from 'gsap'
 import { PROJECTS as PROJECT_LIST } from '../data/projects'
 
 
@@ -14,16 +15,16 @@ const THEATER_FINAL_FRAME = {
   forge:    '/frames/theater_transition_3/frame_0170.webp',
 }
 
-// Zoom thresholds (viewport heights of scroll on the project page)
-const ZOOM_END_VH   = 1.2   // zoom completes at 120vh
-const FADE_START_VH = 1.2   // theater fades starting at 120vh
-const FADE_END_VH   = 1.6   // theater gone at 160vh (content enters here)
-
 // The "See Project" punch-zoom (PosterGallery) leaves the canvas at 1.35x —
-// start the project-page scroll zoom from the same scale so the cut from
+// start the project-page zoom from the same scale so the cut from
 // canvas → static frame is seamless, with no snap-back.
 const ZOOM_START_SCALE = 1.35
-const ZOOM_RANGE       = 3.15
+// How far the theater shot continues zooming in, automatically, before the
+// case-study background fades in underneath it.
+const ZOOM_END_SCALE   = 2.1
+
+// The warm case-study background color the theater reveal fades into.
+const CASE_STUDY_BG = '#F1E9DA'
 
 
 
@@ -33,38 +34,36 @@ export default function ProjectPage() {
   const project   = PROJECTS[id]
   const theaterEl = useRef(null)
   const imgEl     = useRef(null)
-  const hintEl    = useRef(null)
 
-  // Scroll-driven zoom + fade out
+  // Automatic zoom-in → smooth cross-fade into the warm case-study
+  // background. No scrolling required — this plays the instant the page
+  // mounts, continuing seamlessly from the punch-zoom that finished the
+  // theater transition on the previous screen.
   useEffect(() => {
-    function tick() {
-      const y  = window.scrollY
-      const vh = window.innerHeight
+    if (!project) return
 
-      const zoomP  = Math.max(0, Math.min(1, y / (vh * ZOOM_END_VH)))
-      const scale  = ZOOM_START_SCALE + zoomP * ZOOM_RANGE
+    gsap.set(imgEl.current, { scale: ZOOM_START_SCALE })
+    gsap.set(theaterEl.current, { opacity: 1, pointerEvents: 'auto' })
 
+    const tl = gsap.timeline()
 
-      const fadeRange = vh * (FADE_END_VH - FADE_START_VH)
-      const fadeP  = Math.max(0, Math.min(1, (y - vh * FADE_START_VH) / fadeRange))
-      const opacity = 1 - fadeP
+    tl.to(imgEl.current, {
+      scale:    ZOOM_END_SCALE,
+      duration: 1.6,
+      ease:     'power2.out',
+    }).to(theaterEl.current, {
+      opacity:  0,
+      duration: 1.4,
+      ease:     'power2.inOut',
+      onComplete: () => {
+        if (theaterEl.current) theaterEl.current.style.pointerEvents = 'none'
+      },
+    }, '-=0.35') // slight overlap so the fade begins while still zooming in — one continuous, smooth motion
 
-      if (imgEl.current)     imgEl.current.style.transform = `scale(${scale})`
-      if (theaterEl.current) {
-        theaterEl.current.style.opacity       = opacity
-        theaterEl.current.style.pointerEvents = opacity < 0.05 ? 'none' : 'auto'
-      }
-      if (hintEl.current) {
-        hintEl.current.style.opacity = Math.max(0, 1 - y / (vh * 0.2))
-      }
-    }
+    return () => tl.kill()
+  }, [id, project])
 
-    window.addEventListener('scroll', tick, { passive: true })
-    tick()
-    return () => window.removeEventListener('scroll', tick)
-  }, [id])
-
-  // Overscroll-up at top → go back home
+  // Scroll (or overscroll) back to the top → go back home
   useEffect(() => {
     function onWheel(e) {
       if (window.scrollY === 0 && e.deltaY < -30) navigate('/')
@@ -80,17 +79,15 @@ export default function ProjectPage() {
 
   return (
     <PageShell>
-      {/* ── Scroll zone that drives the theater zoom ── */}
-      <div style={{ height: `${FADE_END_VH * 100}vh` }} />
-
-      {/* ── Normal project content ─────────────────── */}
+      {/* ── Project content — sits beneath the theater overlay, revealed
+          automatically once the zoom + fade completes ── */}
       <ProjectContent project={project} onBack={() => navigate('/')} />
 
-      {/* ── Theater overlay (fixed, zooms in then fades) */}
+      {/* ── Theater overlay (fixed, zooms in then fades to reveal the
+          case-study background beneath) ── */}
       <TheaterOverlay
         theaterEl={theaterEl}
         imgEl={imgEl}
-        hintEl={hintEl}
         finalFrame={THEATER_FINAL_FRAME[id]}
         onBack={() => navigate('/')}
       />
@@ -102,13 +99,13 @@ export default function ProjectPage() {
 
 function PageShell({ children }) {
   return (
-    <div style={{ background: '#fff', position: 'relative' }}>
+    <div style={{ background: CASE_STUDY_BG, position: 'relative', minHeight: '100vh' }}>
       {children}
     </div>
   )
 }
 
-function TheaterOverlay({ theaterEl, imgEl, hintEl, finalFrame, onBack }) {
+function TheaterOverlay({ theaterEl, imgEl, finalFrame, onBack }) {
   return (
     <div
       ref={theaterEl}
@@ -123,7 +120,7 @@ function TheaterOverlay({ theaterEl, imgEl, hintEl, finalFrame, onBack }) {
     >
       {/* Final frame of the theater transition — scales up to fill the
           screen from center, continuing the zoom the entrance animation
-          started, then keeps zooming further as the user scrolls. */}
+          started, then keeps zooming automatically before fading out. */}
       <img
         ref={imgEl}
         src={finalFrame}
@@ -183,32 +180,6 @@ function TheaterOverlay({ theaterEl, imgEl, hintEl, finalFrame, onBack }) {
         ← LOBBY
 
       </button>
-
-      {/* Scroll hint */}
-      <div
-        ref={hintEl}
-        style={{
-          position:      'absolute',
-          bottom:        '48px',
-          left:          '50%',
-          transform:     'translateX(-50%)',
-          zIndex:        10,
-          display:       'flex',
-          flexDirection: 'column',
-          alignItems:    'center',
-          gap:           '6px',
-          color:         'rgba(255,255,255,0.35)',
-          fontFamily:    'OTNeueMontreal, sans-serif',
-          fontSize:      '16px',
-          letterSpacing: '0.2em',
-          userSelect:    'none',
-          pointerEvents: 'none',
-        }}
-      >
-        <span>scroll to enter</span>
-
-        <span style={{ fontSize: '14px' }}>↓</span>
-      </div>
     </div>
   )
 }
@@ -221,11 +192,11 @@ function ProjectContent({ project, onBack }) {
       padding:    '80px 32px 0',
       position:   'relative',
       zIndex:     5,
-      background: '#fff',
+      background: CASE_STUDY_BG,
     }}>
       <ProjectHero project={project} />
       <ProjectDescription project={project} />
-      <div style={{ borderTop: '1px solid #eee', margin: '0' }} />
+      <div style={{ borderTop: '1px solid rgba(114,47,55,0.15)', margin: '0' }} />
       <ProjectFooter onBack={onBack} />
     </div>
   )
@@ -278,7 +249,7 @@ function ProjectHero({ project }) {
           fontFamily:    'OTNeueMontreal, sans-serif',
           fontSize:      '16px',
           letterSpacing: '0.12em',
-          color:         '#999',
+          color:         '#9a8f7f',
           margin:        '0 0 32px',
         }}>
           {project.type} — {project.year}
@@ -312,7 +283,7 @@ function ProjectDescription({ project }) {
         fontFamily:  'OTNeueMontreal, sans-serif',
         fontSize:    '18px',
         lineHeight:  '1.7',
-        color:       '#444',
+        color:       '#4a4238',
         margin:      0,
         maxWidth:    '560px',
       }}>
