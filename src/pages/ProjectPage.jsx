@@ -101,7 +101,7 @@ function ProjectContent({ project, onBack }) {
 // hero shot. NOW SHOWING / tags moved into ProjectTags below the hero.
 function CaseStudyHero({ project }) {
   return (
-    <div className="relative h-[78vh] min-h-[520px] w-full overflow-hidden bg-ink">
+    <div className="relative h-[100vh] min-h-[520px] w-full overflow-hidden bg-ink">
       <img
         src={project.poster}
         alt={project.label}
@@ -114,7 +114,7 @@ function CaseStudyHero({ project }) {
 
       {/* Title + tagline */}
       <div className="absolute top-8 left-8 right-8">
-        <h1 className="mb-2 font-3don text-[72px] leading-[0.9] font-light tracking-[-1px] text-cream">
+        <h1 className="mb-2 font-3don text-[200px] leading-[0.9] font-light tracking-[-1px] text-cream">
           {project.label.replace(' ', '-')}
         </h1>
         {project.tagline && (
@@ -126,7 +126,7 @@ function CaseStudyHero({ project }) {
 
       {/* Bottom meta strip */}
       <div className="absolute left-8 right-8 bottom-6 flex items-center justify-between gap-6">
-        <div className="flex flex-wrap items-center gap-8">
+        <div className="flex flex-row items-center gap-8">
           <MetaField label="PROJECT" value={project.number} />
           {project.industry && <MetaField label="INDUSTRY" value={project.industry} />}
           {project.category && <MetaField label="CATEGORY" value={project.category} />}
@@ -138,7 +138,7 @@ function CaseStudyHero({ project }) {
             href={project.siteUrl}
             target="_blank"
             rel="noreferrer"
-            className="btn-scoop inline-block whitespace-nowrap bg-[rgba(244,237,226,0.12)] px-[22px] py-2.5 font-embodiment text-base tracking-[0.14em] text-cream no-underline hover:bg-white hover:text-ink"
+            className="btn-scoop inline-block whitespace-nowrap  border-cream px-[22px] py-2.5 font-embodiment text-base tracking-[0.14em] text-cream no-underline hover:bg-white hover:text-ink"
           >
             SEE SITE
           </a>
@@ -150,11 +150,11 @@ function CaseStudyHero({ project }) {
 
 function MetaField({ label, value }) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <span className="font-embodiment text-[11px] tracking-[0.14em] text-[rgba(244,237,226,0.6)]">
+    <div className="flex flex-row gap-2">
+      <span className="font-embodiment text-base tracking-[0.14em] text-cream">
         {label}
       </span>
-      <span className="font-embodiment text-base leading-[145%] tracking-[0.18px] text-cream">
+      <span className="font-embodiment text-[24px] leading-[145%] tracking-[0.18px] text-cream">
         {value}
       </span>
     </div>
