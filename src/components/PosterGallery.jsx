@@ -284,7 +284,7 @@ export default function PosterGallery({ scrollProgress, onPhaseChange }) {
           navigate(`/projects/${PROJECTS[idx].id}`)
         },
       })
-    })
+    }, SCENE2_SPEED)
   }, [navigate, setPhase])
 
 
@@ -293,17 +293,7 @@ export default function PosterGallery({ scrollProgress, onPhaseChange }) {
       {/* Full-screen canvas — scene_2, poster transitions, and theater transitions all play here */}
       <canvas
         ref={canvasRef}
-        style={{
-          position:        'fixed',
-          inset:           0,
-          width:           '100vw',
-          height:          '100vh',
-          zIndex:          10,
-          display:         'block',
-          background:      'transparent',
-          pointerEvents:   'none',
-          transformOrigin: '50% 40%',
-        }}
+        className="fixed inset-0 z-10 block h-screen w-screen bg-transparent pointer-events-none origin-[50%_40%]"
       />
 
       {/* Ticket — "now showing" project card with prev/next + See Project */}
@@ -321,17 +311,15 @@ export default function PosterGallery({ scrollProgress, onPhaseChange }) {
         <>
           <button
             onClick={prev}
-            className="nav-arrow-btn"
             aria-label="Previous project"
-            style={{ ...arrowBase, position: 'fixed', left: '4vw', bottom: '110px', zIndex: 920 }}
+            className={`${arrowBase} fixed left-[4vw] bottom-27.5 z-920`}
           >
             ‹
           </button>
           <button
             onClick={next}
-            className="nav-arrow-btn"
             aria-label="Next project"
-            style={{ ...arrowBase, position: 'fixed', right: '4vw', bottom: '110px', zIndex: 920 }}
+            className={`${arrowBase} fixed right-[4vw] bottom-27.5 z-920`}
           >
             ›
           </button>
@@ -342,21 +330,8 @@ export default function PosterGallery({ scrollProgress, onPhaseChange }) {
   )
 }
 
-const arrowBase = {
-  background:     'transparent',
-  border:         '1.5px solid rgba(114,47,55,0.45)',
-  color:          'rgba(114,47,55,0.75)',
-  width:          '40px',
-  height:         '40px',
-  borderRadius:   '50%',
-  fontSize:       '22px',
-  lineHeight:     '1',
-  cursor:         'pointer',
-  fontFamily:     'Georgia, serif',
-  display:        'flex',
-  alignItems:     'center',
-  justifyContent: 'center',
-  userSelect:     'none',
-  paddingBottom:  '2px',
-  flexShrink:     0,
-}
+// Round mobile prev/next buttons — hover fill is scoped to these only,
+// NOT the ticket's full-height perforated flap buttons, which use their
+// own subtle text-color hover instead of a solid fill (see ProjectTicket.jsx).
+const arrowBase =
+  'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-[1.5px] border-[rgba(114,47,55,0.45)] bg-transparent pb-0.5 text-[22px] leading-none text-[rgba(114,47,55,0.75)] font-serif cursor-pointer select-none transition-colors duration-200 ease-out hover:bg-maroon hover:text-white'

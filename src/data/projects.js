@@ -22,8 +22,13 @@ export const PROJECTS = [
     label: 'Studio Ro',
     number: '02',
 
-    year: '2023',
+    year: '2025',
     type: 'Creative Direction',
+    industry: 'Dance',
+    category: 'Personal Portfolio',
+    date: '2025',
+    tagline: 'A dance and creative platform based in Los Angeles',
+    siteUrl: '#',
     poster: studioRoPoster,
     tags: ['Direction', 'Spatial', 'Graphic'],
     description:

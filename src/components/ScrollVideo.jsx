@@ -132,17 +132,7 @@ export default function ScrollVideo({ onProgress }) {
   return (
     <canvas
       ref={canvasRef}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        objectFit: 'cover',
-        display: 'block',
-        background: '#000',
-        willChange: 'transform',
-      }}
+      className="fixed top-0 left-0 block w-screen h-screen object-cover bg-black will-change-transform"
     />
   )
 }

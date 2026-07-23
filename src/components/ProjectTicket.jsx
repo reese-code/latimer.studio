@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react'
+import { forwardRef } from 'react'
 import blankTicket from '../assets/blank_ticket.png'
 
 // ---------------------------------------------------------------------------
@@ -22,53 +22,30 @@ const ProjectTicket = forwardRef(function ProjectTicket(
   { project, onPrev, onNext, onEnter, isMobile },
   ref
 ) {
-  const [hoverBtn, setHoverBtn] = useState(false)
-  const [hoverPrev, setHoverPrev] = useState(false)
-  const [hoverNext, setHoverNext] = useState(false)
-
   return (
     <div
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: isMobile ? 'min(92vw, 430px)' : '580px',
-        zIndex: 900,
-      }}
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 z-[900]"
+      style={{ width: isMobile ? 'min(92vw, 430px)' : '580px' }}
     >
       {/* ref lives here — GSAP animates this element's Y position only,
           so it never fights with the horizontal centering transform above */}
-      <div ref={ref} style={{ position: 'relative', width: '100%', willChange: 'transform' }}>
+      <div ref={ref} className="relative w-full will-change-transform">
         <img
           src={blankTicket}
           alt=""
           draggable={false}
-          style={{ width: '100%', height: 'auto', display: 'block', userSelect: 'none' }}
+          className="block w-full h-auto select-none"
         />
 
         {/* Left flap — Previous project (desktop only) */}
         {!isMobile && (
           <button
             onClick={onPrev}
-            onMouseEnter={() => setHoverPrev(true)}
-            onMouseLeave={() => setHoverPrev(false)}
             aria-label="Previous project"
-            style={{ ...flapButtonStyle, left: 0 }}
+            className="group absolute top-0 left-0 flex h-full w-[14%] items-center justify-center border-none bg-transparent p-0 cursor-pointer"
           >
-            <span
-              style={{
-                ...flapTextWrapStyle,
-                borderColor: hoverPrev ? '#722F37' : 'rgba(114,47,55,0.4)',
-              }}
-            >
-              <span
-                style={{
-                  ...flapTextStyle,
-                  transform: 'rotate(180deg)',
-                  color: hoverPrev ? '#722F37' : 'rgba(114,47,55,0.65)',
-                }}
-              >
+            <span className="flex items-center justify-center border-y border-[rgba(114,47,55,0.4)] px-1 py-3 transition-colors duration-200 ease-out group-hover:border-maroon">
+              <span className="[writing-mode:vertical-rl] rotate-180 whitespace-nowrap font-sans font-medium text-base tracking-[0.2em] text-[rgba(114,47,55,0.65)] transition-colors duration-200 ease-out select-none group-hover:text-maroon">
                 PREVIOUS PROJECT
               </span>
             </span>
@@ -79,23 +56,11 @@ const ProjectTicket = forwardRef(function ProjectTicket(
         {!isMobile && (
           <button
             onClick={onNext}
-            onMouseEnter={() => setHoverNext(true)}
-            onMouseLeave={() => setHoverNext(false)}
             aria-label="Next project"
-            style={{ ...flapButtonStyle, right: 0 }}
+            className="group absolute top-0 right-0 flex h-full w-[14%] items-center justify-center border-none bg-transparent p-0 cursor-pointer"
           >
-            <span
-              style={{
-                ...flapTextWrapStyle,
-                borderColor: hoverNext ? '#722F37' : 'rgba(114,47,55,0.4)',
-              }}
-            >
-              <span
-                style={{
-                  ...flapTextStyle,
-                  color: hoverNext ? '#722F37' : 'rgba(114,47,55,0.65)',
-                }}
-              >
+            <span className="flex items-center justify-center border-y border-[rgba(114,47,55,0.4)] px-1 py-3 transition-colors duration-200 ease-out group-hover:border-maroon">
+              <span className="[writing-mode:vertical-rl] whitespace-nowrap font-sans font-medium text-base tracking-[0.2em] text-[rgba(114,47,55,0.65)] transition-colors duration-200 ease-out select-none group-hover:text-maroon">
                 NEXT PROJECT
               </span>
             </span>
@@ -103,37 +68,52 @@ const ProjectTicket = forwardRef(function ProjectTicket(
         )}
 
         {/* Center content */}
-        <div style={centerContentStyle}>
+        <div className="absolute top-0 left-[15%] right-[15%] box-border flex h-full flex-col items-center justify-center gap-1.5 px-1.5 py-1">
           {/* Brand row — same font/size as nav ticket links + stars */}
-          <div style={brandRowStyle}>
-            <span style={starStyle}>★</span>
-            <span style={brandTextStyle}>LATIMER STUDIO</span>
-            <span style={starStyle}>★</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[8px] text-maroon">★</span>
+            <span className="font-sans font-medium text-base tracking-[0.22em] text-maroon select-none">
+              LATIMER STUDIO
+            </span>
+            <span className="text-[8px] text-maroon">★</span>
           </div>
 
           {/* Project title — PPPlayground, same family as nav ticket title */}
-          <div style={{ ...titleStyle, fontSize: isMobile ? '40px' : '58px' }}>
+          <div
+            className="whitespace-nowrap text-center font-heading font-light leading-none tracking-[-1px] text-maroon select-none"
+            style={{ fontSize: isMobile ? '40px' : '58px' }}
+          >
             {project.label}
           </div>
 
-          {/* Meta row */}
-          <div style={metaRowStyle}>
+          {/* Meta row — projects with the newer industry/category/date
+              fields (e.g. Studio Ro) show that breakdown; older entries
+              fall back to the original year/type pair. */}
+          <div className="flex items-center gap-2 whitespace-nowrap font-sans font-medium text-base tracking-[0.1em] text-[#4a3a42] select-none">
             <span>PROJECT: {project.number}</span>
-            <span style={dotStyle}>|</span>
-            <span>{project.year}</span>
-            <span style={dotStyle}>|</span>
-            <span>{project.type.toUpperCase()}</span>
+            {project.industry ? (
+              <>
+                <span className="text-[6px] text-maroon">|</span>
+                <span>INDUSTRY: {project.industry.toUpperCase()}</span>
+                <span className="text-[6px] text-maroon">|</span>
+                <span>{project.category.toUpperCase()}</span>
+                <span className="text-[6px] text-maroon">|</span>
+                <span>{project.date}</span>
+              </>
+            ) : (
+              <>
+                <span className="text-[6px] text-maroon">|</span>
+                <span>{project.year}</span>
+                <span className="text-[6px] text-maroon">|</span>
+                <span>{project.type.toUpperCase()}</span>
+              </>
+            )}
           </div>
 
           {/* See Project button */}
           <button
             onClick={onEnter}
-            onMouseEnter={() => setHoverBtn(true)}
-            onMouseLeave={() => setHoverBtn(false)}
-            style={{
-              ...seeProjectBtnStyle,
-              background: hoverBtn ? '#8a3a44' : '#722F37',
-            }}
+            className="mt-1 cursor-pointer select-none rounded-[3px] border-none bg-maroon px-[30px] py-[9px] font-sans font-medium text-base tracking-[0.25em] text-cream transition-colors duration-200 ease-out hover:bg-maroon-hover"
           >
             See Project
           </button>
@@ -144,122 +124,3 @@ const ProjectTicket = forwardRef(function ProjectTicket(
 })
 
 export default ProjectTicket
-
-// ─── Styles ─────────────────────────────────────────────────────────────────
-
-const flapButtonStyle = {
-  position: 'absolute',
-  top: 0,
-  width: '14%',
-  height: '100%',
-  background: 'transparent',
-  border: 'none',
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: 0,
-}
-
-// Thin border lines bracketing the vertical PREVIOUS/NEXT PROJECT text,
-// matching the ticket-stub mockup.
-const flapTextWrapStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderTop: '1px solid',
-  borderBottom: '1px solid',
-  borderColor: 'rgba(114,47,55,0.4)',
-  padding: '12px 4px',
-  transition: 'border-color 0.2s ease',
-}
-
-const flapTextStyle = {
-  writingMode: 'vertical-rl',
-  fontFamily: 'OTNeueMontreal, sans-serif',
-  fontWeight: 500,
-  fontSize: '16px',
-  letterSpacing: '0.2em',
-  whiteSpace: 'nowrap',
-  transition: 'color 0.2s ease',
-  userSelect: 'none',
-}
-
-const centerContentStyle = {
-  position: 'absolute',
-  left: '15%',
-  right: '15%',
-  top: 0,
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: '6px',
-  boxSizing: 'border-box',
-  padding: '4px 6px',
-}
-
-const brandRowStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '6px',
-}
-
-const starStyle = {
-  fontSize: '8px',
-  color: '#722F37',
-}
-
-const brandTextStyle = {
-  fontFamily: 'OTNeueMontreal, sans-serif',
-  fontWeight: 500,
-  fontSize: '16px',
-  letterSpacing: '0.22em',
-  color: '#722F37',
-  userSelect: 'none',
-}
-
-const titleStyle = {
-  fontFamily: 'PPPlayground, serif',
-  fontWeight: 300,
-  color: '#722F37',
-  lineHeight: 1,
-  letterSpacing: '-1px',
-  textAlign: 'center',
-  userSelect: 'none',
-  whiteSpace: 'nowrap',
-}
-
-const metaRowStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '8px',
-  fontFamily: 'OTNeueMontreal, sans-serif',
-  fontWeight: 500,
-  fontSize: '16px',
-  letterSpacing: '0.1em',
-  color: '#4a3a42',
-  userSelect: 'none',
-  whiteSpace: 'nowrap',
-}
-
-const dotStyle = {
-  fontSize: '6px',
-  color: '#722F37',
-}
-
-const seeProjectBtnStyle = {
-  marginTop: '4px',
-  border: 'none',
-  color: '#f4ede2',
-  fontFamily: 'OTNeueMontreal, sans-serif',
-  fontWeight: 500,
-  fontSize: '16px',
-  letterSpacing: '0.25em',
-  padding: '9px 30px',
-  borderRadius: '3px',
-  cursor: 'pointer',
-  transition: 'background 0.2s ease',
-  userSelect: 'none',
-}

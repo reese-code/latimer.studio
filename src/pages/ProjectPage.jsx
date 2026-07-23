@@ -1,76 +1,43 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useRef, useEffect } from 'react'
-import gsap from 'gsap'
+import { useRef, useEffect, useState } from 'react'
 import { PROJECTS as PROJECT_LIST } from '../data/projects'
-
+import TicketMenu from '../components/TicketMenu'
 
 const PROJECTS = Object.fromEntries(PROJECT_LIST.map((p) => [p.id, p]))
 
-// The final frame of each project's joined poster→theater sequence — this is
-// exactly where the PosterGallery "See Project" transition leaves off, so
-// the project page picks up the shot with no visual jump.
-const THEATER_FINAL_FRAME = {
-  ciao:     '/frames/theater_transition_1/frame_0170.webp',
-  studioro: '/frames/theater_transition_2/frame_0170.webp',
-  forge:    '/frames/theater_transition_3/frame_0170.webp',
-}
-
-// The "See Project" punch-zoom (PosterGallery) leaves the canvas at 1.35x —
-// start the project-page zoom from the same scale so the cut from
-// canvas → static frame is seamless, with no snap-back.
-const ZOOM_START_SCALE = 1.35
-// How far the theater shot continues zooming in, automatically, before the
-// case-study background fades in underneath it.
-const ZOOM_END_SCALE   = 2.1
-
-// The warm case-study background color the theater reveal fades into.
-const CASE_STUDY_BG = '#F1E9DA'
-
-
-
 export default function ProjectPage() {
-  const { id }    = useParams()
-  const navigate  = useNavigate()
-  const project   = PROJECTS[id]
-  const theaterEl = useRef(null)
-  const imgEl     = useRef(null)
+  const { id }      = useParams()
+  const navigate     = useNavigate()
+  const project       = PROJECTS[id]
 
-  // Automatic zoom-in → smooth cross-fade into the warm case-study
-  // background. No scrolling required — this plays the instant the page
-  // mounts, continuing seamlessly from the punch-zoom that finished the
-  // theater transition on the previous screen.
+  // Entrance — the case study simply fades onto screen on mount, no
+  // transition overlay.
+  const [visible, setVisible] = useState(false)
   useEffect(() => {
     if (!project) return
-
-    gsap.set(imgEl.current, { scale: ZOOM_START_SCALE })
-    gsap.set(theaterEl.current, { opacity: 1, pointerEvents: 'auto' })
-
-    const tl = gsap.timeline()
-
-    tl.to(imgEl.current, {
-      scale:    ZOOM_END_SCALE,
-      duration: 1.6,
-      ease:     'power2.out',
-    }).to(theaterEl.current, {
-      opacity:  0,
-      duration: 1.4,
-      ease:     'power2.inOut',
-      onComplete: () => {
-        if (theaterEl.current) theaterEl.current.style.pointerEvents = 'none'
-      },
-    }, '-=0.35') // slight overlap so the fade begins while still zooming in — one continuous, smooth motion
-
-    return () => tl.kill()
+    setVisible(false)
+    const raf = requestAnimationFrame(() => setVisible(true))
+    return () => cancelAnimationFrame(raf)
   }, [id, project])
 
-  // Scroll (or overscroll) back to the top → go back home
+  const handleBack = () => navigate('/')
+
+  // Nav ticket only appears while scrolling up on the case study — hidden
+  // by default, and again while scrolling down. Scrolling (including all
+  // the way up) never navigates away — leaving is click-only.
+  const [showTicket, setShowTicket] = useState(false)
   useEffect(() => {
-    function onWheel(e) {
-      if (window.scrollY === 0 && e.deltaY < -30) navigate('/')
+    let lastY = window.scrollY
+    function onScroll() {
+      const y     = window.scrollY
+      const delta = y - lastY
+      if (Math.abs(delta) < 4) return
+      setShowTicket(delta < 0 && y > 40)
+      lastY = y
     }
-    window.addEventListener('wheel', onWheel, { passive: true })
-    return () => window.removeEventListener('wheel', onWheel)
-  }, [navigate])
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   if (!project) {
     navigate('/')
@@ -78,215 +45,141 @@ export default function ProjectPage() {
   }
 
   return (
-    <PageShell>
-      {/* ── Project content — sits beneath the theater overlay, revealed
-          automatically once the zoom + fade completes ── */}
-      <ProjectContent project={project} onBack={() => navigate('/')} />
-
-      {/* ── Theater overlay (fixed, zooms in then fades to reveal the
-          case-study background beneath) ── */}
-      <TheaterOverlay
-        theaterEl={theaterEl}
-        imgEl={imgEl}
-        finalFrame={THEATER_FINAL_FRAME[id]}
-        onBack={() => navigate('/')}
-      />
+    <PageShell visible={visible}>
+      <LobbyLink onBack={handleBack} />
+      <ProjectContent project={project} onBack={handleBack} />
+      <TicketMenu forceHidden={!showTicket} />
     </PageShell>
   )
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function PageShell({ children }) {
+function PageShell({ children, visible }) {
   return (
-    <div style={{ background: CASE_STUDY_BG, position: 'relative', minHeight: '100vh' }}>
+    <div
+      className={`relative min-h-screen bg-case-bg transition-opacity duration-[0.6s] ease ${
+        visible ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
       {children}
     </div>
   )
 }
 
-function TheaterOverlay({ theaterEl, imgEl, finalFrame, onBack }) {
+// Persistent top-left exit — always reachable without scrolling to the footer.
+function LobbyLink({ onBack }) {
   return (
-    <div
-      ref={theaterEl}
-      style={{
-        position:   'fixed',
-        inset:      0,
-        zIndex:     100,
-        overflow:   'hidden',
-        // Dark warm tone matching the theater corridor walls in the display case frame
-        background: '#12100a',
-      }}
+    <button
+      onClick={onBack}
+      className="fixed top-6 left-8 z-1500 cursor-pointer border-none bg-transparent px-0 py-2 font-sans text-base tracking-[0.2em] text-[rgba(244,237,226,0.75)] mix-blend-difference"
     >
-      {/* Final frame of the theater transition — scales up to fill the
-          screen from center, continuing the zoom the entrance animation
-          started, then keeps zooming automatically before fading out. */}
-      <img
-        ref={imgEl}
-        src={finalFrame}
-        alt=""
-        draggable={false}
-        style={{
-          position:        'absolute',
-          inset:           0,
-          width:           '100%',
-          height:          '100%',
-          objectFit:       'cover',
-          transformOrigin: 'center 40%',
-          willChange:      'transform',
-          userSelect:      'none',
-        }}
-      />
-
-
-      {/* Vignette */}
-      <div style={{
-        position:      'absolute',
-        inset:         0,
-        background:    'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%)',
-        pointerEvents: 'none',
-        zIndex:        2,
-      }} />
-
-      {/* Curtain rail */}
-      <div style={{
-        position:   'absolute',
-        top:        0,
-        left:       0,
-        right:      0,
-        height:     '5px',
-        background: '#722F37',
-        zIndex:     3,
-      }} />
-
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        style={{
-          position:    'absolute',
-          top:         '24px',
-          left:        '32px',
-          zIndex:      10,
-          background:  'transparent',
-          border:      'none',
-          color:       'rgba(255,255,255,0.45)',
-          fontFamily:  'OTNeueMontreal, sans-serif',
-          fontSize:    '16px',
-          letterSpacing: '0.2em',
-          cursor:      'pointer',
-          padding:     '8px 0',
-        }}
-      >
-        ← LOBBY
-
-      </button>
-    </div>
+      ← LOBBY
+    </button>
   )
 }
 
 function ProjectContent({ project, onBack }) {
   return (
-    <div style={{
-      maxWidth:   '960px',
-      margin:     '0 auto',
-      padding:    '80px 32px 0',
-      position:   'relative',
-      zIndex:     5,
-      background: CASE_STUDY_BG,
-    }}>
-      <ProjectHero project={project} />
-      <ProjectDescription project={project} />
-      <div style={{ borderTop: '1px solid rgba(114,47,55,0.15)', margin: '0' }} />
-      <ProjectFooter onBack={onBack} />
+    <div className="relative z-5 bg-case-bg">
+      <CaseStudyHero project={project} />
+
+      <div className="mx-auto max-w-240 px-8 pt-16">
+        <ProjectTags project={project} />
+        <ProjectDescription project={project} />
+        <div className="m-0 border-t border-[rgba(114,47,55,0.15)]" />
+        <ProjectFooter onBack={onBack} />
+      </div>
     </div>
   )
 }
 
-function ProjectHero({ project }) {
+// Full-bleed case-study hero — logotype-style title + tagline over the
+// project image, with a meta strip (project #/industry/category/date +
+// "See Site") pinned to the bottom. Matches the Studio Ro reference frame;
+// falls back to the plain poster art for projects without a dedicated
+// hero shot. NOW SHOWING / tags moved into ProjectTags below the hero.
+function CaseStudyHero({ project }) {
   return (
-    <div style={{
-      display:             'grid',
-      gridTemplateColumns: '280px 1fr',
-      gap:                 '64px',
-      alignItems:          'start',
-      paddingBottom:       '64px',
-    }}>
+    <div className="relative h-[78vh] min-h-[520px] w-full overflow-hidden bg-ink">
       <img
         src={project.poster}
         alt={project.label}
         draggable={false}
-        style={{
-          width:     '100%',
-          height:    'auto',
-          display:   'block',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.15)',
-          userSelect:'none',
-        }}
+        className="absolute inset-0 h-full w-full select-none object-cover object-[center_25%]"
       />
-      <div style={{ paddingTop: '12px' }}>
-        <p style={{
-          fontFamily:    'OTNeueMontreal, sans-serif',
-          fontSize:      '16px',
-          letterSpacing: '0.35em',
-          color:         '#722F37',
-          margin:        '0 0 16px',
-        }}>
-          NOW SHOWING
-        </p>
 
-        <h1 style={{
-          fontFamily:    'PPPlayground, serif',
-          fontWeight:    300,
-          fontSize:      '72px',
-          lineHeight:    1,
-          color:         '#0c0a0b',
-          margin:        '0 0 14px',
-          letterSpacing: '-1px',
-        }}>
-          {project.label}
+      {/* Top + bottom gradients for text legibility over the image */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0)_30%,rgba(0,0,0,0)_60%,rgba(0,0,0,0.75)_100%)]" />
+
+      {/* Title + tagline */}
+      <div className="absolute top-8 left-8 right-8">
+        <h1 className="mb-2 font-3don text-[72px] leading-[0.9] font-light tracking-[-1px] text-cream">
+          {project.label.replace(' ', '-')}
         </h1>
-        <p style={{
-          fontFamily:    'OTNeueMontreal, sans-serif',
-          fontSize:      '16px',
-          letterSpacing: '0.12em',
-          color:         '#9a8f7f',
-          margin:        '0 0 32px',
-        }}>
-          {project.type} — {project.year}
-        </p>
-
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {project.tags.map(tag => (
-            <span key={tag} style={{
-              fontFamily:    'OTNeueMontreal, sans-serif',
-              fontSize:      '16px',
-              letterSpacing: '0.14em',
-              color:         '#722F37',
-              border:        '1px solid #722F37',
-              borderRadius:  '2px',
-              padding:       '4px 10px',
-            }}>
-
-              {tag}
-            </span>
-          ))}
-        </div>
+        {project.tagline && (
+          <p className="m-0 font-embodiment text-base leading-[145%] uppercase tracking-[0.06em] text-cream">
+            {project.tagline}
+          </p>
+        )}
       </div>
+
+      {/* Bottom meta strip */}
+      <div className="absolute left-8 right-8 bottom-6 flex items-center justify-between gap-6">
+        <div className="flex flex-wrap items-center gap-8">
+          <MetaField label="PROJECT" value={project.number} />
+          {project.industry && <MetaField label="INDUSTRY" value={project.industry} />}
+          {project.category && <MetaField label="CATEGORY" value={project.category} />}
+          <MetaField label="DATE" value={project.date || project.year} />
+        </div>
+
+        {project.siteUrl && (
+          <a
+            href={project.siteUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-scoop inline-block whitespace-nowrap bg-[rgba(244,237,226,0.12)] px-[22px] py-2.5 font-embodiment text-base tracking-[0.14em] text-cream no-underline hover:bg-white hover:text-ink"
+          >
+            SEE SITE
+          </a>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function MetaField({ label, value }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="font-embodiment text-[11px] tracking-[0.14em] text-[rgba(244,237,226,0.6)]">
+        {label}
+      </span>
+      <span className="font-embodiment text-base leading-[145%] tracking-[0.18px] text-cream">
+        {value}
+      </span>
+    </div>
+  )
+}
+
+function ProjectTags({ project }) {
+  return (
+    <div className="flex flex-wrap gap-2 pt-8">
+      {project.tags.map(tag => (
+        <span
+          key={tag}
+          className="rounded-sm border border-maroon px-2.5 py-1 font-3don text-base font-light tracking-[0.14em] text-maroon"
+        >
+          {tag}
+        </span>
+      ))}
     </div>
   )
 }
 
 function ProjectDescription({ project }) {
   return (
-    <div style={{ paddingBottom: '48px' }}>
-      <p style={{
-        fontFamily:  'OTNeueMontreal, sans-serif',
-        fontSize:    '18px',
-        lineHeight:  '1.7',
-        color:       '#4a4238',
-        margin:      0,
-        maxWidth:    '560px',
-      }}>
+    <div className="pt-6 pb-12">
+      <p className="m-0 max-w-160 font-embodiment text-2xl leading-[145%] tracking-[0.18px] text-[#4a4238]">
         {project.description}
       </p>
     </div>
@@ -295,22 +188,12 @@ function ProjectDescription({ project }) {
 
 function ProjectFooter({ onBack }) {
   return (
-    <div style={{ padding: '48px 0 80px', textAlign: 'center' }}>
+    <div className="py-12 pb-20 text-center">
       <button
         onClick={onBack}
-        style={{
-          background:    'transparent',
-          border:        'none',
-          fontFamily:    'OTNeueMontreal, sans-serif',
-          fontSize:      '16px',
-          letterSpacing: '0.14em',
-          color:         '#722F37',
-          cursor:        'pointer',
-          padding:       '8px 0',
-        }}
+        className="cursor-pointer border-none bg-transparent px-0 py-2 font-sans text-base tracking-[0.14em] text-maroon"
       >
         ← Back to Lobby
-
       </button>
     </div>
   )

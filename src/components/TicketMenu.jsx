@@ -102,98 +102,48 @@ export default function TicketMenu({ forceHidden = false }) {
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
-  // Wrapper handles horizontal centering; ticketRef handles only Y animation
-  const wrapperStyle = isMobile
-    ? {
-        position: 'fixed',
-        bottom: 0,
-        left: '12px',
-        right: '12px',
-        zIndex: 1000,
-      }
-    : {
-        position: 'fixed',
-        bottom: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '400px',
-        zIndex: 1000,
-      }
+  // Wrapper handles horizontal centering; ticketRef handles only Y animation.
+  // pointer-events-none here because the wrapper's own layout box doesn't
+  // shrink or move when the <nav> child is transformed off-screen (CSS
+  // transforms don't affect the parent's hit-testable box) — without this,
+  // the wrapper keeps intercepting clicks meant for whatever is underneath
+  // it even after dropAway() has visually moved the nav out of the way.
+  const wrapperClass = isMobile
+    ? 'fixed bottom-0 left-3 right-3 z-[1000] pointer-events-none'
+    : 'fixed bottom-0 left-1/2 -translate-x-1/2 w-[400px] z-[1000] pointer-events-none'
 
   return (
-    <div style={wrapperStyle}>
+    <div className={wrapperClass}>
       {/* ticketRef element — GSAP animates Y only */}
       <nav
         ref={ticketRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}
-        style={{
-          cursor: isTouchDevice ? 'pointer' : 'default',
-          width: '100%',
-        }}
-
+        className={`w-full pointer-events-auto ${isTouchDevice ? 'cursor-pointer' : 'cursor-default'}`}
       >
-        <div style={{ position: 'relative', width: '100%' }}>
+        <div className="relative w-full">
           <img
             src={ticketBg}
             alt="menu ticket"
-            style={{ width: '100%', height: 'auto', display: 'block' }}
+            className="block w-full h-auto"
           />
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '20px',
-              paddingTop: '40px',
-            }}
-          >
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pt-10">
             {/* Latimer Studio — PPPlayground font */}
             <span
-              style={{
-                fontFamily: 'PPPlayground, serif',
-                fontWeight: 300,
-                fontSize: isMobile ? '64px' : '72px',
-                lineHeight: '16px',
-                color: '#722F37',
-                letterSpacing: '0px',
-                userSelect: 'none',
-              }}
+              className={`font-heading font-light leading-4 tracking-normal text-maroon select-none ${
+                isMobile ? 'text-[64px]' : 'text-[72px]'
+              }`}
             >
               Latimer Studio
             </span>
 
             {/* Nav links — OTNeueMontreal (Montreal Squeeze) */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontFamily: 'OTNeueMontreal, sans-serif',
-                fontWeight: 500,
-                fontSize: '16px',
-                letterSpacing: '0.08em',
-                color: '#4a3a42',
-                marginTop: '2px',
-              }}
-            >
+            <div className="mt-0.5 flex items-center gap-1.5 font-sans font-medium text-base tracking-[0.08em] text-[#4a3a42]">
               {links.map((link, i) => (
-                <span
-                  key={link}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                  }}
-                >
+                <span key={link} className="flex items-center gap-1.5">
                   {i > 0 && (
-                    <span style={{ fontSize: '8px', color: '#722F37' }}>
-                      ★
-                    </span>
+                    <span className="text-[8px] text-maroon">★</span>
                   )}
                   <a
                     href={`#${link.toLowerCase()}`}
@@ -202,12 +152,7 @@ export default function TicketMenu({ forceHidden = false }) {
                       e.stopPropagation()
                       handleScrollTo(link)
                     }}
-                    style={{
-                      textDecoration: 'none',
-                      color: 'inherit',
-                      cursor: 'pointer',
-                      textTransform: 'uppercase',
-                    }}
+                    className="no-underline text-inherit cursor-pointer uppercase"
                   >
                     {link}
                   </a>

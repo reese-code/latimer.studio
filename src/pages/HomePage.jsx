@@ -109,7 +109,7 @@ export default function HomePage() {
 
   return (
     <>
-      <div style={{ height: '400vh' }} />
+      <div className="h-[400vh]" />
       <ScrollVideo onProgress={handleProgress} />
       <PosterGallery scrollProgress={scrollProgress} onPhaseChange={handlePhaseChange} />
       <TicketMenu forceHidden={hideNavTicket} />
