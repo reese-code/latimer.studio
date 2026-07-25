@@ -2,6 +2,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useRef, useEffect, useState } from 'react'
 import { PROJECTS as PROJECT_LIST } from '../data/projects'
 import TicketMenu from '../components/TicketMenu'
+import studioRoLogo from '../assets/Studio-ro.svg'
+
+const TITLE_LOGOS = {
+  studioro: studioRoLogo,
+}
 
 const PROJECTS = Object.fromEntries(PROJECT_LIST.map((p) => [p.id, p]))
 
@@ -72,7 +77,7 @@ function LobbyLink({ onBack }) {
   return (
     <button
       onClick={onBack}
-      className="fixed top-6 left-8 z-1500 cursor-pointer border-none bg-transparent px-0 py-2 font-sans text-base tracking-[0.2em] text-[rgba(244,237,226,0.75)] mix-blend-difference"
+      className="fixed top-6 left-5 z-1500 cursor-pointer border-none bg-transparent px-0 py-2 font-sans text-base tracking-[0.2em] text-[rgba(244,237,226,0.75)] mix-blend-difference"
     >
       ← LOBBY
     </button>
@@ -84,8 +89,7 @@ function ProjectContent({ project, onBack }) {
     <div className="relative z-5 bg-case-bg">
       <CaseStudyHero project={project} />
 
-      <div className="mx-auto max-w-240 px-8 pt-16">
-        <ProjectTags project={project} />
+      <div className="px-5 pt-16">
         <ProjectDescription project={project} />
         <div className="m-0 border-t border-[rgba(114,47,55,0.15)]" />
         <ProjectFooter onBack={onBack} />
@@ -113,10 +117,18 @@ function CaseStudyHero({ project }) {
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0)_30%,rgba(0,0,0,0)_60%,rgba(0,0,0,0.75)_100%)]" />
 
       {/* Title + tagline */}
-      <div className="absolute top-8 left-8 right-8">
-        <h1 className="mb-2 font-3don text-[200px] leading-[0.9] font-light tracking-[-1px] text-cream">
-          {project.label.replace(' ', '-')}
-        </h1>
+      <div className="absolute top-8 left-5 right-5">
+        {TITLE_LOGOS[project.id] ? (
+          <img
+            src={TITLE_LOGOS[project.id]}
+            alt={project.label}
+            className="mb-2 h-auto w-full max-w-144.5"
+          />
+        ) : (
+          <h1 className="mb-2 font-3don text-[200px] leading-[0.9] font-light tracking-[-1px] text-cream">
+            {project.label.replace(' ', '-')}
+          </h1>
+        )}
         {project.tagline && (
           <p className="m-0 font-embodiment text-base leading-[145%] uppercase tracking-[0.06em] text-cream">
             {project.tagline}
@@ -125,7 +137,7 @@ function CaseStudyHero({ project }) {
       </div>
 
       {/* Bottom meta strip */}
-      <div className="absolute left-8 right-8 bottom-6 flex items-center justify-between gap-6">
+      <div className="absolute left-5 right-5 bottom-6 flex items-center justify-between gap-6">
         <div className="flex flex-row items-center gap-8">
           <MetaField label="PROJECT" value={project.number} />
           {project.industry && <MetaField label="INDUSTRY" value={project.industry} />}
@@ -161,27 +173,28 @@ function MetaField({ label, value }) {
   )
 }
 
-function ProjectTags({ project }) {
-  return (
-    <div className="flex flex-wrap gap-2 pt-8">
-      {project.tags.map(tag => (
-        <span
-          key={tag}
-          className="rounded-sm border border-maroon px-2.5 py-1 font-3don text-base font-light tracking-[0.14em] text-maroon"
-        >
-          {tag}
-        </span>
-      ))}
-    </div>
-  )
-}
-
 function ProjectDescription({ project }) {
+  const paragraphs = project.overview || [project.description]
+
   return (
-    <div className="pt-6 pb-12">
-      <p className="m-0 max-w-160 font-embodiment text-2xl leading-[145%] tracking-[0.18px] text-[#4a4238]">
-        {project.description}
-      </p>
+    <div className="pt-8 pb-12">
+      <div className="mb-6 flex flex-row items-center gap-2">
+        <span className="text-[8px] text-maroon">★</span>
+        <span className="font-embodiment text-base tracking-[0.14em] text-[#4a4238]">
+          OVERVIEW
+        </span>
+      </div>
+
+      <div className="grid w-1/2 grid-cols-1 gap-x-12 gap-y-6 md:grid-cols-2">
+        {paragraphs.map((paragraph, i) => (
+          <p
+            key={i}
+            className="m-0 font-embodiment text-base leading-[145%] tracking-[0.06em] text-[#4a4238] uppercase"
+          >
+            {paragraph}
+          </p>
+        ))}
+      </div>
     </div>
   )
 }

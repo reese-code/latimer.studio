@@ -33,6 +33,10 @@ export const PROJECTS = [
     tags: ['Direction', 'Spatial', 'Graphic'],
     description:
       'Creative direction for a multidisciplinary design practice. Studio RO operates across interior, graphic, and spatial design disciplines.',
+    overview: [
+      'Founded by Rocío Colomer Jordà — a multidisciplinary artist blending technique, Latin rhythm, and powerful feminine energy. Professional dancer, choreographer, instructor, and creative director, brought together under one vision.',
+      'Helping dancers connect with their sensuality, strength, and artistic identity. As a choreographer and creative director, she develops concepts that highlight personality, texture, and a cinematic approach to movement.',
+    ],
   },
   {
     id: 'forge',
