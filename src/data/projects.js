@@ -37,6 +37,29 @@ export const PROJECTS = [
       'Founded by Rocío Colomer Jordà — a multidisciplinary artist blending technique, Latin rhythm, and powerful feminine energy. Professional dancer, choreographer, instructor, and creative director, brought together under one vision.',
       'Helping dancers connect with their sensuality, strength, and artistic identity. As a choreographer and creative director, she develops concepts that highlight personality, texture, and a cinematic approach to movement.',
     ],
+    storySections: [
+      {
+        number: '01',
+        title: 'Bringing the studio to the web',
+        paragraph:
+          'Founded by Rocío Colomer Jordà — a multidisciplinary artist blending technique, Latin rhythm, and powerful feminine energy. Professional dancer, choreographer, instructor, and creative director, brought together under one vision.',
+        image: studioRoPoster,
+      },
+      {
+        number: '02',
+        title: 'A cinematic approach to movement',
+        paragraph:
+          'Helping dancers connect with their sensuality, strength, and artistic identity. As a choreographer and creative director, she develops concepts that highlight personality, texture, and a cinematic approach to movement.',
+        image: studioRoPoster,
+      },
+      {
+        number: '03',
+        title: 'Direction across every discipline',
+        paragraph:
+          'Creative direction for a multidisciplinary design practice. Studio RO operates across interior, graphic, and spatial design disciplines — unified by one consistent, considered point of view.',
+        image: studioRoPoster,
+      },
+    ],
   },
   {
     id: 'forge',
