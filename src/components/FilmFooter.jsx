@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
+import latimerStudioLogo from '../assets/Latimer-Studio.svg'
 
 // Contact + nav link data shared by every layout below. Kept in one place
 // so the desktop left/right cells and the mobile dropdown never drift out
@@ -13,26 +14,21 @@ const CONTACT_LINKS = [
 ]
 
 const NAV_LINKS = [
-  { label: 'INSTAGRAM', href: 'https://instagram.com' },
   { label: 'ABOUT', href: '#about' },
-  { label: 'TELE: 720-688-8877', href: 'tel:+17206888877' },
   { label: 'CONTACT', href: '#contact' },
-  { label: 'INFO@LATIMER.STUDIO', href: 'mailto:info@latimer.studio' },
   { label: 'PROJECTS', href: '/' },
   { label: 'PRIVACY POLICY', href: '#privacy' },
 ]
 
-// Sprocket-hole band — a row of small punched-out squares across the full
-// width of the black tape, matching the reference frame. auto-fill keeps
-// the hole count responsive without any JS measuring.
+// Sprocket-hole band — a single row of black cells across the width, matching
+// the reference frame. A flex row (no wrap) plus overflow-hidden guarantees
+// exactly one line regardless of screen size: cells that don't fit are
+// clipped rather than wrapping to a second row.
 function SprocketRow() {
   return (
-    <div
-      className="grid h-4 w-full gap-2 px-2 py-1 md:h-5"
-      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(18px, 1fr))' }}
-    >
-      {Array.from({ length: 40 }).map((_, i) => (
-        <span key={i} className="aspect-square rounded-[3px] bg-case-bg" />
+    <div className="flex w-full gap-3 overflow-hidden px-2 py-1">
+      {Array.from({ length: 24 }).map((_, i) => (
+        <span key={i} className="h-10 w-10 shrink-0 rounded-[3px] bg-ink md:h-15 md:w-15 md:rounded-md" />
       ))}
     </div>
   )
@@ -56,14 +52,14 @@ function LinkLine({ label, href, className = '' }) {
 
 export default function FilmFooter() {
   return (
-    <footer className="w-full bg-ink">
+    <footer className="w-full bg-case-bg">
       <SprocketRow />
 
       <div className="flex flex-col gap-2 px-2 md:flex-row">
         <LeftCell />
+        <MobileLinksCell />
         <CenterCell />
         <RightCell />
-        <MobileLinksCell />
       </div>
 
       <SprocketRow />
@@ -80,7 +76,7 @@ function Cell({ children, className = '' }) {
 function LeftCell() {
   return (
     <Cell className="hidden min-h-64 flex-1 md:flex">
-      <div className="flex flex-col items-start gap-1.5 p-5">
+      <div className="flex flex-col items-start justify-end gap-1.5 p-5">
         {CONTACT_LINKS.map((link) => (
           <LinkLine key={link.label} {...link} />
         ))}
@@ -92,9 +88,11 @@ function LeftCell() {
 function CenterCell() {
   return (
     <Cell className="flex min-h-40 flex-none flex-col items-center justify-center gap-3 p-5 md:min-h-64 md:w-[38%]">
-      <span className="font-heading text-[56px] leading-[0.9] font-light text-maroon select-none md:text-[72px]">
-        Latimer Studio
-      </span>
+      <img
+        src={latimerStudioLogo}
+        alt="Latimer Studio"
+        className="w-full select-none md:w-105"
+      />
       <div className="flex flex-row flex-wrap items-center justify-center gap-x-4 gap-y-1">
         <span className="font-embodiment text-base tracking-[0.14em] text-[#4a4238] uppercase">
           A Creative Studio
@@ -111,89 +109,77 @@ function CenterCell() {
 }
 
 function RightCell() {
-  const col1 = NAV_LINKS.filter((_, i) => i % 2 === 0)
-  const col2 = NAV_LINKS.filter((_, i) => i % 2 === 1)
   return (
     <Cell className="hidden min-h-64 flex-1 md:flex">
-      <div className="flex w-full flex-row items-end justify-end gap-8 p-5">
-        <div className="flex flex-col items-end gap-1.5">
-          {col1.map((link) => (
-            <LinkLine key={link.label} {...link} className="text-right" />
-          ))}
-        </div>
-        <div className="flex flex-col items-end gap-1.5">
-          {col2.map((link) => (
-            <LinkLine key={link.label} {...link} className="text-right" />
-          ))}
-        </div>
+      <div className="flex w-full flex-col items-end justify-end gap-1.5 p-5">
+        {NAV_LINKS.map((link) => (
+          <LinkLine key={link.label} {...link} className="text-right" />
+        ))}
       </div>
     </Cell>
   )
 }
 
-// Mobile-only — the tape stacks vertically down to two cells, so every
-// link collapses into a single dropdown here, grouped into CONTACT / MENU
-// sections. Same spring motion as the case-study hero's OVERVIEW caret,
-// mirrored to open downward: the panel sits below the trigger instead of
-// above it, and slides in from -y instead of +y.
-function MobileLinksCell() {
+// Mobile-only — the tape stacks vertically down to two cells, so the left
+// (CONTACT) and right (MENU) columns each collapse into their own
+// independent, left-aligned dropdown, stacked one above the other. Same
+// spring motion as the case-study hero's OVERVIEW caret, mirrored to open
+// downward: the panel sits below the trigger instead of above it, and
+// slides in from -y instead of +y.
+function MobileDropdown({ label, links, align = 'left' }) {
   const [open, setOpen] = useState(false)
   const panelRef = useRef(null)
-  const groupRefs = useRef([])
+  const groupRef = useRef(null)
+  const isRight = align === 'right'
+  const origin = isRight ? 'top right' : 'top left'
 
   useLayoutEffect(() => {
     const panel = panelRef.current
     if (!panel) return
-    gsap.set(panel, { opacity: 0, y: -28, scale: 0.6, transformOrigin: 'top center' })
-    gsap.set(groupRefs.current.filter(Boolean), { opacity: 0, y: -20 })
-  }, [])
+    gsap.set(panel, { opacity: 0, y: -28, scale: 0.6, transformOrigin: origin })
+    gsap.set(groupRef.current, { opacity: 0, y: -20 })
+  }, [origin])
 
   useLayoutEffect(() => {
     const panel = panelRef.current
-    if (!panel) return
-    const groups = groupRefs.current.filter(Boolean)
-    gsap.killTweensOf([panel, ...groups])
+    const group = groupRef.current
+    if (!panel || !group) return
+    gsap.killTweensOf([panel, group])
 
     if (open) {
       gsap.fromTo(
         panel,
-        { opacity: 0, y: -28, scale: 0.6, transformOrigin: 'top center' },
+        { opacity: 0, y: -28, scale: 0.6, transformOrigin: origin },
         { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.6)' }
       )
       gsap.fromTo(
-        groups,
-        { opacity: 0, y: -22 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'back.out(2.2)', stagger: 0.06, delay: 0.06 }
+        group,
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'back.out(2.2)', delay: 0.06 }
       )
     } else {
-      gsap.to(groups, {
-        opacity: 0,
-        y: -16,
-        duration: 0.22,
-        ease: 'power1.in',
-        stagger: { each: 0.04, from: 'end' },
-      })
+      gsap.to(group, { opacity: 0, y: -16, duration: 0.22, ease: 'power1.in' })
       gsap.to(panel, {
         opacity: 0,
         y: -28,
         scale: 0.6,
-        transformOrigin: 'top center',
+        transformOrigin: origin,
         duration: 0.3,
         ease: 'power2.inOut',
         delay: 0.06,
       })
     }
-  }, [open])
+  }, [open, origin])
 
   return (
-    <Cell className="flex min-h-16 flex-col items-center p-5 md:hidden">
+    <div className={`flex flex-col ${isRight ? 'items-end' : 'items-start'}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="flex cursor-pointer flex-row items-center gap-2 border-none bg-transparent px-0 py-1"
       >
         <span className="font-embodiment text-base tracking-[0.14em] text-[#4a4238]">
-          LINKS
+          {label}
         </span>
         <svg
           viewBox="0 0 12 8"
@@ -207,30 +193,29 @@ function MobileLinksCell() {
       </button>
 
       <div
-        ref={panelRef}
-        className={`mt-3 flex w-full flex-col items-center gap-6 ${
-          open ? '' : 'pointer-events-none'
+        className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+          open ? 'mt-2 grid-rows-[1fr]' : 'grid-rows-[0fr]'
         }`}
       >
-        <div
-          ref={(el) => (groupRefs.current[0] = el)}
-          className="flex flex-col items-center gap-1.5"
-        >
-          {CONTACT_LINKS.map((link) => (
-            <LinkLine key={link.label} {...link} className="text-center" />
-          ))}
-        </div>
-        <div
-          ref={(el) => (groupRefs.current[1] = el)}
-          className="flex flex-col items-center gap-1.5"
-        >
-          {NAV_LINKS.filter((l) => ['ABOUT', 'CONTACT', 'PROJECTS', 'PRIVACY POLICY'].includes(l.label)).map(
-            (link) => (
-              <LinkLine key={link.label} {...link} className="text-center" />
-            )
-          )}
+        <div className="overflow-hidden">
+          <div ref={panelRef} className={`flex flex-col ${isRight ? 'items-end' : 'items-start'}`}>
+            <div ref={groupRef} className="flex flex-col gap-1.5">
+              {links.map((link) => (
+                <LinkLine key={link.label} {...link} className={isRight ? 'text-right' : 'text-left'} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function MobileLinksCell() {
+  return (
+    <Cell className="flex min-h-16 flex-row items-start justify-between gap-4 p-5 md:hidden">
+      <MobileDropdown label="CONTACT" links={CONTACT_LINKS} />
+      <MobileDropdown label="MENU" links={NAV_LINKS} align="right" />
     </Cell>
   )
 }
