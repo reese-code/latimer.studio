@@ -2,12 +2,13 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useRef, useEffect, useState, useLayoutEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 import { PROJECTS as PROJECT_LIST } from '../data/projects'
 import TicketMenu from '../components/TicketMenu'
+import FilmFooter from '../components/FilmFooter'
 import studioRoLogo from '../assets/Studio-ro.svg'
+import { getLenis } from '../hooks/useLenis'
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
+gsap.registerPlugin(ScrollTrigger)
 
 const TITLE_LOGOS = {
   studioro: studioRoLogo,
@@ -26,6 +27,16 @@ export default function ProjectPage() {
   useEffect(() => {
     if (!project) return
     setVisible(false)
+    // Always enter a project at the top of the page — the site scroll
+    // position (and possibly a `lenis.stop()` from the homepage's scroll
+    // lock) carries over from wherever the lobby/theater left off.
+    const lenis = getLenis()
+    if (lenis) {
+      lenis.start()
+      lenis.scrollTo(0, { immediate: true, force: true })
+    } else {
+      window.scrollTo(0, 0)
+    }
     const raf = requestAnimationFrame(() => setVisible(true))
     return () => cancelAnimationFrame(raf)
   }, [id, project])
@@ -97,6 +108,8 @@ function ProjectContent({ project, onBack }) {
         <div className="m-0 border-t border-[rgba(114,47,55,0.15)]" />
         <ProjectFooter onBack={onBack} />
       </div>
+
+      <FilmFooter />
     </div>
   )
 }
@@ -520,11 +533,13 @@ function ScrollStorySection({ sections }) {
     // The wrapper's rect always reflects the real document position.
     const target = sectionRefs.current[index]
     if (!target) return
-    gsap.to(window, {
-      duration: 1.1,
-      ease: 'power2.inOut',
-      scrollTo: { y: target, offsetY: STICKY_TOP + index * TITLE_STACK_GAP },
-    })
+    const lenis = getLenis()
+    const offset = -(STICKY_TOP + index * TITLE_STACK_GAP)
+    if (lenis) {
+      lenis.scrollTo(target, { offset, duration: 1.1 })
+    } else {
+      target.scrollIntoView({ behavior: 'smooth' })
+    }
   }
 
   return (

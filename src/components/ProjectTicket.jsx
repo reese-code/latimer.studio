@@ -86,28 +86,14 @@ const ProjectTicket = forwardRef(function ProjectTicket(
             {project.label}
           </div>
 
-          {/* Meta row — projects with the newer industry/category/date
-              fields (e.g. Studio Ro) show that breakdown; older entries
-              fall back to the original year/type pair. */}
+          {/* Meta row — date and the service provided (e.g. "Brand
+              Identity"), consistent across every project's ticket. */}
           <div className="flex items-center gap-2 whitespace-nowrap font-sans font-medium text-base tracking-[0.1em] text-[#4a3a42] select-none">
             <span>PROJECT: {project.number}</span>
-            {project.industry ? (
-              <>
-                <span className="text-[6px] text-maroon">|</span>
-                <span>INDUSTRY: {project.industry.toUpperCase()}</span>
-                <span className="text-[6px] text-maroon">|</span>
-                <span>{project.category.toUpperCase()}</span>
-                <span className="text-[6px] text-maroon">|</span>
-                <span>{project.date}</span>
-              </>
-            ) : (
-              <>
-                <span className="text-[6px] text-maroon">|</span>
-                <span>{project.year}</span>
-                <span className="text-[6px] text-maroon">|</span>
-                <span>{project.type.toUpperCase()}</span>
-              </>
-            )}
+            <span className="text-[6px] text-maroon">|</span>
+            <span>{project.date || project.year}</span>
+            <span className="text-[6px] text-maroon">|</span>
+            <span>{project.type.toUpperCase()}</span>
           </div>
 
           {/* See Project button */}

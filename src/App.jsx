@@ -1,8 +1,11 @@
 import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import ProjectPage from './pages/ProjectPage'
+import useLenis from './hooks/useLenis'
 
 export default function App() {
+  useLenis()
+
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />

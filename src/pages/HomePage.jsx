@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import ScrollVideo from '../components/ScrollVideo'
 import PosterGallery from '../components/PosterGallery'
 import TicketMenu from '../components/TicketMenu'
+import { getLenis } from '../hooks/useLenis'
 
 // Lock scroll at the display case frame (60% of the full scroll range)
 const LOCK_PROGRESS = 0.60
@@ -18,6 +19,20 @@ export default function HomePage() {
   const atLock = scrollProgress >= LOCK_PROGRESS - 0.02
   const hideNavTicket = atLock && galleryPhase !== 'theater'
 
+  // Returning from a project page (e.g. via "Back to Lobby") lands here
+  // outside the theater, at the very start of the site — not wherever the
+  // scroll lock left off. Lenis may also still be `stop()`-ed from the
+  // theater lock, since the same instance persists across route changes.
+  useEffect(() => {
+    const lenis = getLenis()
+    if (lenis) {
+      lenis.start()
+      lenis.scrollTo(0, { immediate: true, force: true })
+    } else {
+      window.scrollTo(0, 0)
+    }
+  }, [])
+
   useEffect(() => {
     function lockY() {
       return (document.body.scrollHeight - window.innerHeight) * LOCK_PROGRESS
@@ -31,9 +46,19 @@ export default function HomePage() {
     // yanked away). Once you're in the project section you stay there.
     let locked = false
 
+    // Snap to the lock position and freeze it there. `lenis.stop()` is what
+    // actually holds the line against wheel input — it intercepts wheel
+    // events at the source, so we're not fighting Lenis's own smoothing by
+    // separately re-issuing window.scrollTo on every subsequent wheel tick.
     function engageLock() {
       locked = true
-      window.scrollTo(0, lockY())
+      const lenis = getLenis()
+      if (lenis) {
+        lenis.scrollTo(lockY(), { immediate: true })
+        lenis.stop()
+      } else {
+        window.scrollTo(0, lockY())
+      }
     }
 
     // Wheel scroll — block entirely once locked, regardless of direction
@@ -41,7 +66,6 @@ export default function HomePage() {
       const ly = lockY()
       if (locked) {
         e.preventDefault()
-        if (Math.abs(window.scrollY - ly) > 1) window.scrollTo(0, ly)
         return
       }
       if (window.scrollY >= ly - 2 && e.deltaY > 0) {
