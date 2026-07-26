@@ -82,10 +82,9 @@ function ProjectContent({ project, onBack }) {
       <CaseStudyHero project={project} />
 
       <div className="px-3 pt-16 md:px-5">
-        {project.storySections ? (
+        <ProjectDescription project={project} />
+        {project.storySections && (
           <ScrollStorySection sections={project.storySections} />
-        ) : (
-          <ProjectDescription project={project} />
         )}
         <div className="m-0 border-t border-[rgba(114,47,55,0.15)]" />
         <ProjectFooter onBack={onBack} />
@@ -118,7 +117,7 @@ function CaseStudyHero({ project }) {
           <img
             src={TITLE_LOGOS[project.id]}
             alt={project.label}
-            className="mb-2 h-auto w-full max-w-144.5"
+            className="mb-2 block h-auto w-full md:max-w-144.5"
           />
         ) : (
           <h1 className="mb-2 font-3don text-[200px] leading-[0.9] font-light tracking-[-1px] text-cream">
@@ -133,8 +132,8 @@ function CaseStudyHero({ project }) {
       </div>
 
       {/* Bottom meta strip */}
-      <div className="absolute left-3 right-3 bottom-6 flex items-center justify-between gap-6 md:left-5 md:right-5">
-        <div className="flex flex-row items-center gap-8">
+      <div className="absolute left-3 right-3 bottom-6 flex items-end justify-between gap-6 md:left-5 md:right-5">
+        <div className="flex flex-col items-start gap-2">
           <MetaField label="PROJECT" value={project.number} />
           {project.industry && <MetaField label="INDUSTRY" value={project.industry} />}
           {project.category && <MetaField label="CATEGORY" value={project.category} />}
@@ -158,11 +157,11 @@ function CaseStudyHero({ project }) {
 
 function MetaField({ label, value }) {
   return (
-    <div className="flex flex-row gap-2">
-      <span className="font-embodiment text-base tracking-[0.14em] text-cream">
+    <div className="flex flex-col gap-0.5">
+      <span className="font-embodiment text-[12px] tracking-[0.14em] text-cream">
         {label}
       </span>
-      <span className="font-embodiment text-[24px] leading-[145%] tracking-[0.18px] text-cream">
+      <span className="font-embodiment text-base leading-[145%] tracking-[0.18px] text-cream">
         {value}
       </span>
     </div>
@@ -344,7 +343,7 @@ function ProjectDescription({ project }) {
         </span>
       </div>
 
-      <div className="grid w-1/2 grid-cols-1 gap-x-12 gap-y-6 md:grid-cols-2">
+      <div className="grid w-full grid-cols-1 gap-x-12 gap-y-6 md:w-1/2 md:grid-cols-2">
         {paragraphs.map((paragraph, i) => (
           <p
             key={i}
