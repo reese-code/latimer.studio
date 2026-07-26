@@ -184,9 +184,10 @@ function CaseStudyHero({ project }) {
         )}
       </div>
 
-      {/* Bottom meta strip */}
+      {/* Bottom meta strip — mobile gets the collapsible OVERVIEW caret,
+          desktop just shows the fields inline in a row. */}
       <div className="absolute left-3 right-3 bottom-6 flex items-end justify-between gap-6 md:left-5 md:right-5">
-        <div className="relative">
+        <div className="relative md:hidden">
           <button
             type="button"
             onClick={() => setMetaOpen((v) => !v)}
@@ -229,6 +230,13 @@ function CaseStudyHero({ project }) {
               <MetaField label="DATE" value={project.date || project.year} />
             </div>
           </div>
+        </div>
+
+        <div className="hidden flex-row items-center gap-8 md:flex">
+          <MetaField label="PROJECT" value={project.number} />
+          {project.industry && <MetaField label="INDUSTRY" value={project.industry} />}
+          {project.category && <MetaField label="CATEGORY" value={project.category} />}
+          <MetaField label="DATE" value={project.date || project.year} />
         </div>
 
         {project.siteUrl && (
@@ -430,7 +438,7 @@ function ProjectDescription({ project }) {
       <div className="mb-6 flex flex-row items-center gap-2">
         <span className="text-[8px] text-maroon">★</span>
         <span className="font-embodiment text-base tracking-[0.14em] text-[#4a4238]">
-          OVERVIEW
+          MANDATE
         </span>
       </div>
 
