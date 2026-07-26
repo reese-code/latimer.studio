@@ -186,7 +186,7 @@ function CaseStudyHero({ project }) {
 
       {/* Bottom meta strip — mobile gets the collapsible OVERVIEW caret,
           desktop just shows the fields inline in a row. */}
-      <div className="absolute left-3 right-3 bottom-6 flex items-end justify-between gap-6 md:left-5 md:right-5">
+      <div className="absolute left-3 right-3 bottom-3 flex items-end justify-between gap-6 md:left-5 md:right-5">
         <div className="relative md:hidden">
           <button
             type="button"
@@ -434,7 +434,7 @@ function ProjectDescription({ project }) {
   const paragraphs = project.overview || [project.description]
 
   return (
-    <div className="pt-8 pb-12">
+    <div className="pt-8 pb-30">
       <div className="mb-6 flex flex-row items-center gap-2">
         <span className="text-[8px] text-maroon">★</span>
         <span className="font-embodiment text-base tracking-[0.14em] text-[#4a4238]">

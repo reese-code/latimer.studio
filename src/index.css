@@ -65,6 +65,7 @@
    handled by the caller (state-driven), not here. */
 @utility btn-scoop {
   --scoop: 8px;
+  position: relative;
   border: 1px solid var(--color-cream);
   cursor: pointer;
   -webkit-mask:
@@ -78,4 +79,26 @@
     radial-gradient(circle var(--scoop) at 0 100%, transparent 99%, #000 101%) bottom left / 51% 51% no-repeat,
     radial-gradient(circle var(--scoop) at 100% 100%, transparent 99%, #000 101%) bottom right / 51% 51% no-repeat;
   transition: background 0.2s ease, color 0.2s ease;
+
+  /* The mask above clips the box's straight rectangular border along with
+     the fill, so the concave arc it cuts has no border tracing it — just a
+     bare edge. This pseudo draws a matching border-color ring hugging the
+     inside of each cut arc to close the gap. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--color-cream);
+    -webkit-mask:
+      radial-gradient(circle var(--scoop) at 0 0, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) top left / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 100% 0, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) top right / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 0 100%, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) bottom left / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 100% 100%, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) bottom right / 51% 51% no-repeat;
+    mask:
+      radial-gradient(circle var(--scoop) at 0 0, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) top left / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 100% 0, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) top right / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 0 100%, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) bottom left / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 100% 100%, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) bottom right / 51% 51% no-repeat;
+  }
 }
