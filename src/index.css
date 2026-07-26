@@ -12,118 +12,93 @@
   font-weight: 500;
 }
 
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@theme {
+  --color-text: #6b6375;
+  --color-text-h: #08060d;
+  --color-bg: #fff;
+  --color-border: #e5e4e7;
+  --color-code-bg: #f4f3ec;
+  --color-accent: #aa3bff;
+  --color-accent-bg: rgba(170, 59, 255, 0.1);
+  --color-accent-border: rgba(170, 59, 255, 0.5);
+  --color-social-bg: rgba(244, 243, 236, 0.5);
+  --shadow-card: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: 'OTNeueMontreal', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: 'PPPlayground', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* Ticket / case-study brand palette */
+  --color-maroon: #722f37;
+  --color-maroon-hover: #8a3a44;
+  --color-cream: #f4ede2;
+  --color-ink: #0c0a0b;
+  --color-case-bg: #f1e9da;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --font-sans: 'OTNeueMontreal', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'PPPlayground', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, Consolas, monospace;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
+  /* Embodiment / 3DON — design-system names for the case-study type scale.
+     Aliased to the existing font files until the real Embodiment/3DON
+     assets are dropped into src/assets; swap the @font-face src above and
+     these aliases keep working with no call-site changes. */
+  --font-embodiment: var(--font-sans);
+  --font-3don: var(--font-heading);
+}
+
+@layer base {
+  body {
+    margin: 0;
+    font: 16px/145% var(--font-sans);
+    letter-spacing: 0.18px;
+    color-scheme: light dark;
+    color: var(--color-text);
+    background: var(--color-bg);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+/* Concave "scooped" corner button — a quarter-circle notch cut inward at
+   each corner (the reverse of border-radius), built from four corner-only
+   radial-gradient masks. Not expressible as compositional utilities, so
+   it's registered as a real Tailwind utility via @utility. Hover fill is
+   handled by the caller (state-driven), not here. */
+@utility btn-scoop {
+  --scoop: 8px;
+  position: relative;
+  border: 1px solid var(--color-cream);
+  cursor: pointer;
+  -webkit-mask:
+    radial-gradient(circle var(--scoop) at 0 0, transparent 99%, #000 101%) top left / 51% 51% no-repeat,
+    radial-gradient(circle var(--scoop) at 100% 0, transparent 99%, #000 101%) top right / 51% 51% no-repeat,
+    radial-gradient(circle var(--scoop) at 0 100%, transparent 99%, #000 101%) bottom left / 51% 51% no-repeat,
+    radial-gradient(circle var(--scoop) at 100% 100%, transparent 99%, #000 101%) bottom right / 51% 51% no-repeat;
+  mask:
+    radial-gradient(circle var(--scoop) at 0 0, transparent 99%, #000 101%) top left / 51% 51% no-repeat,
+    radial-gradient(circle var(--scoop) at 100% 0, transparent 99%, #000 101%) top right / 51% 51% no-repeat,
+    radial-gradient(circle var(--scoop) at 0 100%, transparent 99%, #000 101%) bottom left / 51% 51% no-repeat,
+    radial-gradient(circle var(--scoop) at 100% 100%, transparent 99%, #000 101%) bottom right / 51% 51% no-repeat;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  /* The mask above clips the box's straight rectangular border along with
+     the fill, so the concave arc it cuts has no border tracing it — just a
+     bare edge. This pseudo draws a matching border-color ring hugging the
+     inside of each cut arc to close the gap. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--color-cream);
+    -webkit-mask:
+      radial-gradient(circle var(--scoop) at 0 0, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) top left / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 100% 0, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) top right / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 0 100%, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) bottom left / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 100% 100%, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) bottom right / 51% 51% no-repeat;
+    mask:
+      radial-gradient(circle var(--scoop) at 0 0, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) top left / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 100% 0, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) top right / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 0 100%, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) bottom left / 51% 51% no-repeat,
+      radial-gradient(circle var(--scoop) at 100% 100%, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) bottom right / 51% 51% no-repeat;
   }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-body {
-  margin: 0;
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-h1,
-h2 {
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h2 {
-  font-family: var(--sans);
-}
-
-h1 {
-  font-family: var(--heading);
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
 }

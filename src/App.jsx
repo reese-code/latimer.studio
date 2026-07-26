@@ -1,11 +1,12 @@
-import ScrollVideo from './components/ScrollVideo'
-import TicketMenu from './components/TicketMenu'
+import { Routes, Route } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import ProjectPage from './pages/ProjectPage'
 
 export default function App() {
   return (
-    <>
-      <ScrollVideo />
-      <TicketMenu />
-    </>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/projects/:id" element={<ProjectPage />} />
+    </Routes>
   )
 }
