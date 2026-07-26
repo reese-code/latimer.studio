@@ -86,6 +86,9 @@ function ProjectContent({ project, onBack }) {
         {project.storySections && (
           <ScrollStorySection sections={project.storySections} />
         )}
+        {project.testimonial && (
+          <ProjectTestimonial testimonial={project.testimonial} />
+        )}
         <div className="m-0 border-t border-[rgba(114,47,55,0.15)]" />
         <ProjectFooter onBack={onBack} />
       </div>
@@ -452,6 +455,23 @@ function ProjectDescription({ project }) {
           </p>
         ))}
       </div>
+    </div>
+  )
+}
+
+function ProjectTestimonial({ testimonial }) {
+  return (
+    <div className="pt-8 pb-30">
+      <div className="mb-6 flex flex-row items-center gap-2">
+        <span className="text-[8px] text-maroon">★</span>
+        <span className="font-embodiment text-base tracking-[0.14em] text-[#4a4238] uppercase">
+          {testimonial.name}
+        </span>
+      </div>
+
+      <p className="m-0 w-full font-embodiment text-[2rem] leading-[120%] tracking-[0.06em] text-[#4a4238] uppercase md:text-[3rem]">
+        {testimonial.quote}
+      </p>
     </div>
   )
 }

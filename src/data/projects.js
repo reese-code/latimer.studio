@@ -60,6 +60,11 @@ export const PROJECTS = [
         image: studioRoPoster,
       },
     ],
+    testimonial: {
+      name: 'Rocío Colomer Jordà',
+      quote:
+        'Helping dancers connect with their sensuality, strength, and artistic identity. As a choreographer and creative director, she develops concepts that highlight personality, texture, and a cinematic approach to movement.',
+    },
   },
   {
     id: 'forge',
