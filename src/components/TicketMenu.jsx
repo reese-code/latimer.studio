@@ -1,9 +1,14 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import gsap from 'gsap'
 import ticketBg from '../assets/ticket_background.png'
+import { getLenis } from '../hooks/useLenis'
+import { getPosterLockY } from '../lib/scrollLock'
 
 export default function TicketMenu({ forceHidden = false }) {
   const links = ['CONTACT', 'ABOUT', 'HOME', 'PROJECTS']
+  const navigate = useNavigate()
+  const location = useLocation()
   const ticketRef = useRef(null)
   // Not used in render — kept as a ref rather than state to avoid an
   // unnecessary re-render / effect-cascade on every toggle.
@@ -102,6 +107,47 @@ export default function TicketMenu({ forceHidden = false }) {
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
+  // HOME — back to the very start of the site. From the homepage itself
+  // that's just a scroll-to-top; from any other page (e.g. a case study)
+  // it's a route change first.
+  const handleHome = () => {
+    if (location.pathname === '/') {
+      const lenis = getLenis()
+      if (lenis) {
+        lenis.start()
+        lenis.scrollTo(0, { immediate: true, force: true })
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    } else {
+      navigate('/')
+    }
+  }
+
+  // PROJECTS — jump straight to the poster gallery (the scroll-jack lock
+  // point on the homepage). From another page, navigate home first and ask
+  // it (via router state) to land on the posters once it's mounted.
+  const handleProjects = () => {
+    if (location.pathname === '/') {
+      const lenis = getLenis()
+      const y = getPosterLockY()
+      if (lenis) {
+        lenis.start()
+        lenis.scrollTo(y, { immediate: true, force: true })
+      } else {
+        window.scrollTo(0, y)
+      }
+    } else {
+      navigate('/', { state: { scrollTo: 'posters' } })
+    }
+  }
+
+  const handleLinkClick = (link) => {
+    if (link === 'HOME') handleHome()
+    else if (link === 'PROJECTS') handleProjects()
+    else handleScrollTo(link)
+  }
+
   // Wrapper handles horizontal centering; ticketRef handles only Y animation.
   // pointer-events-none here because the wrapper's own layout box doesn't
   // shrink or move when the <nav> child is transformed off-screen (CSS
@@ -146,11 +192,11 @@ export default function TicketMenu({ forceHidden = false }) {
                     <span className="text-[8px] text-maroon">★</span>
                   )}
                   <a
-                    href={`#${link.toLowerCase()}`}
+                    href={link === 'HOME' ? '/' : `#${link.toLowerCase()}`}
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      handleScrollTo(link)
+                      handleLinkClick(link)
                     }}
                     className="no-underline text-inherit cursor-pointer uppercase"
                   >

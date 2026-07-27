@@ -1,17 +1,21 @@
 import { useState, useCallback, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import ScrollVideo from '../components/ScrollVideo'
 import PosterGallery from '../components/PosterGallery'
 import TicketMenu from '../components/TicketMenu'
 import { getLenis } from '../hooks/useLenis'
+import { POSTER_LOCK_PROGRESS, getPosterLockY } from '../lib/scrollLock'
 
 // Lock scroll at the display case frame (60% of the full scroll range)
-const LOCK_PROGRESS = 0.60
+const LOCK_PROGRESS = POSTER_LOCK_PROGRESS
 
 export default function HomePage() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [galleryPhase, setGalleryPhase] = useState('idle')
   const handleProgress = useCallback((p) => setScrollProgress(p), [])
   const handlePhaseChange = useCallback((p) => setGalleryPhase(p), [])
+  const location = useLocation()
+  const navigate = useNavigate()
 
   // Once we're in the project section (ticket has popped up), the nav
   // ticket drops fully out of view. It lifts back up once the user scrolls
@@ -23,8 +27,28 @@ export default function HomePage() {
   // outside the theater, at the very start of the site — not wherever the
   // scroll lock left off. Lenis may also still be `stop()`-ed from the
   // theater lock, since the same instance persists across route changes.
+  // The nav ticket's PROJECTS link can ask (via router state) to land here
+  // and jump straight to the poster gallery instead — handled below once
+  // the page's full scroll height exists.
   useEffect(() => {
+    const jumpToPosters = location.state?.scrollTo === 'posters'
     const lenis = getLenis()
+
+    if (jumpToPosters) {
+      // Clear the one-shot state so a later back/forward nav doesn't replay it.
+      navigate('.', { replace: true, state: null })
+      const raf = requestAnimationFrame(() => {
+        const y = getPosterLockY()
+        if (lenis) {
+          lenis.start()
+          lenis.scrollTo(y, { immediate: true, force: true })
+        } else {
+          window.scrollTo(0, y)
+        }
+      })
+      return () => cancelAnimationFrame(raf)
+    }
+
     if (lenis) {
       lenis.start()
       lenis.scrollTo(0, { immediate: true, force: true })
@@ -35,7 +59,7 @@ export default function HomePage() {
 
   useEffect(() => {
     function lockY() {
-      return (document.body.scrollHeight - window.innerHeight) * LOCK_PROGRESS
+      return getPosterLockY()
     }
 
     // Once the user reaches the lock point, `locked` flips permanently true —

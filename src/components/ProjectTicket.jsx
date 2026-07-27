@@ -96,7 +96,7 @@ const ProjectTicket = forwardRef(function ProjectTicket(
               the ticket's cream background instead of a dark photo. */}
           <button
             onClick={onEnter}
-            className="btn-scoop [--scoop-color:var(--color-maroon)] mt-1 cursor-pointer select-none whitespace-nowrap px-[30px] py-[9px] font-sans font-medium text-base tracking-[0.25em] text-maroon transition-colors duration-200 ease-out hover:bg-maroon hover:text-cream"
+            className="btn-scoop [--scoop-color:var(--color-maroon)] mt-1 cursor-pointer select-none whitespace-nowrap px-[30px] py-[9px] font-sans font-medium text-xs tracking-[0.25em] text-maroon transition-colors duration-200 ease-out hover:bg-maroon hover:text-cream"
           >
             See Project
           </button>
