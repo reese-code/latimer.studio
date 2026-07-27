@@ -20,14 +20,36 @@ const NAV_LINKS = [
   { label: 'PRIVACY POLICY', href: '#privacy' },
 ]
 
-// Sprocket-hole band — a single row of black cells across the width, matching
-// the reference frame. A flex row (no wrap) plus overflow-hidden guarantees
-// exactly one line regardless of screen size: cells that don't fit are
-// clipped rather than wrapping to a second row.
+// Sprocket-hole band — a single row of black cells spread across the width
+// with justify-between, matching the reference frame. The cell count is
+// measured against the container's actual width (recomputed on resize) so
+// the cells never wrap to a second row and never overflow — just an even
+// spread of gaps between fixed-size boxes, box size scaled down on mobile.
 function SprocketRow() {
+  const containerRef = useRef(null)
+  const [count, setCount] = useState(12)
+
+  useLayoutEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const compute = () => {
+      const width = el.clientWidth
+      const isDesktop = window.matchMedia('(min-width: 768px)').matches
+      const boxSize = isDesktop ? 60 : 40
+      const pitch = boxSize * 1.2
+      setCount(Math.max(2, Math.floor(width / pitch)))
+    }
+
+    compute()
+    const ro = new ResizeObserver(compute)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   return (
-    <div className="flex w-full gap-3 overflow-hidden px-2 py-1">
-      {Array.from({ length: 24 }).map((_, i) => (
+    <div ref={containerRef} className="flex w-full justify-between px-2 py-1">
+      {Array.from({ length: count }).map((_, i) => (
         <span key={i} className="h-10 w-10 shrink-0 rounded-[3px] bg-ink md:h-15 md:w-15 md:rounded-md" />
       ))}
     </div>

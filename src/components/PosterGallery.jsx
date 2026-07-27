@@ -296,7 +296,9 @@ export default function PosterGallery({ scrollProgress, onPhaseChange }) {
         className="fixed inset-0 z-10 block h-screen w-screen bg-transparent pointer-events-none origin-[50%_40%]"
       />
 
-      {/* Ticket — "now showing" project card with prev/next + See Project */}
+      {/* Ticket — "now showing" project card with prev/next + See Project.
+          The ticket's own perforated flaps handle prev/next on every
+          breakpoint, so no separate round arrow buttons are needed. */}
       <ProjectTicket
         ref={ticketRef}
         project={activeProject}
@@ -305,33 +307,6 @@ export default function PosterGallery({ scrollProgress, onPhaseChange }) {
         onEnter={handleEnter}
         isMobile={isMobile}
       />
-
-      {/* Mobile-only round arrow buttons, positioned beside the centered ticket */}
-      {isMobile && (
-        <>
-          <button
-            onClick={prev}
-            aria-label="Previous project"
-            className={`${arrowBase} fixed left-[4vw] bottom-27.5 z-920`}
-          >
-            ‹
-          </button>
-          <button
-            onClick={next}
-            aria-label="Next project"
-            className={`${arrowBase} fixed right-[4vw] bottom-27.5 z-920`}
-          >
-            ›
-          </button>
-
-        </>
-      )}
     </>
   )
 }
-
-// Round mobile prev/next buttons — hover fill is scoped to these only,
-// NOT the ticket's full-height perforated flap buttons, which use their
-// own subtle text-color hover instead of a solid fill (see ProjectTicket.jsx).
-const arrowBase =
-  'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-[1.5px] border-[rgba(114,47,55,0.45)] bg-transparent pb-0.5 text-[22px] leading-none text-[rgba(114,47,55,0.75)] font-serif cursor-pointer select-none transition-colors duration-200 ease-out hover:bg-maroon hover:text-white'

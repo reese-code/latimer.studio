@@ -7,11 +7,9 @@ import blankTicket from '../assets/blank_ticket.png'
 // ticket (TicketMenu) exactly — same font-families & sizes are reused so the
 // two tickets feel like a single system.
 //
-// Desktop: the ticket's own perforated side flaps act as
-//          "PREVIOUS PROJECT" / "NEXT PROJECT" controls.
-// Mobile:  flaps are hidden (too narrow to read) and the classic round
-//          arrow buttons (rendered by the parent) are used instead, with
-//          the ticket centered.
+// The ticket's own perforated side flaps act as "PREVIOUS PROJECT" /
+// "NEXT PROJECT" controls on every breakpoint, mobile included — no
+// separate round arrow buttons.
 //
 // The outer wrapper below handles horizontal centering only (fixed +
 // translateX(-50%)); the forwarded ref sits on the inner element and is
@@ -37,42 +35,38 @@ const ProjectTicket = forwardRef(function ProjectTicket(
           className="block w-full h-auto select-none"
         />
 
-        {/* Left flap — Previous project (desktop only) */}
-        {!isMobile && (
-          <button
-            onClick={onPrev}
-            aria-label="Previous project"
-            className="group absolute top-0 left-0 flex h-full w-[14%] items-center justify-center border-none bg-transparent p-0 cursor-pointer"
-          >
-            <span className="flex items-center justify-center border-y border-[rgba(114,47,55,0.4)] px-1 py-3 transition-colors duration-200 ease-out group-hover:border-maroon">
-              <span className="[writing-mode:vertical-rl] rotate-180 whitespace-nowrap font-sans font-medium text-base tracking-[0.2em] text-[rgba(114,47,55,0.65)] transition-colors duration-200 ease-out select-none group-hover:text-maroon">
-                PREVIOUS PROJECT
-              </span>
+        {/* Left flap — Previous project */}
+        <button
+          onClick={onPrev}
+          aria-label="Previous project"
+          className="group absolute top-0 left-0 flex h-full w-[14%] items-center justify-center border-none bg-transparent p-0 cursor-pointer"
+        >
+          <span className="flex items-center justify-center border-y border-[rgba(114,47,55,0.4)] px-1 py-3 transition-colors duration-200 ease-out group-hover:border-maroon">
+            <span className="[writing-mode:vertical-rl] rotate-180 whitespace-nowrap font-sans font-medium text-xs md:text-base tracking-[0.2em] text-[rgba(114,47,55,0.65)] transition-colors duration-200 ease-out select-none group-hover:text-maroon">
+              PREVIOUS PROJECT
             </span>
-          </button>
-        )}
+          </span>
+        </button>
 
-        {/* Right flap — Next project (desktop only) */}
-        {!isMobile && (
-          <button
-            onClick={onNext}
-            aria-label="Next project"
-            className="group absolute top-0 right-0 flex h-full w-[14%] items-center justify-center border-none bg-transparent p-0 cursor-pointer"
-          >
-            <span className="flex items-center justify-center border-y border-[rgba(114,47,55,0.4)] px-1 py-3 transition-colors duration-200 ease-out group-hover:border-maroon">
-              <span className="[writing-mode:vertical-rl] whitespace-nowrap font-sans font-medium text-base tracking-[0.2em] text-[rgba(114,47,55,0.65)] transition-colors duration-200 ease-out select-none group-hover:text-maroon">
-                NEXT PROJECT
-              </span>
+        {/* Right flap — Next project */}
+        <button
+          onClick={onNext}
+          aria-label="Next project"
+          className="group absolute top-0 right-0 flex h-full w-[14%] items-center justify-center border-none bg-transparent p-0 cursor-pointer"
+        >
+          <span className="flex items-center justify-center border-y border-[rgba(114,47,55,0.4)] px-1 py-3 transition-colors duration-200 ease-out group-hover:border-maroon">
+            <span className="[writing-mode:vertical-rl] whitespace-nowrap font-sans font-medium text-xs md:text-base tracking-[0.2em] text-[rgba(114,47,55,0.65)] transition-colors duration-200 ease-out select-none group-hover:text-maroon">
+              NEXT PROJECT
             </span>
-          </button>
-        )}
+          </span>
+        </button>
 
         {/* Center content */}
         <div className="absolute top-0 left-[15%] right-[15%] box-border flex h-full flex-col items-center justify-center gap-1.5 px-1.5 py-1">
           {/* Brand row — same font/size as nav ticket links + stars */}
           <div className="flex items-center gap-1.5">
             <span className="text-[8px] text-maroon">★</span>
-            <span className="font-sans font-medium text-base tracking-[0.22em] text-maroon select-none">
+            <span className="font-sans font-medium text-xs md:text-base tracking-[0.22em] text-maroon select-none">
               LATIMER STUDIO
             </span>
             <span className="text-[8px] text-maroon">★</span>
@@ -88,7 +82,7 @@ const ProjectTicket = forwardRef(function ProjectTicket(
 
           {/* Meta row — date and the service provided (e.g. "Brand
               Identity"), consistent across every project's ticket. */}
-          <div className="flex items-center gap-2 whitespace-nowrap font-sans font-medium text-base tracking-[0.1em] text-[#4a3a42] select-none">
+          <div className="flex items-center gap-2 whitespace-nowrap font-sans font-medium text-xs md:text-base tracking-[0.1em] text-[#4a3a42] select-none">
             <span>PROJECT: {project.number}</span>
             <span className="text-[6px] text-maroon">|</span>
             <span>{project.date || project.year}</span>
@@ -96,10 +90,13 @@ const ProjectTicket = forwardRef(function ProjectTicket(
             <span>{project.type.toUpperCase()}</span>
           </div>
 
-          {/* See Project button */}
+          {/* See Project button — same cut-out "scoop" treatment as the
+              case-study hero's See Site / See Project buttons, with the
+              scoop color swapped to maroon (via --scoop-color) to sit on
+              the ticket's cream background instead of a dark photo. */}
           <button
             onClick={onEnter}
-            className="mt-1 cursor-pointer select-none rounded-[3px] border-none bg-maroon px-[30px] py-[9px] font-sans font-medium text-base tracking-[0.25em] text-cream transition-colors duration-200 ease-out hover:bg-maroon-hover"
+            className="btn-scoop [--scoop-color:var(--color-maroon)] mt-1 cursor-pointer select-none whitespace-nowrap px-[30px] py-[9px] font-sans font-medium text-base tracking-[0.25em] text-maroon transition-colors duration-200 ease-out hover:bg-maroon hover:text-cream"
           >
             See Project
           </button>

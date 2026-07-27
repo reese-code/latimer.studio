@@ -41,8 +41,6 @@ export default function ProjectPage() {
     return () => cancelAnimationFrame(raf)
   }, [id, project])
 
-  const handleBack = () => navigate('/')
-
   // Nav ticket only appears while scrolling up on the case study — hidden
   // by default, and again while scrolling down. Scrolling (including all
   // the way up) never navigates away — leaving is click-only.
@@ -67,7 +65,7 @@ export default function ProjectPage() {
 
   return (
     <PageShell visible={visible}>
-      <ProjectContent project={project} onBack={handleBack} />
+      <ProjectContent project={project} />
       <TicketMenu forceHidden={!showTicket} />
     </PageShell>
   )
@@ -87,7 +85,7 @@ function PageShell({ children, visible }) {
   )
 }
 
-function ProjectContent({ project, onBack }) {
+function ProjectContent({ project }) {
   return (
     <div className="relative z-5 bg-case-bg">
       <CaseStudyHero project={project} />
@@ -103,11 +101,6 @@ function ProjectContent({ project, onBack }) {
       </div>
 
       <MoreProjectsSection currentId={project.id} />
-
-      <div className="px-3 md:px-5">
-        <div className="m-0 border-t border-[rgba(114,47,55,0.15)]" />
-        <ProjectFooter onBack={onBack} />
-      </div>
 
       <FilmFooter />
     </div>
@@ -670,19 +663,6 @@ function ProjectTestimonial({ testimonial }) {
       <p className="m-0 w-full font-embodiment text-[2rem] leading-[120%] tracking-[0.06em] text-[#4a4238] uppercase md:text-[3rem]">
         {testimonial.quote}
       </p>
-    </div>
-  )
-}
-
-function ProjectFooter({ onBack }) {
-  return (
-    <div className="py-12 pb-20 text-center">
-      <button
-        onClick={onBack}
-        className="cursor-pointer border-none bg-transparent px-0 py-2 font-sans text-base tracking-[0.14em] text-maroon"
-      >
-        ← Back to Lobby
-      </button>
     </div>
   )
 }

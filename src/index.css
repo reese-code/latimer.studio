@@ -67,7 +67,7 @@
 @utility btn-scoop {
   --scoop: 8px;
   position: relative;
-  border: 1px solid var(--color-cream);
+  border: 1px solid var(--scoop-color, var(--color-cream));
   cursor: pointer;
   -webkit-mask:
     radial-gradient(circle var(--scoop) at 0 0, transparent 99%, #000 101%) top left / 51% 51% no-repeat,
@@ -90,7 +90,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: var(--color-cream);
+    background: var(--scoop-color, var(--color-cream));
     -webkit-mask:
       radial-gradient(circle var(--scoop) at 0 0, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) top left / 51% 51% no-repeat,
       radial-gradient(circle var(--scoop) at 100% 0, transparent calc(100% - 1.6px), #000 calc(100% - 1.6px) 100%, transparent calc(100% + 1px)) top right / 51% 51% no-repeat,

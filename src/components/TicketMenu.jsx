@@ -3,7 +3,7 @@ import gsap from 'gsap'
 import ticketBg from '../assets/ticket_background.png'
 
 export default function TicketMenu({ forceHidden = false }) {
-  const links = ['CONTACT', 'ABOUT', 'SERVICES', 'PROJECTS']
+  const links = ['CONTACT', 'ABOUT', 'HOME', 'PROJECTS']
   const ticketRef = useRef(null)
   // Not used in render — kept as a ref rather than state to avoid an
   // unnecessary re-render / effect-cascade on every toggle.
