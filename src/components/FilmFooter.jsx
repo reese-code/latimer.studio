@@ -36,7 +36,8 @@ function SprocketRow() {
     const compute = () => {
       const width = el.clientWidth
       const isDesktop = window.matchMedia('(min-width: 768px)').matches
-      const boxSize = isDesktop ? 60 : 40
+      const boxSize = isDesktop ? 60
+     : 40
       const pitch = boxSize * 1.2
       setCount(Math.max(2, Math.floor(width / pitch)))
     }
@@ -50,7 +51,7 @@ function SprocketRow() {
   return (
     <div ref={containerRef} className="flex w-full justify-between px-2 py-1">
       {Array.from({ length: count }).map((_, i) => (
-        <span key={i} className="h-10 w-10 shrink-0 rounded-[3px] bg-ink md:h-15 md:w-15 md:rounded-md" />
+        <span key={i} className="h-7 w-10 shrink-0 rounded-[3px] bg-ink md:h-10 md:w-15 md:rounded-md" />
       ))}
     </div>
   )
@@ -74,7 +75,7 @@ function LinkLine({ label, href, className = '' }) {
 
 export default function FilmFooter() {
   return (
-    <footer className="w-full bg-case-bg">
+    <footer className="w-full mt-10 sm:mt-30 bg-case-bg">
       <SprocketRow />
 
       <div className="flex flex-col gap-2 px-2 md:flex-row">

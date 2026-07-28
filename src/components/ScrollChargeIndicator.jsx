@@ -1,0 +1,27 @@
+// Secondary feedback for the scene charge gates (see chargeGate.js) — the
+// scene itself scrubs with the charge (forward or backward), this bar is
+// just a quiet progress cue underneath that. Charge is signed; the bar only
+// cares about magnitude.
+export default function ScrollChargeIndicator({ visible, charge }) {
+  const pct = Math.round(Math.min(1, Math.abs(charge || 0)) * 100)
+
+  return (
+    <div
+      className="fixed inset-x-0 bottom-10 z-30 flex justify-center pointer-events-none"
+      style={{
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 0.35s ease',
+      }}
+    >
+      <div className="h-1 w-40 overflow-hidden rounded-full bg-white/20">
+        <div
+          className="h-full rounded-full bg-white"
+          style={{
+            width: `${pct}%`,
+            transition: pct === 0 ? 'width 0.4s ease' : 'none',
+          }}
+        />
+      </div>
+    </div>
+  )
+}

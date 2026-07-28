@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import gsap from 'gsap'
 import ticketBg from '../assets/ticket_background.png'
 import { getLenis } from '../hooks/useLenis'
-import { getPosterLockY } from '../lib/scrollLock'
+import { getGalleryControls } from '../lib/galleryControl'
 
 export default function TicketMenu({ forceHidden = false }) {
   const links = ['CONTACT', 'ABOUT', 'HOME', 'PROJECTS']
@@ -108,10 +108,31 @@ export default function TicketMenu({ forceHidden = false }) {
   }
 
   // HOME — back to the very start of the site. From the homepage itself
-  // that's just a scroll-to-top; from any other page (e.g. a case study)
-  // it's a route change first.
+  // that resets the scene gates back to the opening frame; from any other
+  // page (e.g. a case study) it's a route change first.
   const handleHome = () => {
     if (location.pathname === '/') {
+      getGalleryControls()?.reset()
+    } else {
+      navigate('/')
+    }
+  }
+
+  // PROJECTS — jump straight to the poster gallery, skipping both scene
+  // gates. From another page, navigate home first and ask it (via router
+  // state) to land on the posters once it's mounted.
+  const handleProjects = () => {
+    if (location.pathname === '/') {
+      getGalleryControls()?.jumpToPosters()
+    } else {
+      navigate('/', { state: { scrollTo: 'posters' } })
+    }
+  }
+
+  // ABOUT — routes to the dedicated About page. From the homepage/anywhere
+  // else that's a straight navigate; if already there, just reset scroll.
+  const handleAbout = () => {
+    if (location.pathname === '/about') {
       const lenis = getLenis()
       if (lenis) {
         lenis.start()
@@ -120,31 +141,14 @@ export default function TicketMenu({ forceHidden = false }) {
         window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     } else {
-      navigate('/')
-    }
-  }
-
-  // PROJECTS — jump straight to the poster gallery (the scroll-jack lock
-  // point on the homepage). From another page, navigate home first and ask
-  // it (via router state) to land on the posters once it's mounted.
-  const handleProjects = () => {
-    if (location.pathname === '/') {
-      const lenis = getLenis()
-      const y = getPosterLockY()
-      if (lenis) {
-        lenis.start()
-        lenis.scrollTo(y, { immediate: true, force: true })
-      } else {
-        window.scrollTo(0, y)
-      }
-    } else {
-      navigate('/', { state: { scrollTo: 'posters' } })
+      navigate('/about')
     }
   }
 
   const handleLinkClick = (link) => {
     if (link === 'HOME') handleHome()
     else if (link === 'PROJECTS') handleProjects()
+    else if (link === 'ABOUT') handleAbout()
     else handleScrollTo(link)
   }
 
