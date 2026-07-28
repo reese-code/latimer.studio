@@ -132,8 +132,10 @@ function resolveTransition(from, to) {
 // it either direction and the matching `onCommitForward`/`onCommitBackward`
 // fires once. A gate with no `onCommitBackward` (nothing precedes it) just
 // bounces — charge clamps at -1 and drains back once released.
+// `touchBoost` scales touch-swipe input specifically (leaving wheel/trackpad
+// untouched) — mobile has no wheel, so this is the mobile-difficulty knob.
 // ---------------------------------------------------------------------------
-function useChargeGate(active, { onCommitForward, onCommitBackward } = {}) {
+function useChargeGate(active, { onCommitForward, onCommitBackward, touchBoost = 1 } = {}) {
   const [charge, setCharge] = useState(null)
 
   useEffect(() => {
@@ -179,7 +181,7 @@ function useChargeGate(active, { onCommitForward, onCommitBackward } = {}) {
       const y = e.touches[0].clientY
       const delta = touchStartY - y
       touchStartY = y
-      feed(delta)
+      feed(delta * touchBoost)
     }
 
     const SCROLL_KEYS = new Set(['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '])
@@ -207,7 +209,7 @@ function useChargeGate(active, { onCommitForward, onCommitBackward } = {}) {
       window.removeEventListener('keydown',    onKeyDown)
       if (raf) cancelAnimationFrame(raf)
     }
-  }, [active, onCommitForward, onCommitBackward])
+  }, [active, onCommitForward, onCommitBackward, touchBoost])
 
   return charge
 }
@@ -298,6 +300,10 @@ export default function PosterGallery({ onPhaseChange }) {
   }, [setPhase])
   const gate1Charge = useChargeGate(phase === 'scene1-gate', {
     onCommitForward: handleScene1CommitForward,
+    // The opening gate is the first thing anyone touches, and on mobile
+    // (touch-swipe, no wheel) it was reading as noticeably harder to clear
+    // than on desktop — give touch input a boost here specifically.
+    touchBoost: 1.25,
   })
 
   // Gate 2 — sits at the start of scene_2. Charging it forward plays scene_2
