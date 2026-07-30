@@ -626,6 +626,7 @@ function StackingTitles({ sections, index, titleRefs, sectionRefs, paraRefs, onS
 
 function ProjectDescription({ project }) {
   const paragraphs = project.overview || [project.description]
+  const hasSkills = project.tools?.length || project.services?.length
 
   return (
     <div className="pt-8 pb-30">
@@ -636,14 +637,47 @@ function ProjectDescription({ project }) {
         </span>
       </div>
 
-      <div className="grid w-full grid-cols-1 gap-x-12 gap-y-6 md:w-1/2 md:grid-cols-2">
-        {paragraphs.map((paragraph, i) => (
-          <p
-            key={i}
-            className="m-0 font-embodiment text-base leading-[145%] tracking-[0.06em] text-[#4a4238] uppercase"
+      <div className="flex flex-col gap-10 md:flex-row md:justify-between">
+        <div className="grid w-full grid-cols-1 gap-x-12 gap-y-6 md:w-1/2 md:grid-cols-2">
+          {paragraphs.map((paragraph, i) => (
+            <p
+              key={i}
+              className="m-0 font-embodiment text-base leading-[145%] tracking-[0.06em] text-[#4a4238] uppercase"
+            >
+              {paragraph}
+            </p>
+          ))}
+        </div>
+
+        {hasSkills && (
+          <div className="flex flex-row gap-12">
+            {project.tools?.length > 0 && (
+              <SkillList label="TOOLS" items={project.tools} />
+            )}
+            {project.services?.length > 0 && (
+              <SkillList label="SERVICES" items={project.services} />
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function SkillList({ label, items }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <span className="font-embodiment text-base tracking-[0.14em] text-[#4a4238]">
+        {label}
+      </span>
+      <div className="flex flex-col items-start gap-2">
+        {items.map((item) => (
+          <span
+            key={item}
+            className="whitespace-nowrap rounded-md border border-[#4a4238]/35 px-3 py-1 font-embodiment text-base tracking-[0.1em] text-[#4a4238] uppercase"
           >
-            {paragraph}
-          </p>
+            {item}
+          </span>
         ))}
       </div>
     </div>
