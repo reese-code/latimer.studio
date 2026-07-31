@@ -88,6 +88,14 @@ export default function TheaterMarqueeLinks({ active, charge }) {
     e.preventDefault()
     navigate('/about')
   }
+  const handleContact = (e) => {
+    e.preventDefault()
+    navigate('/contact')
+  }
+  const handlePrivacy = (e) => {
+    e.preventDefault()
+    navigate('/privacy-policy')
+  }
   const handleProjects = (e) => {
     e.preventDefault()
     if (location.pathname === '/') {
@@ -99,9 +107,9 @@ export default function TheaterMarqueeLinks({ active, charge }) {
 
   const navLinks = [
     { label: 'ABOUT', onClick: handleAbout },
-    { label: 'CONTACT', href: '#contact' },
+    { label: 'CONTACT', onClick: handleContact },
     { label: 'PROJECTS', onClick: handleProjects },
-    { label: 'PRIVACY POLICY', href: '#privacy' },
+    { label: 'PRIVACY POLICY', onClick: handlePrivacy },
   ]
 
   if (!rect) return null

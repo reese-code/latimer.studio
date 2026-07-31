@@ -61,7 +61,8 @@ export default function TicketMenu({ forceHidden = false }) {
   }, [])
 
   // Fully drop the ticket out of view (used when the project ticket takes
-  // over) or lift it back to its normal peeking rest state.
+  // over, or when scrolling down) or lift it back to its normal peeking
+  // rest state.
   const dropAway = useCallback(() => {
     gsap.to(ticketRef.current, {
       y: '120%',
@@ -70,41 +71,124 @@ export default function TicketMenu({ forceHidden = false }) {
     })
   }, [])
 
-  useEffect(() => {
+  // scrollHiddenRef: true once the user has scrolled down past the top —
+  // the ticket drops fully out of view. Scrolling back up brings it back
+  // to the half-peeking rest state. hoverRef/isOpenRef (hover on desktop,
+  // tap-toggle on touch) always win over the scroll state — you can still
+  // pop the ticket open by hovering/clicking, it just isn't reachable while
+  // fully dropped away (nothing there to hover).
+  const scrollHiddenRef = useRef(false)
+  const hoverRef = useRef(false)
+
+  const resolveVisibility = useCallback(() => {
     if (!ticketRef.current) return
     if (forceHidden) {
       dropAway()
-    } else {
-      slideDown()
-      isOpenRef.current = false
+      return
     }
-  }, [forceHidden, dropAway, slideDown])
+    if (hoverRef.current || isOpenRef.current) {
+      slideUp()
+      return
+    }
+    if (scrollHiddenRef.current) {
+      dropAway()
+      return
+    }
+    slideDown()
+  }, [forceHidden, dropAway, slideUp, slideDown])
+
+  useEffect(() => {
+    if (!forceHidden) isOpenRef.current = false
+    resolveVisibility()
+  }, [forceHidden, resolveVisibility])
+
+  // Track net movement since the last show/hide decision rather than
+  // trusting Lenis's per-frame `direction` directly — direction flips
+  // briefly during a scroll gesture's deceleration/settle, which was
+  // fighting the drop-away tween every frame and never letting it finish.
+  // A small threshold means only a real, sustained scroll one way or the
+  // other flips the state.
+  const lastDecisionScrollRef = useRef(0)
+  const SCROLL_THRESHOLD = 10
+
+  useEffect(() => {
+    const onScroll = ({ scroll }) => {
+      if (scroll <= 4) {
+        scrollHiddenRef.current = false
+        lastDecisionScrollRef.current = scroll
+        resolveVisibility()
+        return
+      }
+      const delta = scroll - lastDecisionScrollRef.current
+      if (delta > SCROLL_THRESHOLD) {
+        scrollHiddenRef.current = true
+        lastDecisionScrollRef.current = scroll
+        resolveVisibility()
+      } else if (delta < -SCROLL_THRESHOLD) {
+        scrollHiddenRef.current = false
+        lastDecisionScrollRef.current = scroll
+        resolveVisibility()
+      }
+    }
+
+    // App's own useLenis() effect (which instantiates the singleton) is a
+    // parent effect, and child effects fire before parent effects on
+    // mount — so getLenis() can still be null here. Retry each frame until
+    // it's ready rather than silently no-op'ing.
+    let lenis = null
+    let rafId = null
+    let cancelled = false
+    const trySubscribe = () => {
+      lenis = getLenis()
+      if (lenis) {
+        lenis.on('scroll', onScroll)
+      } else if (!cancelled) {
+        rafId = requestAnimationFrame(trySubscribe)
+      }
+    }
+    trySubscribe()
+
+    return () => {
+      cancelled = true
+      if (rafId) cancelAnimationFrame(rafId)
+      lenis?.off('scroll', onScroll)
+    }
+  }, [resolveVisibility])
 
   const handleMouseEnter = () => {
-    if (!isTouch.current && !forceHidden) slideUp()
+    if (isTouch.current || forceHidden) return
+    hoverRef.current = true
+    resolveVisibility()
   }
   const handleMouseLeave = () => {
-    if (!isTouch.current && !forceHidden) slideDown()
+    if (isTouch.current || forceHidden) return
+    hoverRef.current = false
+    resolveVisibility()
   }
 
   const handleClick = () => {
     if (forceHidden) return
     if (isTouch.current) {
-      if (isOpenRef.current) {
-        slideDown()
-        isOpenRef.current = false
-      } else {
-        slideUp()
-        isOpenRef.current = true
-      }
+      isOpenRef.current = !isOpenRef.current
+      resolveVisibility()
     }
   }
 
-
-
-  const handleScrollTo = (id) => {
-    const el = document.getElementById(id.toLowerCase())
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  // CONTACT — routes to the dedicated Contact page. From the homepage/
+  // anywhere else that's a straight navigate; if already there, just reset
+  // scroll.
+  const handleContact = () => {
+    if (location.pathname === '/contact') {
+      const lenis = getLenis()
+      if (lenis) {
+        lenis.start()
+        lenis.scrollTo(0, { immediate: true, force: true })
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    } else {
+      navigate('/contact')
+    }
   }
 
   // HOME — back to the very start of the site. From the homepage itself
@@ -149,8 +233,10 @@ export default function TicketMenu({ forceHidden = false }) {
     if (link === 'HOME') handleHome()
     else if (link === 'PROJECTS') handleProjects()
     else if (link === 'ABOUT') handleAbout()
-    else handleScrollTo(link)
+    else if (link === 'CONTACT') handleContact()
   }
+
+  const LINK_HREFS = { HOME: '/', PROJECTS: '/', ABOUT: '/about', CONTACT: '/contact' }
 
   // Wrapper handles horizontal centering; ticketRef handles only Y animation.
   // pointer-events-none here because the wrapper's own layout box doesn't
@@ -196,7 +282,7 @@ export default function TicketMenu({ forceHidden = false }) {
                     <span className="text-[8px] text-maroon">★</span>
                   )}
                   <a
-                    href={link === 'HOME' ? '/' : `#${link.toLowerCase()}`}
+                    href={LINK_HREFS[link]}
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
