@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import gsap from 'gsap'
 import ProjectTicket from './ProjectTicket'
 import ScrollChargeIndicator from './ScrollChargeIndicator'
-import TheaterMarqueeLinks from './TheaterMarqueeLinks'
 import { PROJECTS } from '../data/projects'
 import { nextCharge, decayCharge, GATE_IDLE_MS } from '../lib/chargeGate'
 import { setGalleryControls } from '../lib/galleryControl'
@@ -529,15 +528,6 @@ export default function PosterGallery({ onPhaseChange }) {
         visible={activeGateCharge != null}
         charge={activeGateCharge}
       />
-
-      {/* Clickable site links overlaid on the theater marquee's lit boards —
-          only relevant on the opening frame, before gate 1 has taken charge. */}
-      {!isMobile && (
-        <TheaterMarqueeLinks
-          active={phase === 'scene1-gate'}
-          charge={gate1Charge}
-        />
-      )}
     </>
   )
 }
