@@ -2,14 +2,12 @@ import { useRef } from 'react'
 import latimerStudioLogo from '../assets/Latimer-Studio.svg'
 import FilmFooter from './FilmFooter'
 import FilmRail, { useFilmRailEntrance, useRailHeight } from './FilmRail'
+import TypeformEmbed from './TypeformEmbed'
 
-const ABOUT_COPY =
-  "Latimer Studio is a Denver-based studio focusing on crafting visual experiences that amaze and convert. With 50+ custom sites built across multiple industries, we blend UI and UX expertise with React branding and an easy-to-edit CRM for even the least tech-savvy people. We're not building websites; we're breaking the noise in the sea of sameness with world class design and branding."
-
-// Mobile rail scale — much smaller cells than desktop.
+// Mobile rail scale — matches the About page's mobile film-tape rails.
 const RAIL = { boxW: 8, boxH: 14, radius: 2, gap: 6, pad: 4 }
 
-export default function AboutStackedMobile() {
+export default function ContactStackedMobile() {
   const railsRef = useRef([])
   const [contentRef, railHeight] = useRailHeight()
   useFilmRailEntrance(railsRef, { pitchOffset: (RAIL.boxH + RAIL.gap) * 3 })
@@ -25,14 +23,13 @@ export default function AboutStackedMobile() {
             alt="Latimer Studio"
             className="w-56 select-none brightness-0 invert"
           />
-          <p className="w-full font-sans text-[32px] font-medium uppercase leading-tight tracking-[0.02em] text-cream">
-            {ABOUT_COPY}
-          </p>
-          <div className="aspect-4/3 w-full rounded-sm bg-cream" />
+
+          <div className="w-full" style={{ minHeight: 600 }}>
+            <TypeformEmbed className="h-full w-full" style={{ minHeight: 600 }} />
+          </div>
         </div>
 
         <FilmFooter variant="ink" />
-
       </div>
 
       <FilmRail playRef={railsRef} height={railHeight} {...RAIL} />
