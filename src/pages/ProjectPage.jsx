@@ -2,11 +2,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useRef, useEffect, useState, useLayoutEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { PROJECTS as PROJECT_LIST } from '../data/projects'
 import TicketMenu from '../components/TicketMenu'
 import FilmFooter from '../components/FilmFooter'
 import studioRoLogo from '../assets/Studio-ro.svg'
 import { getLenis } from '../hooks/useLenis'
+import { useSiteData } from '../hooks/useSiteData'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -14,12 +14,11 @@ const TITLE_LOGOS = {
   studioro: studioRoLogo,
 }
 
-const PROJECTS = Object.fromEntries(PROJECT_LIST.map((p) => [p.id, p]))
-
 export default function ProjectPage() {
   const { id }      = useParams()
   const navigate     = useNavigate()
-  const project       = PROJECTS[id]
+  const { projects, projectById, loading } = useSiteData()
+  const project       = projectById(id)
 
   // Entrance — the case study simply fades onto screen on mount, no
   // transition overlay.
@@ -59,13 +58,13 @@ export default function ProjectPage() {
   }, [])
 
   if (!project) {
-    navigate('/')
+    if (!loading) navigate('/')
     return null
   }
 
   return (
     <PageShell visible={visible}>
-      <ProjectContent project={project} />
+      <ProjectContent project={project} projects={projects} />
       <TicketMenu forceHidden={!showTicket} />
     </PageShell>
   )
@@ -85,7 +84,7 @@ function PageShell({ children, visible }) {
   )
 }
 
-function ProjectContent({ project }) {
+function ProjectContent({ project, projects }) {
   return (
     <div className="relative z-5 bg-case-bg">
       <CaseStudyHero project={project} />
@@ -100,7 +99,7 @@ function ProjectContent({ project }) {
         )}
       </div>
 
-      <MoreProjectsSection currentId={project.id} />
+      <MoreProjectsSection currentId={project.id} projects={projects} />
 
       <FilmFooter />
     </div>
@@ -112,14 +111,14 @@ function ProjectContent({ project }) {
 // mobile. Each card carries the same overview info as the hero (category
 // + date) and a "See Project" button in the same style as the hero's
 // "See Site" button.
-function MoreProjectsSection({ currentId }) {
-  const currentIndex = PROJECT_LIST.findIndex((p) => p.id === currentId)
-  if (currentIndex === -1 || PROJECT_LIST.length < 2) return null
+function MoreProjectsSection({ currentId, projects }) {
+  const currentIndex = projects.findIndex((p) => p.id === currentId)
+  if (currentIndex === -1 || projects.length < 2) return null
 
-  const count = Math.min(2, PROJECT_LIST.length - 1)
+  const count = Math.min(2, projects.length - 1)
   const otherProjects = Array.from({ length: count }, (_, i) => {
     const offset = i + 1
-    return PROJECT_LIST[(currentIndex + offset) % PROJECT_LIST.length]
+    return projects[(currentIndex + offset) % projects.length]
   })
 
   return (

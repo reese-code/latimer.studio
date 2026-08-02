@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import gsap from 'gsap'
 import ProjectTicket from './ProjectTicket'
 import ScrollChargeIndicator from './ScrollChargeIndicator'
-import { PROJECTS } from '../data/projects'
 import { nextCharge, decayCharge, GATE_IDLE_MS } from '../lib/chargeGate'
 import { setGalleryControls } from '../lib/galleryControl'
 
@@ -116,8 +115,7 @@ class SequencePlayer {
 }
 
 // Which transition video connects `from` and `to`, and in which direction
-function resolveTransition(from, to) {
-  const n = PROJECTS.length
+function resolveTransition(from, to, n) {
   if (to === (from + 1) % n)     return { idx: from, forward: true  } // next
   if (to === (from + n - 1) % n) return { idx: to,   forward: false } // prev (reverse)
   return null
@@ -215,7 +213,9 @@ function useChargeGate(active, { onCommitForward, onCommitBackward, touchBoost =
 }
 
 // ---------------------------------------------------------------------------
-export default function PosterGallery({ onPhaseChange }) {
+// `projects` must be a non-empty array — callers (HomePage) hold off
+// mounting this component until Sanity's project list has loaded.
+export default function PosterGallery({ onPhaseChange, projects }) {
   const navigate  = useNavigate()
   const canvasRef = useRef(null)
   const activeRef = useRef(0)
@@ -229,7 +229,7 @@ export default function PosterGallery({ onPhaseChange }) {
     onPhaseChange?.(p)
   }, [onPhaseChange])
 
-  const [activeProject, setActiveProject] = useState(PROJECTS[0])
+  const [activeProject, setActiveProject] = useState(projects[0])
   const ticketRef = useRef(null)
 
   const [isMobile, setIsMobile] = useState(() =>
@@ -337,7 +337,7 @@ export default function PosterGallery({ onPhaseChange }) {
   // It only takes backward charge: scrolling up hard enough plays scene_2 in
   // reverse, back to the end of scene_1 (scene_2's gate). There's no forward
   // side — moving between posters is what the ticket's arrows are for.
-  const onFirstPoster = activeProject === PROJECTS[0]
+  const onFirstPoster = activeProject === projects[0]
   const handlePosterCommitBackward = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -396,7 +396,7 @@ export default function PosterGallery({ onPhaseChange }) {
     const from = activeRef.current
     if (from === next) return
 
-    const trans  = resolveTransition(from, next)
+    const trans  = resolveTransition(from, next, projects.length)
     const canvas = canvasRef.current
     if (!trans || !canvas || !posterPlayers.current) return
 
@@ -417,7 +417,7 @@ export default function PosterGallery({ onPhaseChange }) {
 
     player.play(canvas, trans.forward, () => {
       activeRef.current = next
-      setActiveProject(PROJECTS[next])
+      setActiveProject(projects[next])
       setPhase('poster')
 
       // New ticket rises up from below the viewport into view once the
@@ -431,10 +431,10 @@ export default function PosterGallery({ onPhaseChange }) {
         })
       }
     })
-  }, [setPhase])
+  }, [setPhase, projects])
 
-  const prev = () => goTo((activeRef.current - 1 + PROJECTS.length) % PROJECTS.length)
-  const next = () => goTo((activeRef.current + 1) % PROJECTS.length)
+  const prev = () => goTo((activeRef.current - 1 + projects.length) % projects.length)
+  const next = () => goTo((activeRef.current + 1) % projects.length)
 
   // ------------------------------------------------------------------
   // Enter: play theater transition then navigate. The ticket drops down
@@ -467,11 +467,11 @@ export default function PosterGallery({ onPhaseChange }) {
         duration: 0.55,
         ease: 'power2.in',
         onComplete: () => {
-          navigate(`/projects/${PROJECTS[idx].id}`)
+          navigate(`/projects/${projects[idx].id}`)
         },
       })
     }, AUTO_PLAY_SPEED)
-  }, [navigate, setPhase])
+  }, [navigate, setPhase, projects])
 
   // Imperative controls for TicketMenu's HOME / PROJECTS links, which live
   // outside this component's tree and have no other way to reach it.
@@ -483,7 +483,7 @@ export default function PosterGallery({ onPhaseChange }) {
         posterPlayers.current?.forEach(p => p.stop())
         theaterPlayers.current?.forEach(p => p.stop())
         activeRef.current = 0
-        setActiveProject(PROJECTS[0])
+        setActiveProject(projects[0])
         if (ticketRef.current) gsap.set(ticketRef.current, { y: '140%' })
         const canvas = canvasRef.current
         if (canvas) scene1Player.current?.drawFrame(canvas, 0)
@@ -493,7 +493,7 @@ export default function PosterGallery({ onPhaseChange }) {
         scene1Player.current?.stop()
         scene2Player.current?.stop()
         activeRef.current = 0
-        setActiveProject(PROJECTS[0])
+        setActiveProject(projects[0])
         const canvas = canvasRef.current
         if (canvas) scene2Player.current?.drawFrame(canvas, SCENE2.total - 1)
         setPhase('poster')
@@ -501,7 +501,7 @@ export default function PosterGallery({ onPhaseChange }) {
       },
     })
     return () => setGalleryControls(null)
-  }, [setPhase, revealTicket])
+  }, [setPhase, revealTicket, projects])
 
   return (
     <>

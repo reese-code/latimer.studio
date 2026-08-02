@@ -2,14 +2,13 @@ import { useRef } from 'react'
 import latimerStudioLogo from '../assets/Latimer-Studio.svg'
 import FilmFooter from './FilmFooter'
 import FilmRail, { useFilmRailEntrance, useRailHeight } from './FilmRail'
-
-const ABOUT_COPY =
-  "Latimer Studio is a Denver-based studio focusing on crafting visual experiences that amaze and convert. With 50+ custom sites built across multiple industries, we blend UI and UX expertise with React branding and an easy-to-edit CRM for even the least tech-savvy people. We're not building websites; we're breaking the noise in the sea of sameness with world class design and branding."
+import { useSiteData } from '../hooks/useSiteData'
 
 // Mobile rail scale — much smaller cells than desktop.
 const RAIL = { boxW: 8, boxH: 14, radius: 2, gap: 6, pad: 4 }
 
 export default function AboutStackedMobile() {
+  const { siteSettings } = useSiteData()
   const railsRef = useRef([])
   const [contentRef, railHeight] = useRailHeight()
   useFilmRailEntrance(railsRef, { pitchOffset: (RAIL.boxH + RAIL.gap) * 3 })
@@ -26,7 +25,7 @@ export default function AboutStackedMobile() {
             className="w-56 select-none brightness-0 invert"
           />
           <p className="w-full font-sans text-[32px] font-medium uppercase leading-tight tracking-[0.02em] text-cream">
-            {ABOUT_COPY}
+            {siteSettings?.aboutCopy}
           </p>
           <div className="aspect-4/3 w-full rounded-sm bg-cream" />
         </div>

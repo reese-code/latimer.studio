@@ -3,17 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { gsap } from 'gsap'
 import latimerStudioLogo from '../assets/Latimer-Studio.svg'
 import { getGalleryControls } from '../lib/galleryControl'
-
-// Contact + nav link data shared by every layout below. Kept in one place
-// so the desktop left/right cells and the mobile dropdown never drift out
-// of sync with each other.
-export const CONTACT_LINKS = [
-  { label: 'X', href: 'https://x.com' },
-  { label: 'INSTAGRAM', href: 'https://instagram.com' },
-  { label: 'TELE: 720-688-8877', href: 'tel:+17206888877' },
-  { label: 'INFO@LATIMER.STUDIO', href: 'mailto:info@latimer.studio' },
-  { label: '39.73921° N, 104.99030° W', href: null },
-]
+import { useSiteData } from '../hooks/useSiteData'
 
 // Sprocket-hole band — a single row of black cells spread across the width
 // with justify-between, matching the reference frame. The cell count is
@@ -97,6 +87,9 @@ export default function FilmFooter({ variant = 'default' }) {
   const bg = dark ? 'bg-ink' : 'bg-case-bg'
   const navigate = useNavigate()
   const location = useLocation()
+  const { siteSettings } = useSiteData()
+  const contactLinks = siteSettings?.contactLinks || []
+  const footerTaglines = siteSettings?.footerTaglines || []
 
   // PROJECTS is the only nav link that isn't a real page — it jumps
   // straight to the poster gallery on the homepage, skipping both scene
@@ -123,9 +116,9 @@ export default function FilmFooter({ variant = 'default' }) {
       {!dark && <SprocketRow />}
 
       <div className={`flex flex-col gap-2 md:flex-row ${dark ? '' : 'px-2'}`}>
-        <LeftCell bg={bg} dark={dark} />
-        <MobileLinksCell bg={bg} dark={dark} navLinks={navLinks} />
-        <CenterCell bg={bg} dark={dark} />
+        <LeftCell bg={bg} dark={dark} contactLinks={contactLinks} />
+        <MobileLinksCell bg={bg} dark={dark} navLinks={navLinks} contactLinks={contactLinks} />
+        <CenterCell bg={bg} dark={dark} footerTaglines={footerTaglines} />
         <RightCell bg={bg} dark={dark} navLinks={navLinks} />
       </div>
 
@@ -140,11 +133,11 @@ function Cell({ children, className = '', bg = 'bg-case-bg' }) {
   )
 }
 
-function LeftCell({ bg, dark }) {
+function LeftCell({ bg, dark, contactLinks }) {
   return (
     <Cell bg={bg} className="hidden min-h-64 flex-1 md:flex">
       <div className={`flex flex-col items-start justify-end gap-1.5 py-5 ${dark ? '' : 'px-5'}`}>
-        {CONTACT_LINKS.map((link) => (
+        {contactLinks.map((link) => (
           <LinkLine key={link.label} {...link} dark={dark} />
         ))}
       </div>
@@ -152,7 +145,7 @@ function LeftCell({ bg, dark }) {
   )
 }
 
-function CenterCell({ bg, dark }) {
+function CenterCell({ bg, dark, footerTaglines }) {
   return (
     <Cell bg={bg} className={`flex min-h-40 flex-none flex-col items-center justify-end gap-3 py-5 md:min-h-64 md:w-[38%] ${dark ? '' : 'px-5'}`}>
       <img
@@ -161,15 +154,14 @@ function CenterCell({ bg, dark }) {
         className={`w-full select-none md:w-105 ${dark ? 'brightness-0 invert' : ''}`}
       />
       <div className="flex flex-row flex-wrap items-center justify-center gap-x-4 gap-y-1">
-        <span className={`font-embodiment text-base tracking-[0.14em] uppercase ${dark ? 'text-cream/85' : 'text-[#4a4238]'}`}>
-          A Creative Studio
-        </span>
-        <span className={`font-embodiment text-base tracking-[0.14em] uppercase ${dark ? 'text-cream/85' : 'text-[#4a4238]'}`}>
-          Based out of Denver
-        </span>
-        <span className={`font-embodiment text-base tracking-[0.14em] uppercase ${dark ? 'text-cream/85' : 'text-[#4a4238]'}`}>
-          Built to standout
-        </span>
+        {footerTaglines.map((tagline) => (
+          <span
+            key={tagline}
+            className={`font-embodiment text-base tracking-[0.14em] uppercase ${dark ? 'text-cream/85' : 'text-[#4a4238]'}`}
+          >
+            {tagline}
+          </span>
+        ))}
       </div>
     </Cell>
   )
@@ -280,10 +272,10 @@ function MobileDropdown({ label, links, align = 'left', dark = false }) {
   )
 }
 
-function MobileLinksCell({ bg, dark, navLinks }) {
+function MobileLinksCell({ bg, dark, navLinks, contactLinks }) {
   return (
     <Cell bg={bg} className={`flex min-h-16 flex-row items-start justify-between gap-4 py-5 md:hidden ${dark ? '' : 'px-5'}`}>
-      <MobileDropdown label="CONTACT" links={CONTACT_LINKS} dark={dark} />
+      <MobileDropdown label="CONTACT" links={contactLinks} dark={dark} />
       <MobileDropdown label="MENU" links={navLinks} align="right" dark={dark} />
     </Cell>
   )

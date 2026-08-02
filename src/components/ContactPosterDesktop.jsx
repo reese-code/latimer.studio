@@ -3,12 +3,14 @@ import latimerStudioLogo from '../assets/Latimer-Studio.svg'
 import FilmFooter from './FilmFooter'
 import FilmRail, { useFilmRailEntrance, useRailHeight } from './FilmRail'
 import TypeformEmbed from './TypeformEmbed'
+import { useSiteData } from '../hooks/useSiteData'
 
 // Desktop rail scale — matches the About page's film-tape sprocket rails,
 // 40x55 boxes, 8px corner radius, 20px gap, 20px padding.
 const RAIL = { boxW: 40, boxH: 55, radius: 8, gap: 20, pad: 20 }
 
 export default function ContactPosterDesktop() {
+  const { siteSettings } = useSiteData()
   const railsRef = useRef([])
   const [contentRef, railHeight] = useRailHeight()
   useFilmRailEntrance(railsRef, { pitchOffset: (RAIL.boxH + RAIL.gap) * 3 })
@@ -26,7 +28,7 @@ export default function ContactPosterDesktop() {
           />
 
           <div className="mt-10 w-full" style={{ minHeight: 700 }}>
-            <TypeformEmbed className="h-full w-full" style={{ minHeight: 700 }} />
+            <TypeformEmbed id={siteSettings?.typeformId} className="h-full w-full" style={{ minHeight: 700 }} />
           </div>
         </div>
 

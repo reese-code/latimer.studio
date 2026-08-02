@@ -3,8 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import PosterGallery from '../components/PosterGallery'
 import TicketMenu from '../components/TicketMenu'
 import { getGalleryControls } from '../lib/galleryControl'
+import { useSiteData } from '../hooks/useSiteData'
 
 export default function HomePage() {
+  const { projects, loading } = useSiteData()
   const [galleryPhase, setGalleryPhase] = useState('scene1-gate')
   const handlePhaseChange = useCallback((p) => setGalleryPhase(p), [])
   const location = useLocation()
@@ -42,9 +44,13 @@ export default function HomePage() {
     }
   }, [])
 
+  if (loading || projects.length === 0) {
+    return <div className="fixed inset-0 z-10 h-screen w-screen bg-ink" />
+  }
+
   return (
     <>
-      <PosterGallery onPhaseChange={handlePhaseChange} />
+      <PosterGallery onPhaseChange={handlePhaseChange} projects={projects} />
       <TicketMenu forceHidden={hideNavTicket} />
     </>
   )

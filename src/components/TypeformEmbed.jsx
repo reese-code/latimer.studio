@@ -7,20 +7,23 @@ const EMBED_SRC = '//embed.typeform.com/next/embed.js'
 // `data-tf-live` on load, so the div just needs to be present before/when
 // the script runs.
 export default function TypeformEmbed({
-  id = '01KZ2856FA05DPKNF3CW2YF94G',
+  id,
   className = '',
   style,
 }) {
   const containerRef = useRef(null)
 
   useEffect(() => {
+    if (!id) return
     const existing = document.querySelector(`script[src="${EMBED_SRC}"]`)
     if (existing) return
     const script = document.createElement('script')
     script.src = EMBED_SRC
     script.async = true
     document.body.appendChild(script)
-  }, [])
+  }, [id])
+
+  if (!id) return null
 
   return (
     <div ref={containerRef} className={className} style={style}>
