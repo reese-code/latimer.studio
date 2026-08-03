@@ -23,8 +23,10 @@ const PROJECT_FIELDS = `
   "storySections": storySections[]{
     number,
     title,
-    paragraph,
-    "image": image.asset->url,
+    combos[]{
+      paragraph,
+      "image": image.asset->url,
+    },
   },
   testimonial,
 `

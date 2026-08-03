@@ -87,16 +87,40 @@ export default defineType({
           fields: [
             defineField({ name: 'number', title: 'Number', type: 'string' }),
             defineField({ name: 'title', title: 'Title', type: 'string' }),
-            defineField({ name: 'paragraph', title: 'Paragraph', type: 'text' }),
             defineField({
-              name: 'image',
-              title: 'Image',
-              type: 'image',
-              options: { hotspot: true },
+              name: 'combos',
+              title: 'Image + paragraph combos',
+              description: 'Each combo needs both an image and a paragraph.',
+              type: 'array',
+              validation: (Rule) => Rule.min(1).required(),
+              of: [
+                {
+                  type: 'object',
+                  name: 'combo',
+                  fields: [
+                    defineField({
+                      name: 'image',
+                      title: 'Image',
+                      type: 'image',
+                      options: { hotspot: true },
+                      validation: (Rule) => Rule.required(),
+                    }),
+                    defineField({
+                      name: 'paragraph',
+                      title: 'Paragraph',
+                      type: 'text',
+                      validation: (Rule) => Rule.required(),
+                    }),
+                  ],
+                  preview: {
+                    select: { title: 'paragraph', media: 'image' },
+                  },
+                },
+              ],
             }),
           ],
           preview: {
-            select: { title: 'title', subtitle: 'number', media: 'image' },
+            select: { title: 'title', subtitle: 'number', media: 'combos.0.image' },
           },
         },
       ],

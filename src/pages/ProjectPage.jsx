@@ -467,18 +467,92 @@ function MetaField({ label, value }) {
 // to its pinned position. Right column: the accompanying imagery, which
 // scrolls the ordinary way. Once you scroll past the whole group the
 // titles release together and continue scrolling away like normal content.
-// A small opaque cap sits above the first title so nothing scrolling
-// underneath is ever visible above the stack.
-const TOP_CAP           = 20  // px — breathing room above the stack, opaque
+//
+// Each section can hold several image+paragraph combos. Combos are also
+// flattened into one ordered list so every paragraph can be paired with its
+// image by index — the right-hand image column and the title column render
+// separately, but combos stay matched up in source order.
+//
+// A small opaque cap sits above the first title once the stack is actually
+// pinned to the top of the viewport, so nothing scrolling underneath is
+// ever visible above it. It only takes up space once pinned — before that,
+// the first title's top lines up exactly with the first image's top.
+const TOP_CAP           = 20  // px — breathing room above the stack, opaque, only reserved while pinned
 const STICKY_TOP        = TOP_CAP
 const TITLE_STACK_GAP   = 40  // px added per stacked title
 
 function ScrollStorySection({ sections }) {
   const containerRef = useRef(null)
+  const sentinelRef  = useRef(null)
   const titleRefs    = useRef([])
   const sectionRefs   = useRef([])
   const paraRefs      = useRef([])
   const imageRefs     = useRef([])
+  const [isPinned, setIsPinned] = useState(false)
+
+  const comboOffsets = sections.reduce((offsets) => {
+    const prevStart = offsets.length ? offsets[offsets.length - 1] : 0
+    const prevCount = offsets.length ? (sections[offsets.length - 1].combos || []).length : 0
+    offsets.push(prevStart + prevCount)
+    return offsets
+  }, [])
+  const flatCombos = sections.flatMap((section) => section.combos || [])
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(([entry]) => setIsPinned(!entry.isIntersecting), {
+      threshold: [1],
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  useLayoutEffect(() => {
+    // Bottom-align each paragraph with the bottom of its paired image, 30px
+    // above it on desktop. Both columns scroll at the same rate (only the
+    // titles themselves pin), so the offset only needs recomputing on mount
+    // and on resize, not scroll. Measured via offsetTop (walking up to the
+    // document) rather than getBoundingClientRect, for two reasons: the two
+    // columns don't share a positioned ancestor so raw offsetTop values
+    // aren't directly comparable, and the images carry a GSAP scroll-in
+    // transform (scale/translate) that getBoundingClientRect would pick up
+    // mid-animation, baking a moving target into a fixed margin.
+    function pageTop(el) {
+      let top = 0
+      let node = el
+      while (node) {
+        top += node.offsetTop
+        node = node.offsetParent
+      }
+      return top
+    }
+
+    function alignParagraphs() {
+      paraRefs.current.forEach((el) => {
+        if (el) el.style.marginTop = '0px'
+      })
+      paraRefs.current.forEach((para, i) => {
+        const image = imageRefs.current[i]
+        if (!para || !image) return
+        // The desktop image column is `hidden` below md — skip alignment
+        // there so the mobile-only inline layout isn't touched.
+        if (image.offsetHeight === 0) return
+        const imageBottom = pageTop(image) + image.offsetHeight
+        const paraBottom = pageTop(para) + para.offsetHeight
+        const delta = imageBottom - paraBottom - 30
+        para.style.marginTop = `${delta}px`
+      })
+    }
+
+    alignParagraphs()
+    // The custom @font-face (font-embodiment) loads asynchronously — text
+    // measured against the fallback font wraps differently than the final
+    // font, so the initial alignment goes stale the moment it swaps in.
+    document.fonts?.ready?.then(alignParagraphs)
+    window.addEventListener('resize', alignParagraphs)
+    return () => window.removeEventListener('resize', alignParagraphs)
+  }, [sections])
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -538,16 +612,23 @@ function ScrollStorySection({ sections }) {
     <div ref={containerRef} className="grid gap-x-10 md:grid-cols-[1fr_2fr]">
       {/* Pinned, stacking-title scroll story — the titles pin and stack the
           same way on every breakpoint. On mobile each title carries its own
-          image inline (no separate scrolling column); on desktop the image
-          lives in the column on the right and scrolls independently. */}
+          images inline (no separate scrolling column); on desktop the images
+          live in the column on the right and scroll independently. */}
       <div>
-        {/* Opaque cap — pins above the title stack for the same duration
-            as the stack itself, so no scrolling text ever peeks through
-            the gap above it. */}
-        <div className="sticky top-0 z-20 bg-case-bg" style={{ height: TOP_CAP }} />
+        {/* Zero-size sentinel just above the cap — once it scrolls out of
+            view, the cap (and title stack) has actually become pinned to
+            the top of the viewport. */}
+        <div ref={sentinelRef} />
+        {/* Opaque cap — once pinned, sits above the title stack for the
+            same duration as the stack itself, so no scrolling text ever
+            peeks through the gap above it. Before it's pinned it takes up
+            no space, so the very first title's top lines up with the very
+            first image's top. */}
+        <div className="sticky top-0 z-20 bg-case-bg" style={{ height: isPinned ? TOP_CAP : 0 }} />
         <StackingTitles
           sections={sections}
           index={0}
+          comboOffsets={comboOffsets}
           titleRefs={titleRefs}
           sectionRefs={sectionRefs}
           paraRefs={paraRefs}
@@ -556,14 +637,14 @@ function ScrollStorySection({ sections }) {
       </div>
 
       <div className="hidden flex-col gap-6 pb-16 md:flex">
-        {sections.map((section, i) => (
+        {flatCombos.map((combo, i) => (
           <img
-            key={section.number}
+            key={i}
             ref={(el) => (imageRefs.current[i] = el)}
-            src={section.image}
-            alt={section.title}
+            src={combo.image}
+            alt=""
             draggable={false}
-            className="h-[70vh] w-full select-none rounded-3xl object-cover"
+            className="aspect-square w-full select-none rounded-3xl object-cover"
           />
         ))}
       </div>
@@ -576,9 +657,11 @@ function ScrollStorySection({ sections }) {
 // the end of the group, so it stays pinned while later titles lock in below
 // it. Nesting title[i+1..] inside title[i]'s wrapper gives every title
 // exactly that range for free, with no manual height math required.
-function StackingTitles({ sections, index, titleRefs, sectionRefs, paraRefs, onSelect }) {
+function StackingTitles({ sections, index, comboOffsets, titleRefs, sectionRefs, paraRefs, onSelect }) {
   if (index >= sections.length) return null
   const section = sections[index]
+  const combos = section.combos || []
+  const comboStart = comboOffsets[index]
 
   return (
     <div ref={(el) => (sectionRefs.current[index] = el)} className="relative">
@@ -597,23 +680,28 @@ function StackingTitles({ sections, index, titleRefs, sectionRefs, paraRefs, onS
         </span>
       </button>
 
-      <img
-        src={section.image}
-        alt={section.title}
-        draggable={false}
-        className="mt-6 mb-6 h-[55vh] w-full select-none rounded-3xl object-cover md:hidden"
-      />
+      {combos.map((combo, j) => (
+        <div key={j} className="pb-16">
+          <img
+            src={combo.image}
+            alt={section.title}
+            draggable={false}
+            className="mt-6 mb-6 aspect-square w-full select-none rounded-3xl object-cover md:hidden"
+          />
 
-      <p
-        ref={(el) => (paraRefs.current[index] = el)}
-        className="max-w-[85%] pb-16 font-embodiment text-base leading-[150%] tracking-[0.14em] text-[#4a4238] uppercase md:mt-[38vh]"
-      >
-        {section.paragraph}
-      </p>
+          <p
+            ref={(el) => (paraRefs.current[comboStart + j] = el)}
+            className="max-w-[85%] text-justify font-embodiment text-base leading-[150%] tracking-[0.14em] text-[#4a4238] uppercase"
+          >
+            {combo.paragraph}
+          </p>
+        </div>
+      ))}
 
       <StackingTitles
         sections={sections}
         index={index + 1}
+        comboOffsets={comboOffsets}
         titleRefs={titleRefs}
         sectionRefs={sectionRefs}
         paraRefs={paraRefs}
