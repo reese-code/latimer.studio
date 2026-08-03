@@ -509,52 +509,6 @@ function ScrollStorySection({ sections }) {
   }, [])
 
   useLayoutEffect(() => {
-    // Bottom-align each paragraph with the bottom of its paired image, 30px
-    // above it on desktop. Both columns scroll at the same rate (only the
-    // titles themselves pin), so the offset only needs recomputing on mount
-    // and on resize, not scroll. Measured via offsetTop (walking up to the
-    // document) rather than getBoundingClientRect, for two reasons: the two
-    // columns don't share a positioned ancestor so raw offsetTop values
-    // aren't directly comparable, and the images carry a GSAP scroll-in
-    // transform (scale/translate) that getBoundingClientRect would pick up
-    // mid-animation, baking a moving target into a fixed margin.
-    function pageTop(el) {
-      let top = 0
-      let node = el
-      while (node) {
-        top += node.offsetTop
-        node = node.offsetParent
-      }
-      return top
-    }
-
-    function alignParagraphs() {
-      paraRefs.current.forEach((el) => {
-        if (el) el.style.marginTop = '0px'
-      })
-      paraRefs.current.forEach((para, i) => {
-        const image = imageRefs.current[i]
-        if (!para || !image) return
-        // The desktop image column is `hidden` below md — skip alignment
-        // there so the mobile-only inline layout isn't touched.
-        if (image.offsetHeight === 0) return
-        const imageBottom = pageTop(image) + image.offsetHeight
-        const paraBottom = pageTop(para) + para.offsetHeight
-        const delta = imageBottom - paraBottom - 30
-        para.style.marginTop = `${delta}px`
-      })
-    }
-
-    alignParagraphs()
-    // The custom @font-face (font-embodiment) loads asynchronously — text
-    // measured against the fallback font wraps differently than the final
-    // font, so the initial alignment goes stale the moment it swaps in.
-    document.fonts?.ready?.then(alignParagraphs)
-    window.addEventListener('resize', alignParagraphs)
-    return () => window.removeEventListener('resize', alignParagraphs)
-  }, [sections])
-
-  useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       paraRefs.current.forEach((el) => {
         if (!el) return
@@ -691,7 +645,7 @@ function StackingTitles({ sections, index, comboOffsets, titleRefs, sectionRefs,
 
           <p
             ref={(el) => (paraRefs.current[comboStart + j] = el)}
-            className="max-w-[85%] text-justify font-embodiment text-base leading-[150%] tracking-[0.14em] text-[#4a4238] uppercase"
+            className="max-w-[85%] text-justify font-embodiment text-base leading-[150%] tracking-[0.14em] text-[#4a4238] uppercase md:mt-[calc(66.67vw-252px)]"
           >
             {combo.paragraph}
           </p>
