@@ -89,8 +89,8 @@ export default defineType({
             defineField({ name: 'title', title: 'Title', type: 'string' }),
             defineField({
               name: 'combos',
-              title: 'Image + paragraph combos',
-              description: 'Each combo needs both an image and a paragraph.',
+              title: 'Image/video + paragraph combos',
+              description: 'Each combo needs a paragraph, plus either an image or a video.',
               type: 'array',
               validation: (Rule) => Rule.min(1).required(),
               of: [
@@ -103,7 +103,13 @@ export default defineType({
                       title: 'Image',
                       type: 'image',
                       options: { hotspot: true },
-                      validation: (Rule) => Rule.required(),
+                    }),
+                    defineField({
+                      name: 'video',
+                      title: 'Video',
+                      type: 'file',
+                      description: 'Used instead of the image when set.',
+                      options: { accept: 'video/*' },
                     }),
                     defineField({
                       name: 'paragraph',
@@ -112,8 +118,17 @@ export default defineType({
                       validation: (Rule) => Rule.required(),
                     }),
                   ],
+                  validation: (Rule) =>
+                    Rule.custom((combo) => {
+                      if (combo?.image && combo?.video) return 'Use either an image or a video, not both.'
+                      if (!combo?.image && !combo?.video) return 'Add an image or a video.'
+                      return true
+                    }),
                   preview: {
-                    select: { title: 'paragraph', media: 'image' },
+                    select: { title: 'paragraph', media: 'image', video: 'video' },
+                    prepare({ title, media, video }) {
+                      return { title, subtitle: video ? 'Video' : undefined, media }
+                    },
                   },
                 },
               ],

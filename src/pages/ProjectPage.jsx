@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useRef, useEffect, useState, useLayoutEffect } from 'react'
+import { useRef, useEffect, useState, useLayoutEffect, forwardRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import TicketMenu from '../components/TicketMenu'
@@ -481,6 +481,34 @@ const TOP_CAP           = 20  // px — breathing room above the stack, opaque, 
 const STICKY_TOP        = TOP_CAP
 const TITLE_STACK_GAP   = 40  // px added per stacked title
 
+// Renders a combo's video when present, falling back to its image. Both
+// share the same ref (for the gsap reveal animation) and sizing classes.
+const ComboMedia = forwardRef(function ComboMedia({ combo, className, alt = '' }, ref) {
+  if (combo.video) {
+    return (
+      <video
+        ref={ref}
+        src={combo.video}
+        className={className}
+        autoPlay
+        muted
+        loop
+        playsInline
+      />
+    )
+  }
+
+  return (
+    <img
+      ref={ref}
+      src={combo.image}
+      alt={alt}
+      draggable={false}
+      className={className}
+    />
+  )
+})
+
 function ScrollStorySection({ sections }) {
   const containerRef = useRef(null)
   const sentinelRef  = useRef(null)
@@ -507,6 +535,73 @@ function ScrollStorySection({ sections }) {
     observer.observe(el)
     return () => observer.disconnect()
   }, [])
+
+  // Keeps every section's title top lined up with its first image/video's
+  // top, and every paragraph's bottom lined up with its image/video's
+  // bottom. The two columns stack independently (fixed-height sticky title
+  // bars + variable-height text on the left, fixed-aspect squares on the
+  // right), so their natural flow drifts apart after the first pair — this
+  // measures the real rendered position of each piece and nudges it to
+  // close the gap. Runs section by section, top to bottom, so each nudge is
+  // accounted for before the next position is measured (a title's shift
+  // moves its own paragraph too, which is why paragraphs are re-measured
+  // after their title is placed, not before). gsap's reveal transforms are
+  // visual-only, so they're neutralized during the measurement pass to
+  // avoid reading a skewed position for elements that haven't scrolled
+  // into view yet.
+  useLayoutEffect(() => {
+    function alignStoryLayout() {
+      if (window.innerWidth < 768) return
+
+      const titles = titleRefs.current
+      const paras = paraRefs.current
+      const media = imageRefs.current
+
+      const savedParaTransforms = paras.map((el) => el?.style.transform)
+      const savedMediaTransforms = media.map((el) => el?.style.transform)
+      paras.forEach((el) => el && (el.style.transform = 'none'))
+      media.forEach((el) => el && (el.style.transform = 'none'))
+      paras.forEach((el) => el && (el.style.marginTop = '0px'))
+      titles.forEach((el) => el && (el.style.marginTop = '0px'))
+
+      sections.forEach((section, s) => {
+        const title = titles[s]
+        const firstMedia = media[comboOffsets[s]]
+        if (title && firstMedia) {
+          const titleTop = title.getBoundingClientRect().top
+          const mediaTop = firstMedia.getBoundingClientRect().top
+          title.style.marginTop = `${mediaTop - titleTop}px`
+        }
+
+        const combos = section.combos || []
+        combos.forEach((_, j) => {
+          const i = comboOffsets[s] + j
+          const para = paras[i]
+          const mediaEl = media[i]
+          if (!para || !mediaEl) return
+          const paraRect = para.getBoundingClientRect()
+          const mediaRect = mediaEl.getBoundingClientRect()
+          const margin = Math.max(0, mediaRect.bottom - paraRect.bottom)
+          para.style.marginTop = `${margin}px`
+        })
+      })
+
+      paras.forEach((el, i) => el && (el.style.transform = savedParaTransforms[i] ?? ''))
+      media.forEach((el, i) => el && (el.style.transform = savedMediaTransforms[i] ?? ''))
+    }
+
+    alignStoryLayout()
+    document.fonts?.ready?.then(alignStoryLayout)
+
+    const ro = new ResizeObserver(alignStoryLayout)
+    if (containerRef.current) ro.observe(containerRef.current)
+    window.addEventListener('resize', alignStoryLayout)
+
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', alignStoryLayout)
+    }
+  }, [sections, comboOffsets])
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -592,12 +687,10 @@ function ScrollStorySection({ sections }) {
 
       <div className="hidden flex-col gap-6 pb-16 md:flex">
         {flatCombos.map((combo, i) => (
-          <img
+          <ComboMedia
             key={i}
             ref={(el) => (imageRefs.current[i] = el)}
-            src={combo.image}
-            alt=""
-            draggable={false}
+            combo={combo}
             className="aspect-square w-full select-none rounded-3xl object-cover"
           />
         ))}
@@ -636,16 +729,15 @@ function StackingTitles({ sections, index, comboOffsets, titleRefs, sectionRefs,
 
       {combos.map((combo, j) => (
         <div key={j} className="pb-16">
-          <img
-            src={combo.image}
+          <ComboMedia
+            combo={combo}
             alt={section.title}
-            draggable={false}
             className="mt-6 mb-6 aspect-square w-full select-none rounded-3xl object-cover md:hidden"
           />
 
           <p
             ref={(el) => (paraRefs.current[comboStart + j] = el)}
-            className="max-w-[85%] text-justify font-embodiment text-base leading-[150%] tracking-[0.14em] text-[#4a4238] uppercase md:mt-[calc(66.67vw-252px)]"
+            className="max-w-[85%] text-justify font-embodiment text-base leading-[150%] tracking-[0.14em] text-[#4a4238] uppercase"
           >
             {combo.paragraph}
           </p>

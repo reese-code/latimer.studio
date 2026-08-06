@@ -26,6 +26,7 @@ const PROJECT_FIELDS = `
     combos[]{
       paragraph,
       "image": image.asset->url,
+      "video": video.asset->url,
     },
   },
   testimonial,
