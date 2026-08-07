@@ -1,0 +1,673 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "hero_jVaWmY": {
+      "type": "hero",
+      "blocks": {
+        "text_EXD3c7": {
+          "type": "text",
+          "name": "t:names.text",
+          "settings": {
+            "text": "<h1>BUILT FOR THE MODERN MAN</h1>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "var(--color-foreground)",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "text_iXYWz6": {
+          "type": "text",
+          "name": "t:names.text",
+          "settings": {
+            "text": "<p>With a focus on quality and design, we curate products that enhance your everyday.</p>",
+            "width": "fit-content",
+            "max_width": "narrow",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "var(--color-foreground)",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "button_fge4e9": {
+          "type": "button",
+          "name": "t:names.button",
+          "settings": {
+            "label": "Shop now",
+            "link": "shopify://collections/all",
+            "open_in_new_tab": false,
+            "style_class": "button",
+            "corner_style": "cutout",
+            "cutout_corners": "all",
+            "cutout_size": 10,
+            "width": "custom",
+            "custom_width": 26,
+            "width_mobile": "fit-content",
+            "custom_width_mobile": 100
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "text_EXD3c7",
+        "text_iXYWz6",
+        "button_fge4e9"
+      ],
+      "name": "t:names.hero",
+      "settings": {
+        "link": "",
+        "open_in_new_tab": false,
+        "media_type_1": "image",
+        "image_1": "shopify://shop_images/forge_hero_img.png",
+        "media_type_2": "image",
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "space-between",
+        "vertical_alignment": "flex-end",
+        "align_baseline": true,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "flex-end",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "full-screen",
+        "section_height_custom": 50,
+        "color_scheme": "scheme-6",
+        "toggle_overlay": true,
+        "overlay_color": "#0000008f",
+        "overlay_style": "gradient",
+        "gradient_direction": "to top",
+        "blurred_reflection": true,
+        "reflection_opacity": 75,
+        "padding-block-start": 100,
+        "padding-block-end": 48
+      }
+    },
+    "logo_with_text_tEWjDK": {
+      "type": "logo-with-text",
+      "name": "t:names.logo_with_text",
+      "settings": {
+        "logo": "shopify://shop_images/forge_small_logo.svg",
+        "logo_height": 65,
+        "logo_height_mobile": 65,
+        "content_width": "two-thirds",
+        "content_position": "right",
+        "text_layout": "wrap",
+        "content_gap": 10,
+        "heading": "",
+        "heading_tag": "h2",
+        "heading_size": "h2",
+        "text": "<h2>orge is a men's grooming brand built on one principle: make it right or don't make it at all. No shortcuts, no filler — just products crafted with the kind of integrity the name demands.</h2>",
+        "section_width": "full-width",
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
+    },
+    "product_list_AHGCT4": {
+      "type": "product-list",
+      "blocks": {
+        "static-header": {
+          "type": "_product-list-content",
+          "name": "t:names.header",
+          "static": true,
+          "settings": {
+            "content_direction": "row",
+            "vertical_on_mobile": false,
+            "horizontal_alignment": "space-between",
+            "vertical_alignment": "flex-end",
+            "align_baseline": true,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "product_list_text_qiH39M": {
+              "type": "_product-list-text",
+              "name": "t:names.collection_title",
+              "settings": {
+                "text": "<h3>{{ closest.collection.title }}</h3>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "product_list_button_9Qp4YA": {
+              "type": "_product-list-button",
+              "name": "t:names.product_list_button",
+              "settings": {
+                "label": "View all",
+                "collection": "{{ closest.collection }}",
+                "open_in_new_tab": false,
+                "style_class": "link",
+                "width": "fit-content",
+                "custom_width": 100,
+                "width_mobile": "fit-content",
+                "custom_width_mobile": 100
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "product_list_text_qiH39M",
+            "product_list_button_9Qp4YA"
+          ]
+        },
+        "static-product-card": {
+          "type": "product-card",
+          "name": "t:names.product_card",
+          "static": true,
+          "settings": {
+            "product": "{{ closest.product }}",
+            "product_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "product_card_gallery_nkCp4X": {
+              "type": "_product-card-gallery",
+              "name": "t:names.product_card_media",
+              "settings": {
+                "product": "razor-01",
+                "image_ratio": "portrait",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_4AL44x": {
+              "type": "group",
+              "name": "t:names.group",
+              "settings": {
+                "link": "",
+                "open_in_new_tab": false,
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 4,
+                "width": "fill",
+                "custom_width": 100,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "custom_height": 100,
+                "inherit_color_scheme": true,
+                "color_scheme": "",
+                "background_media": "none",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "product_title_7gQmU4": {
+                  "type": "product-title",
+                  "name": "t:names.product_title",
+                  "settings": {
+                    "product": "{{ closest.product }}",
+                    "width": "100%",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "h5",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "color": "var(--color-foreground)",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "price_eUAiAp": {
+                  "type": "price",
+                  "name": "t:names.product_price",
+                  "settings": {
+                    "product": "{{ closest.product }}",
+                    "show_sale_price_first": true,
+                    "show_installments": false,
+                    "show_tax_info": false,
+                    "type_preset": "",
+                    "width": "100%",
+                    "alignment": "left",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "color": "var(--color-foreground)",
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "swatches_wFYQDN": {
+                  "type": "swatches",
+                  "name": "t:names.swatches",
+                  "settings": {
+                    "product": "{{ closest.product }}",
+                    "product_swatches_alignment": "flex-start",
+                    "product_swatches_alignment_mobile": "flex-start",
+                    "hide_padding": false,
+                    "product_swatches_padding_top": 4,
+                    "product_swatches_padding_bottom": 0,
+                    "product_swatches_padding_left": 0,
+                    "product_swatches_padding_right": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "product_title_7gQmU4",
+                "price_eUAiAp",
+                "swatches_wFYQDN"
+              ]
+            }
+          },
+          "block_order": [
+            "product_card_gallery_nkCp4X",
+            "group_4AL44x"
+          ]
+        }
+      },
+      "name": "t:names.products_grid",
+      "settings": {
+        "collection": "",
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "max_products": 8,
+        "columns": 4,
+        "mobile_columns": "2",
+        "columns_gap": 8,
+        "rows_gap": 36,
+        "icons_style": "arrow",
+        "icons_shape": "none",
+        "section_width": "page-width",
+        "horizontal_alignment": "flex-start",
+        "gap": 28,
+        "color_scheme": "scheme-1",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "hero_kT478m": {
+      "type": "hero",
+      "blocks": {
+        "text_MccHxh": {
+          "type": "text",
+          "settings": {
+            "text": "<h2>Build your routine</h2>",
+            "width": "fit-content",
+            "max_width": "narrow",
+            "alignment": "left",
+            "type_preset": "h1",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "var(--color-foreground)",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "text_FXLPgV": {
+          "type": "text",
+          "settings": {
+            "text": "<p>A quiz to build a skincare routine tailored to your wants and needs.</p>",
+            "width": "fit-content",
+            "max_width": "none",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "var(--color-foreground)",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "button_DRDiKd": {
+          "type": "button",
+          "name": "t:names.button",
+          "settings": {
+            "label": "Build routine",
+            "link": "shopify://pages/skin-quiz",
+            "open_in_new_tab": false,
+            "style_class": "button",
+            "corner_style": "default",
+            "cutout_corners": "all",
+            "cutout_size": 10,
+            "width": "custom",
+            "custom_width": 50,
+            "width_mobile": "custom",
+            "custom_width_mobile": 100
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "text_MccHxh",
+        "text_FXLPgV",
+        "button_DRDiKd"
+      ],
+      "name": "t:names.hero",
+      "settings": {
+        "link": "",
+        "open_in_new_tab": false,
+        "media_type_1": "image",
+        "media_type_2": "image",
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "flex-end",
+        "gap": 16,
+        "section_width": "page-width",
+        "section_height": "small",
+        "section_height_custom": 50,
+        "color_scheme": "scheme-5",
+        "toggle_overlay": true,
+        "overlay_color": "#00000026",
+        "overlay_style": "gradient",
+        "gradient_direction": "to top",
+        "blurred_reflection": false,
+        "reflection_opacity": 75,
+        "padding-block-start": 40,
+        "padding-block-end": 40
+      }
+    },
+    "collection_showcase_MWkDfz": {
+      "type": "collection-showcase",
+      "blocks": {
+        "collection_kGLMVQ": {
+          "type": "collection",
+          "settings": {
+            "collection": "shave",
+            "slide_title": "",
+            "slide_description": "",
+            "button_label": "Shop collection",
+            "button_link": "",
+            "button_corner_style": "cutout",
+            "button_cutout_corners": "all",
+            "button_cutout_size": 10,
+            "toggle_overlay": true,
+            "overlay_color": "#00000054",
+            "overlay_style": "gradient",
+            "gradient_direction": "to top"
+          }
+        },
+        "collection_zLFCY8": {
+          "type": "collection",
+          "settings": {
+            "collection": "grooming",
+            "slide_title": "",
+            "slide_description": "",
+            "button_label": "Shop collection",
+            "button_link": "",
+            "button_corner_style": "default",
+            "button_cutout_corners": "all",
+            "button_cutout_size": 10,
+            "toggle_overlay": true,
+            "overlay_color": "#00000066",
+            "overlay_style": "gradient",
+            "gradient_direction": "to top"
+          }
+        },
+        "collection_PqGgPT": {
+          "type": "collection",
+          "settings": {
+            "collection": "hair",
+            "slide_title": "",
+            "slide_description": "",
+            "button_label": "Shop collection",
+            "button_link": "",
+            "button_corner_style": "default",
+            "button_cutout_corners": "all",
+            "button_cutout_size": 10,
+            "toggle_overlay": true,
+            "overlay_color": "#00000066",
+            "overlay_style": "gradient",
+            "gradient_direction": "to top"
+          }
+        },
+        "collection_Vw8M8i": {
+          "type": "collection",
+          "settings": {
+            "collection": "fragrances",
+            "slide_title": "",
+            "slide_description": "",
+            "button_label": "Shop collection",
+            "button_link": "",
+            "button_corner_style": "default",
+            "button_cutout_corners": "all",
+            "button_cutout_size": 10,
+            "toggle_overlay": true,
+            "overlay_color": "#00000066",
+            "overlay_style": "gradient",
+            "gradient_direction": "to top"
+          }
+        },
+        "collection_migaUV": {
+          "type": "collection",
+          "settings": {
+            "collection": "skin-care",
+            "slide_title": "",
+            "slide_description": "",
+            "button_label": "Shop collection",
+            "button_link": "",
+            "button_corner_style": "default",
+            "button_cutout_corners": "all",
+            "button_cutout_size": 10,
+            "toggle_overlay": true,
+            "overlay_color": "#00000066",
+            "overlay_style": "gradient",
+            "gradient_direction": "to top"
+          }
+        }
+      },
+      "block_order": [
+        "collection_kGLMVQ",
+        "collection_zLFCY8",
+        "collection_PqGgPT",
+        "collection_Vw8M8i",
+        "collection_migaUV"
+      ],
+      "name": "Collection Showcase",
+      "settings": {
+        "slide_height": "small",
+        "slide_height_custom": 60,
+        "slide_height_mobile": "same",
+        "slide_height_custom_mobile": 60,
+        "slide_border_radius": 0,
+        "cutout_size": 40,
+        "cutout_size_mobile": 16,
+        "content_bottom_offset": 40,
+        "content_gap": 16,
+        "desktop_content_layout": "stacked",
+        "nav_side_padding_mobile": 0,
+        "nav_bottom_padding_mobile": 0,
+        "autoplay_speed": 5,
+        "tab_bar_height": 2,
+        "tab_inactive_opacity": 25,
+        "tab_active_opacity": 100,
+        "tab_font_size": 16,
+        "nav_side_padding": 40,
+        "nav_bottom_padding": 0,
+        "section_width": "page-width",
+        "color_scheme": "scheme-5",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "v2_testimonials_WKMwix": {
+      "type": "v2-testimonials",
+      "blocks": {
+        "testimonial_yx4hWb": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "STATELY'S BEEN A GAME-CHANGER. FOUR BOXES IN, NOT A SINGLE MISS. I LOOK AND FEEL GREAT - THANKS NATALIE!",
+            "instagram_handle": "",
+            "size": "medium"
+          }
+        },
+        "testimonial_kJRx4U": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "STATELY'S BEEN A GAME-CHANGER. FOUR BOXES IN, NOT A SINGLE MISS. I LOOK AND FEEL GREAT - THANKS NATALIE!",
+            "instagram_handle": "",
+            "size": "medium"
+          }
+        },
+        "testimonial_TVAY4d": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "STATELY'S BEEN A GAME-CHANGER. FOUR BOXES IN, NOT A SINGLE MISS. I LOOK AND FEEL GREAT - THANKS NATALIE!",
+            "instagram_handle": "",
+            "size": "medium"
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_yx4hWb",
+        "testimonial_kJRx4U",
+        "testimonial_TVAY4d"
+      ],
+      "name": "Testimonials",
+      "settings": {
+        "title": "TRUSTED BY OVER 100,000 MEN"
+      }
+    }
+  },
+  "order": [
+    "hero_jVaWmY",
+    "logo_with_text_tEWjDK",
+    "product_list_AHGCT4",
+    "hero_kT478m",
+    "collection_showcase_MWkDfz",
+    "v2_testimonials_WKMwix"
+  ]
+}

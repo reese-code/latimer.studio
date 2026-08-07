@@ -1,0 +1,134 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "heading": {
+          "type": "text",
+          "name": "Title",
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h1",
+            "font": "var(--font-primary--family)",
+            "font_size": "",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "heading",
+        "page-content"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "gap": 32,
+        "color_scheme": "",
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    },
+    "image_gallery_3Xn7rJ": {
+      "type": "image-gallery",
+      "name": "Image Gallery - 5 Images",
+      "settings": {
+        "enable_bottom_row": true,
+        "switch_order": false,
+        "gap_horizontal": 20,
+        "gap_vertical": 20,
+        "image_1": "shopify://shop_images/pali-img-1.png",
+        "image_1_link": "",
+        "image_2": "shopify://shop_images/pali-img-2.png",
+        "image_2_link": "",
+        "image_3": "shopify://shop_images/pali-img-3.png",
+        "image_3_link": "",
+        "image_4": "shopify://shop_images/pali-img-4.png",
+        "image_4_link": "",
+        "image_5": "shopify://shop_images/pali-img-5.png",
+        "image_5_link": "",
+        "section_width": "page-width",
+        "color_scheme": "",
+        "padding-block-start": 40,
+        "padding-block-end": 40
+      }
+    },
+    "image_with_text_3XikYf": {
+      "type": "image-with-text",
+      "name": "Image with text - Text focus",
+      "settings": {
+        "layout_direction": "flipped",
+        "sizing_option": "text-one-third",
+        "gap": 40,
+        "image": "shopify://shop_images/pali-img-1.png",
+        "image_link": "",
+        "heading": "Our story",
+        "heading_size": "h2",
+        "text": "<p>Use this section to tell your brand story. Share your values, mission, and what makes your products special.</p>",
+        "button_label": "Learn more",
+        "button_link": "",
+        "button_style": "button",
+        "section_width": "page-width",
+        "padding-block-start": 40,
+        "padding-block-end": 40
+      }
+    },
+    "image_gallery_eYBEF9": {
+      "type": "image-gallery",
+      "name": "Image Gallery - 5 Images",
+      "settings": {
+        "enable_bottom_row": true,
+        "switch_order": true,
+        "gap_horizontal": 20,
+        "gap_vertical": 20,
+        "image_1": "shopify://shop_images/pali-img-1.png",
+        "image_1_link": "",
+        "image_2": "shopify://shop_images/pali-img-2.png",
+        "image_2_link": "",
+        "image_3": "shopify://shop_images/pali-img-3.png",
+        "image_3_link": "",
+        "image_4": "shopify://shop_images/pali-img-4.png",
+        "image_4_link": "",
+        "image_5": "shopify://shop_images/pali-img-5.png",
+        "image_5_link": "",
+        "section_width": "page-width",
+        "color_scheme": "",
+        "padding-block-start": 40,
+        "padding-block-end": 40
+      }
+    }
+  },
+  "order": [
+    "main",
+    "image_gallery_3Xn7rJ",
+    "image_with_text_3XikYf",
+    "image_gallery_eYBEF9"
+  ]
+}

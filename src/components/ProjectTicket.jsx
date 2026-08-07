@@ -96,9 +96,18 @@ const ProjectTicket = forwardRef(function ProjectTicket(
               the ticket's cream background instead of a dark photo. */}
           <button
             onClick={onEnter}
-            className="btn-scoop [--scoop-color:var(--color-maroon)] mt-1 cursor-pointer select-none whitespace-nowrap px-[30px] py-[9px] font-sans font-medium text-xs tracking-[0.25em] text-maroon transition-colors duration-200 ease-out hover:bg-maroon hover:text-cream"
+            aria-label="See Project"
+            className="btn-scoop [--scoop-color:var(--color-maroon)] group mt-1 cursor-pointer select-none whitespace-nowrap bg-maroon px-[30px] py-[9px] font-sans font-medium text-xs leading-none tracking-[0.25em] text-cream md:text-base"
           >
-            See Project
+            {/* Clipped to one line's height; the duplicate line sits directly
+                below, out of view, until hover slides the pair up by half
+                their combined height — exactly one line — swapping them. */}
+            <span className="relative block h-[1em] overflow-hidden" aria-hidden="true">
+              <span className="flex flex-col transition-transform duration-300 ease-out group-hover:-translate-y-1/2">
+                <span className="block">See Project</span>
+                <span className="block">See Project</span>
+              </span>
+            </span>
           </button>
         </div>
       </div>

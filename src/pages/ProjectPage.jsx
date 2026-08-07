@@ -473,12 +473,11 @@ function MetaField({ label, value }) {
 // image by index — the right-hand image column and the title column render
 // separately, but combos stay matched up in source order.
 //
-// A small opaque cap sits above the first title once the stack is actually
-// pinned to the top of the viewport, so nothing scrolling underneath is
-// ever visible above it. It only takes up space once pinned — before that,
-// the first title's top lines up exactly with the first image's top.
-const TOP_CAP           = 20  // px — breathing room above the stack, opaque, only reserved while pinned
-const STICKY_TOP        = TOP_CAP
+// The first title pins flush to the very top of the viewport (0), so it
+// locks in at exactly the scroll position where the first image's top
+// would otherwise have scrolled past that same edge — title and image stop
+// moving at the same moment, no gap or jump between them.
+const STICKY_TOP        = 0
 const TITLE_STACK_GAP   = 40  // px added per stacked title
 
 // Renders a combo's video when present, falling back to its image. Both
@@ -511,12 +510,10 @@ const ComboMedia = forwardRef(function ComboMedia({ combo, className, alt = '' }
 
 function ScrollStorySection({ sections }) {
   const containerRef = useRef(null)
-  const sentinelRef  = useRef(null)
   const titleRefs    = useRef([])
   const sectionRefs   = useRef([])
   const paraRefs      = useRef([])
   const imageRefs     = useRef([])
-  const [isPinned, setIsPinned] = useState(false)
 
   const comboOffsets = sections.reduce((offsets) => {
     const prevStart = offsets.length ? offsets[offsets.length - 1] : 0
@@ -525,16 +522,6 @@ function ScrollStorySection({ sections }) {
     return offsets
   }, [])
   const flatCombos = sections.flatMap((section) => section.combos || [])
-
-  useEffect(() => {
-    const el = sentinelRef.current
-    if (!el) return
-    const observer = new IntersectionObserver(([entry]) => setIsPinned(!entry.isIntersecting), {
-      threshold: [1],
-    })
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
 
   // Keeps every section's title top lined up with its first image/video's
   // top, and every paragraph's bottom lined up with its image/video's
@@ -549,6 +536,15 @@ function ScrollStorySection({ sections }) {
   // visual-only, so they're neutralized during the measurement pass to
   // avoid reading a skewed position for elements that haven't scrolled
   // into view yet.
+  //
+  // A title is never pulled up past the bottom of the previous section's
+  // last paragraph (plus a small breathing gap) — a long paragraph can put
+  // its bottom below where the next image starts, and without this clamp
+  // the title (opaque background, its own stacking layer) would slide up
+  // over that still-visible text instead of just landing a little later
+  // than its image.
+  const TITLE_MIN_GAP = 24
+
   useLayoutEffect(() => {
     function alignStoryLayout() {
       if (window.innerWidth < 768) return
@@ -564,13 +560,19 @@ function ScrollStorySection({ sections }) {
       paras.forEach((el) => el && (el.style.marginTop = '0px'))
       titles.forEach((el) => el && (el.style.marginTop = '0px'))
 
+      let previousParaBottom = null
+
       sections.forEach((section, s) => {
         const title = titles[s]
         const firstMedia = media[comboOffsets[s]]
         if (title && firstMedia) {
           const titleTop = title.getBoundingClientRect().top
           const mediaTop = firstMedia.getBoundingClientRect().top
-          title.style.marginTop = `${mediaTop - titleTop}px`
+          let margin = mediaTop - titleTop
+          if (previousParaBottom !== null) {
+            margin = Math.max(margin, previousParaBottom + TITLE_MIN_GAP - titleTop)
+          }
+          title.style.marginTop = `${margin}px`
         }
 
         const combos = section.combos || []
@@ -583,6 +585,7 @@ function ScrollStorySection({ sections }) {
           const mediaRect = mediaEl.getBoundingClientRect()
           const margin = Math.max(0, mediaRect.bottom - paraRect.bottom)
           para.style.marginTop = `${margin}px`
+          previousParaBottom = para.getBoundingClientRect().bottom
         })
       })
 
@@ -602,6 +605,28 @@ function ScrollStorySection({ sections }) {
       window.removeEventListener('resize', alignStoryLayout)
     }
   }, [sections, comboOffsets])
+
+  // Lenis drives scrolling by smoothing/animating the real scroll position
+  // rather than letting the browser scroll natively, and browsers can let a
+  // `position: sticky` element's stuck/unstuck state go stale when scroll
+  // updates arrive that way — a title can stay pinned to the top well past
+  // where it should release, then jump back once something forces a
+  // layout recalculation. Reading a layout property on every title each
+  // scroll tick forces that recalculation continuously, keeping the stuck
+  // state accurate instead of stale.
+  useEffect(() => {
+    const lenis = getLenis()
+    if (!lenis) return
+
+    function nudgeStickyRecalc() {
+      titleRefs.current.forEach((el) => {
+        if (el) void el.getBoundingClientRect()
+      })
+    }
+
+    lenis.on('scroll', nudgeStickyRecalc)
+    return () => lenis.off('scroll', nudgeStickyRecalc)
+  }, [])
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -664,16 +689,6 @@ function ScrollStorySection({ sections }) {
           images inline (no separate scrolling column); on desktop the images
           live in the column on the right and scroll independently. */}
       <div>
-        {/* Zero-size sentinel just above the cap — once it scrolls out of
-            view, the cap (and title stack) has actually become pinned to
-            the top of the viewport. */}
-        <div ref={sentinelRef} />
-        {/* Opaque cap — once pinned, sits above the title stack for the
-            same duration as the stack itself, so no scrolling text ever
-            peeks through the gap above it. Before it's pinned it takes up
-            no space, so the very first title's top lines up with the very
-            first image's top. */}
-        <div className="sticky top-0 z-20 bg-case-bg" style={{ height: isPinned ? TOP_CAP : 0 }} />
         <StackingTitles
           sections={sections}
           index={0}
