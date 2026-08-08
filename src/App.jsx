@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import ProjectPage from './pages/ProjectPage'
@@ -7,10 +7,35 @@ import ContactPage from './pages/ContactPage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import useLenis from './hooks/useLenis'
 import { SiteDataProvider } from './lib/SiteDataContext'
+import { useSiteData } from './hooks/useSiteData'
+import LoadingScreen from './components/LoadingScreen'
 
 // Code-split — the Studio bundle is large and should never load for
 // regular site visitors.
 const StudioPage = lazy(() => import('./pages/StudioPage'))
+
+// Site content mounts (and starts painting) immediately, underneath the
+// loading screen overlay — so once the overlay slides away the first frame
+// is already there rather than popping in.
+function MainSite() {
+  const { loading } = useSiteData()
+  const [showLoader, setShowLoader] = useState(true)
+
+  return (
+    <>
+      {showLoader && (
+        <LoadingScreen ready={!loading} onDone={() => setShowLoader(false)} />
+      )}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/projects/:id" element={<ProjectPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+      </Routes>
+    </>
+  )
+}
 
 export default function App() {
   useLenis()
@@ -24,13 +49,7 @@ export default function App() {
       } />
       <Route path="*" element={
         <SiteDataProvider>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/projects/:id" element={<ProjectPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-          </Routes>
+          <MainSite />
         </SiteDataProvider>
       } />
     </Routes>
