@@ -7,7 +7,7 @@ import { nextCharge, decayCharge, COMMIT_THRESHOLD, GATE_IDLE_MS } from '../lib/
 import { setGalleryControls } from '../lib/galleryControl'
 
 // scene_1: plays in full once the opening gate commits (site intro)
-const SCENE1 = { folder: '/frames/scene_1', total: 122 }
+const SCENE1 = { folder: '/frames/scene_1', total: 121 }
 // scene_2: plays in full once the second gate commits (concessions → ciao poster)
 const SCENE2 = { folder: '/frames/scene_2', total: 121 }
 // Playback-rate multiplier for both scene hand-offs and the theater entry —
@@ -97,12 +97,22 @@ class SequencePlayer {
     let frameIdx   = startFrame != null ? startFrame : (forward ? 0 : this.total - 1)
     const step     = forward ? 1 : -1
     let lastTime   = null
+    let waitStart  = null
 
     const tick = (now) => {
       if (lastTime === null) lastTime = now
       while (now - lastTime >= frameDur) {
         const img = this.images[frameIdx]
-        if (!img) break // wait for frame rather than skip
+        if (!img) {
+          // A frame that's missing (failed to load, or the folder's actual
+          // file count drifted below `total`) would otherwise stall the
+          // sequence here forever with no way for the caller to recover —
+          // bail out to onDone once we've waited a full second for it.
+          if (waitStart === null) waitStart = now
+          if (now - waitStart > 1000) { onDone?.(); return }
+          break
+        }
+        waitStart = null
         this.drawFit(canvas, img)
         frameIdx += step
         if (frameIdx < 0 || frameIdx >= this.total) { onDone?.(); return }
@@ -255,9 +265,19 @@ export default function PosterGallery({ onPhaseChange, projects }) {
   const posterPlayers  = useRef(null)
   const theaterPlayers = useRef(null)
 
-  // Create players, size the canvas, and start preloading scene_1 + scene_2
+  // Create players, size the canvas, and start preloading everything
   // immediately — the experience is gated by scroll charge, not by how much
-  // has loaded, so both need to already be in flight from frame one.
+  // has loaded, so nothing should sit idle waiting for a later trigger.
+  // HomePage mounts underneath the loading screen (see App.jsx), so this
+  // whole cascade is already running during that ~6.5s intro animation and
+  // whatever time the visitor spends charging the first two gates — by far
+  // the best window to get ahead of the poster/theater sequences too.
+  // scene_1 and scene_2 go first (needed almost immediately); the poster
+  // transitions follow right behind since reaching them just requires
+  // clearing two scroll gates. Theater transitions are the heaviest set (3 x
+  // 170 frames) and are only ever needed once someone lingers on a poster,
+  // so those preload per-project once the poster gallery is actually reached
+  // (see revealTicket/goTo below) rather than all three up front.
   useEffect(() => {
     const canvas = canvasRef.current
     if (canvas) {
@@ -274,6 +294,7 @@ export default function PosterGallery({ onPhaseChange, projects }) {
       if (canvasRef.current) scene1Player.current.drawFrame(canvasRef.current, 0)
     })
     scene2Player.current.preload()
+    posterPlayers.current.forEach(p => p.preload())
   }, [])
 
   // Ticket starts fully hidden below the viewport — it's revealed only once
@@ -285,7 +306,11 @@ export default function PosterGallery({ onPhaseChange, projects }) {
   }, [])
 
   const revealTicket = useCallback(() => {
-    posterPlayers.current?.forEach(p => p.preload())
+    // The poster/transition sequences are already preloading from mount (see
+    // above) — the only thing worth kicking off fresh here is the current
+    // project's theater-entry clip, since that's the heaviest sequence and
+    // otherwise wouldn't start loading until the "Enter" click itself.
+    theaterPlayers.current?.[activeRef.current]?.preload()
     if (ticketRef.current) {
       gsap.to(ticketRef.current, {
         y: '0%',
@@ -429,6 +454,9 @@ export default function PosterGallery({ onPhaseChange, projects }) {
       activeRef.current = next
       setActiveProject(projects[next])
       setPhase('poster')
+      // Get ahead of the next likely "Enter" click the same way revealTicket
+      // does for the first project.
+      theaterPlayers.current?.[next]?.preload()
 
       // New ticket rises up from below the viewport into view once the
       // transition frames finish and the new project's content is set.
