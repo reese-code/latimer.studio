@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import gsap from 'gsap'
 import ProjectTicket from './ProjectTicket'
 import ScrollChargeIndicator from './ScrollChargeIndicator'
-import { nextCharge, decayCharge, GATE_IDLE_MS } from '../lib/chargeGate'
+import { nextCharge, decayCharge, COMMIT_THRESHOLD, GATE_IDLE_MS } from '../lib/chargeGate'
 import { setGalleryControls } from '../lib/galleryControl'
 
 // scene_1: plays in full once the opening gate commits (site intro)
@@ -114,6 +114,15 @@ class SequencePlayer {
   }
 }
 
+// Normalizes a gate's charge (0..COMMIT_THRESHOLD, signed) to -1..1 so the
+// peek-scrub effects below reach their full travel distance exactly as the
+// gate commits, rather than only ever covering the first COMMIT_THRESHOLD
+// slice of it — the visual motion still uses the whole peek range per
+// scroll gesture even though less charge is now required to commit it.
+function peekProgress(charge) {
+  return Math.max(-1, Math.min(1, charge / COMMIT_THRESHOLD))
+}
+
 // Which transition video connects `from` and `to`, and in which direction
 function resolveTransition(from, to, n) {
   if (to === (from + 1) % n)     return { idx: from, forward: true  } // next
@@ -159,11 +168,11 @@ function useChargeGate(active, { onCommitForward, onCommitBackward, touchBoost =
       lastInputAt = performance.now()
       const next = nextCharge(value, deltaY)
       apply(next)
-      if (next >= 1 && onCommitForward) {
+      if (next >= COMMIT_THRESHOLD && onCommitForward) {
         committed = true
         setCharge(null)
         onCommitForward()
-      } else if (next <= -1 && onCommitBackward) {
+      } else if (next <= -COMMIT_THRESHOLD && onCommitBackward) {
         committed = true
         setCharge(null)
         onCommitBackward()
@@ -359,17 +368,18 @@ export default function PosterGallery({ onPhaseChange, projects }) {
   useEffect(() => {
     if (phase !== 'scene1-gate' || gate1Charge == null) return
     const canvas = canvasRef.current
-    if (canvas) scene1Player.current?.drawFrame(canvas, Math.max(0, Math.round(gate1Charge * SCENE1_PEEK)))
+    if (canvas) scene1Player.current?.drawFrame(canvas, Math.max(0, Math.round(peekProgress(gate1Charge) * SCENE1_PEEK)))
   }, [gate1Charge, phase])
 
   useEffect(() => {
     if (phase !== 'scene2-gate' || gate2Charge == null) return
     const canvas = canvasRef.current
     if (!canvas) return
-    if (gate2Charge >= 0) {
-      scene2Player.current?.drawFrame(canvas, Math.round(gate2Charge * SCENE2_PEEK))
+    const progress = peekProgress(gate2Charge)
+    if (progress >= 0) {
+      scene2Player.current?.drawFrame(canvas, Math.round(progress * SCENE2_PEEK))
     } else {
-      const idx = SCENE1.total - 1 + Math.round(gate2Charge * SCENE1_PEEK)
+      const idx = SCENE1.total - 1 + Math.round(progress * SCENE1_PEEK)
       scene1Player.current?.drawFrame(canvas, Math.max(0, idx))
     }
   }, [gate2Charge, phase])
@@ -378,7 +388,7 @@ export default function PosterGallery({ onPhaseChange, projects }) {
     if (phase !== 'poster' || gate3Charge == null || gate3Charge >= 0) return
     const canvas = canvasRef.current
     if (!canvas) return
-    const idx = SCENE2.total - 1 + Math.round(gate3Charge * SCENE2_PEEK)
+    const idx = SCENE2.total - 1 + Math.round(peekProgress(gate3Charge) * SCENE2_PEEK)
     scene2Player.current?.drawFrame(canvas, Math.max(0, idx))
   }, [gate3Charge, phase])
 
