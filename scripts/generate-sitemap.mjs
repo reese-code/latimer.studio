@@ -4,7 +4,9 @@
 // up-to-date sitemap without anyone remembering to touch it by hand.
 //
 // Usage:
-//   node --env-file=.env scripts/generate-sitemap.mjs
+//   node scripts/generate-sitemap.mjs
+//   (locally, run with `node --env-file=.env` or export the vars yourself;
+//   Netlify injects them into the build environment automatically)
 //
 // Only needs VITE_SANITY_PROJECT_ID/VITE_SANITY_DATASET (read-only) — no
 // write token required. If the Sanity fetch fails (e.g. no network in a
