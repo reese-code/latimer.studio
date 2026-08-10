@@ -2,12 +2,14 @@ import { useState, useCallback, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import PosterGallery from '../components/PosterGallery'
 import TicketMenu from '../components/TicketMenu'
+import LoadingScreen from '../components/LoadingScreen'
 import { getGalleryControls } from '../lib/galleryControl'
 import { useSiteData } from '../hooks/useSiteData'
 import { useDocumentHead } from '../hooks/useDocumentHead'
 
 export default function HomePage() {
   const { projects, loading } = useSiteData()
+  const [showLoader, setShowLoader] = useState(true)
   useDocumentHead({
     title: 'Latimer Studio — Denver Web Design & Branding Studio for Custom, High-Converting Websites',
     description:
@@ -57,24 +59,29 @@ export default function HomePage() {
     }
   }, [])
 
-  if (loading || projects.length === 0) {
-    return <div className="fixed inset-0 z-10 h-screen w-screen bg-ink" />
-  }
-
   return (
     <>
-      {/* Visually hidden — the gallery below is an entirely visual/canvas
-          experience with no real page copy, so this is the only text that
-          gives crawlers (and screen readers) something to read as the
-          page's actual title. */}
-      <h1 className="sr-only">
-        Websites with the structure of a Nolan plot, where every detail pays off later. Latimer Studio
-      </h1>
-      <h2 className="sr-only">
-        Denver web design studio building custom websites, brand identities, and UI/UX design for businesses that want to stand out.
-      </h2>
-      <PosterGallery onPhaseChange={handlePhaseChange} projects={projects} />
-      <TicketMenu forceHidden={hideNavTicket} />
+      {showLoader && (
+        <LoadingScreen ready={!loading} onDone={() => setShowLoader(false)} />
+      )}
+      {loading || projects.length === 0 ? (
+        <div className="fixed inset-0 z-10 h-screen w-screen bg-ink" />
+      ) : (
+        <>
+          {/* Visually hidden — the gallery below is an entirely visual/canvas
+              experience with no real page copy, so this is the only text that
+              gives crawlers (and screen readers) something to read as the
+              page's actual title. */}
+          <h1 className="sr-only">
+            Websites with the structure of a Nolan plot, where every detail pays off later. Latimer Studio
+          </h1>
+          <h2 className="sr-only">
+            Denver web design studio building custom websites, brand identities, and UI/UX design for businesses that want to stand out.
+          </h2>
+          <PosterGallery onPhaseChange={handlePhaseChange} projects={projects} />
+          <TicketMenu forceHidden={hideNavTicket} />
+        </>
+      )}
     </>
   )
 }
