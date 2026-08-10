@@ -14,6 +14,13 @@ export default defineType({
       description: 'Main paragraph shown on the About page.',
     }),
     defineField({
+      name: 'aboutImage',
+      title: 'About page image',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Fills the box next to the About page copy. Falls back to a plain cream box when empty.',
+    }),
+    defineField({
       name: 'footerTaglines',
       title: 'Footer taglines',
       type: 'array',

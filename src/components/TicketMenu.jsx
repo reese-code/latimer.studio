@@ -261,7 +261,7 @@ export default function TicketMenu({ forceHidden = false }) {
         <div className="relative w-full">
           <img
             src={ticketBg}
-            alt="menu ticket"
+            alt=""
             className="block w-full h-auto"
           />
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pt-10">

@@ -4,12 +4,41 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Above-the-fold text (nav ticket, headings) uses these on every
+         page — preloading avoids a flash of unstyled/invisible text on
+         first paint. -->
+    <link rel="preload" as="font" type="font/otf" crossorigin href="/src/assets/PPPlayground-Light.otf" />
+    <link rel="preload" as="font" type="font/otf" crossorigin href="/src/assets/OTNeueMontreal-MediumSqueezed.otf" />
+
+    <!-- Nearly every image and all page content comes from Sanity's CDN
+         and content API — warm the connections early. -->
+    <link rel="preconnect" href="https://cdn.sanity.io" />
+    <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+    <link rel="preconnect" href="https://xw7lzt9e.apicdn.sanity.io" crossorigin />
+    <link rel="dns-prefetch" href="https://xw7lzt9e.apicdn.sanity.io" />
     <title>Latimer Studio — Denver Web Design & Branding Studio for Custom, High-Converting Websites</title>
     <meta
       name="description"
       content="Latimer Studio is a Denver-based design studio building custom, high-converting websites and brand identities — UI/UX design, React development, and branding for businesses that want to stand out."
     />
     <link rel="canonical" href="https://latimer.studio/" />
+
+    <meta property="og:site_name" content="Latimer Studio" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Latimer Studio — Denver Web Design & Branding Studio for Custom, High-Converting Websites" />
+    <meta
+      property="og:description"
+      content="Latimer Studio is a Denver-based design studio building custom, high-converting websites and brand identities — UI/UX design, React development, and branding for businesses that want to stand out."
+    />
+    <meta property="og:url" content="https://latimer.studio/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Latimer Studio — Denver Web Design & Branding Studio for Custom, High-Converting Websites" />
+    <meta
+      name="twitter:description"
+      content="Latimer Studio is a Denver-based design studio building custom, high-converting websites and brand identities — UI/UX design, React development, and branding for businesses that want to stand out."
+    />
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",

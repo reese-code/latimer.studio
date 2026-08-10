@@ -9,6 +9,7 @@ import { getLenis } from '../hooks/useLenis'
 import { useSiteData } from '../hooks/useSiteData'
 import { optimizedImageUrl, srcSetFor } from '../lib/sanityImage'
 import { useDocumentHead } from '../hooks/useDocumentHead'
+import NotFoundPage from './NotFoundPage'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -18,7 +19,6 @@ const TITLE_LOGOS = {
 
 export default function ProjectPage() {
   const { id }      = useParams()
-  const navigate     = useNavigate()
   const { projects, projectById, loading } = useSiteData()
   const project       = projectById(id)
 
@@ -26,16 +26,30 @@ export default function ProjectPage() {
     title: project ? `${project.label} — ${project.type || 'Case Study'} | Latimer Studio` : undefined,
     description: project?.tagline || project?.description || undefined,
     path: project ? `/projects/${project.id}` : undefined,
+    ogType: 'article',
     jsonLd: project
-      ? {
-          '@context': 'https://schema.org',
-          '@type': 'CreativeWork',
-          name: project.label,
-          description: project.tagline || project.description,
-          image: project.poster,
-          url: `https://latimer.studio/projects/${project.id}`,
-          creator: { '@type': 'Organization', name: 'Latimer Studio' },
-        }
+      ? [
+          {
+            '@context': 'https://schema.org',
+            '@type': 'CreativeWork',
+            name: project.label,
+            description: project.tagline || project.description,
+            image: project.poster,
+            url: `https://latimer.studio/projects/${project.id}`,
+            creator: { '@type': 'Organization', name: 'Latimer Studio' },
+            datePublished: project.date || project.year || undefined,
+            keywords: project.tags?.length ? project.tags.join(', ') : undefined,
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://latimer.studio/' },
+              { '@type': 'ListItem', position: 2, name: 'Projects', item: 'https://latimer.studio/#projects' },
+              { '@type': 'ListItem', position: 3, name: project.label, item: `https://latimer.studio/projects/${project.id}` },
+            ],
+          },
+        ]
       : undefined,
   })
 
@@ -77,8 +91,8 @@ export default function ProjectPage() {
   }, [])
 
   if (!project) {
-    if (!loading) navigate('/')
-    return null
+    if (loading) return null
+    return <NotFoundPage />
   }
 
   return (
@@ -525,6 +539,8 @@ const ComboMedia = forwardRef(function ComboMedia({ combo, className, alt = '' }
       <video
         ref={ref}
         src={combo.video}
+        poster={combo.image || undefined}
+        preload="metadata"
         className={className}
         autoPlay
         muted

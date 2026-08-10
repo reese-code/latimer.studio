@@ -19,11 +19,13 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const SITE_URL = 'https://latimer.studio'
 
+const BUILD_DATE = new Date().toISOString().slice(0, 10)
+
 const STATIC_ROUTES = [
-  { path: '/', changefreq: 'weekly', priority: '1.0' },
-  { path: '/about', changefreq: 'monthly', priority: '0.7' },
-  { path: '/contact', changefreq: 'monthly', priority: '0.7' },
-  { path: '/privacy-policy', changefreq: 'yearly', priority: '0.3' },
+  { path: '/', changefreq: 'weekly', priority: '1.0', lastmod: BUILD_DATE },
+  { path: '/about', changefreq: 'monthly', priority: '0.7', lastmod: BUILD_DATE },
+  { path: '/contact', changefreq: 'monthly', priority: '0.7', lastmod: BUILD_DATE },
+  { path: '/privacy-policy', changefreq: 'yearly', priority: '0.3', lastmod: BUILD_DATE },
 ]
 
 async function fetchProjectSlugs() {
@@ -36,7 +38,7 @@ async function fetchProjectSlugs() {
 
   const client = createClient({ projectId, dataset, apiVersion: '2025-01-01', useCdn: true })
   try {
-    return await client.fetch(`*[_type == "project"]{ "id": slug.current }`)
+    return await client.fetch(`*[_type == "project"]{ "id": slug.current, _updatedAt }`)
   } catch (err) {
     console.warn('generate-sitemap: failed to fetch projects, skipping project URLs —', err.message)
     return []
@@ -46,8 +48,9 @@ async function fetchProjectSlugs() {
 function buildXml(routes) {
   const urls = routes
     .map(
-      ({ path: routePath, changefreq, priority }) => `  <url>
+      ({ path: routePath, changefreq, priority, lastmod }) => `  <url>
     <loc>${SITE_URL}${routePath}</loc>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`
@@ -64,7 +67,12 @@ ${urls}
 const projects = await fetchProjectSlugs()
 const projectRoutes = projects
   .filter((p) => p.id)
-  .map((p) => ({ path: `/projects/${p.id}`, changefreq: 'monthly', priority: '0.8' }))
+  .map((p) => ({
+    path: `/projects/${p.id}`,
+    changefreq: 'monthly',
+    priority: '0.8',
+    lastmod: p._updatedAt ? p._updatedAt.slice(0, 10) : BUILD_DATE,
+  }))
 
 const xml = buildXml([...STATIC_ROUTES, ...projectRoutes])
 const outPath = path.join(__dirname, '..', 'public', 'sitemap.xml')

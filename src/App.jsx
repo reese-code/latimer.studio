@@ -5,6 +5,7 @@ import ProjectPage from './pages/ProjectPage'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
+import NotFoundPage from './pages/NotFoundPage'
 import useLenis from './hooks/useLenis'
 import { SiteDataProvider } from './lib/SiteDataContext'
 import { useSiteData } from './hooks/useSiteData'
@@ -34,6 +35,7 @@ function MainSite() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   )

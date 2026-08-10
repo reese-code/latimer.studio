@@ -5,12 +5,14 @@
   font-family: 'PPPlayground';
   src: url('./assets/PPPlayground-Light.otf') format('opentype');
   font-weight: 300;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'OTNeueMontreal';
   src: url('./assets/OTNeueMontreal-MediumSqueezed.otf') format('opentype');
   font-weight: 500;
+  font-display: swap;
 }
 
 @theme {

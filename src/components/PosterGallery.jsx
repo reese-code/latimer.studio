@@ -293,8 +293,26 @@ export default function PosterGallery({ onPhaseChange, projects }) {
     scene1Player.current.preload(() => {
       if (canvasRef.current) scene1Player.current.drawFrame(canvasRef.current, 0)
     })
-    scene2Player.current.preload()
-    posterPlayers.current.forEach(p => p.preload())
+
+    const preloadRest = () => {
+      scene2Player.current?.preload()
+      posterPlayers.current?.forEach(p => p.preload())
+    }
+
+    if (window.innerWidth < 768) {
+      // Mobile — scene_1 (needed almost immediately) and the page's own
+      // initial paint get the network/CPU first; scene_2 and the poster
+      // transitions start a beat later via requestIdleCallback instead of
+      // all four sequences (~460 images) racing the page's own JS/CSS for
+      // bandwidth in the same tick, which is exactly the window mobile
+      // PageSpeed tools measure. Doesn't change what loads or when it's
+      // needed — only when the browser starts fetching it. Safari never
+      // shipped requestIdleCallback, hence the timeout fallback.
+      const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 200))
+      ric(preloadRest)
+    } else {
+      preloadRest()
+    }
   }, [])
 
   // Ticket starts fully hidden below the viewport — it's revealed only once
