@@ -4,11 +4,24 @@ import FilmFooter from '../components/FilmFooter'
 import { getLenis } from '../hooks/useLenis'
 import { useSanityData } from '../hooks/useSanityData'
 import { privacyPolicyQuery } from '../lib/queries'
+import { useDocumentHead } from '../hooks/useDocumentHead'
 
 export default function PrivacyPolicyPage() {
   const { data: policy } = useSanityData(privacyPolicyQuery)
   const title = policy?.title || 'Privacy Policy'
   const sections = policy?.sections || []
+
+  useDocumentHead({
+    title: `${title} — Latimer Studio`,
+    description: 'How Latimer Studio collects, uses, and protects your information.',
+    path: '/privacy-policy',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: title,
+      url: 'https://latimer.studio/privacy-policy',
+    },
+  })
 
   // Land at the very top on entry.
   useEffect(() => {
@@ -27,6 +40,9 @@ export default function PrivacyPolicyPage() {
         <h1 className="m-0 font-embodiment text-[3rem] font-light uppercase tracking-[-1px] text-[#4a4238] md:text-[4rem]">
           {title}
         </h1>
+        <h2 className="sr-only">
+          Latimer Studio's privacy policy — how we collect, use, and protect your information.
+        </h2>
 
         {sections.map((section) => (
           <div key={section.title} className="flex flex-col gap-3">

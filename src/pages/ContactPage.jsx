@@ -3,8 +3,22 @@ import TicketMenu from '../components/TicketMenu'
 import ContactPosterDesktop from '../components/ContactPosterDesktop'
 import ContactStackedMobile from '../components/ContactStackedMobile'
 import { getLenis } from '../hooks/useLenis'
+import { useDocumentHead } from '../hooks/useDocumentHead'
 
 export default function ContactPage() {
+  useDocumentHead({
+    title: 'Contact Latimer Studio — Start Your Denver Web Design Project',
+    description:
+      'Get in touch with Latimer Studio to start a custom website, brand identity, or UI/UX project with our Denver-based design team.',
+    path: '/contact',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'ContactPage',
+      name: 'Contact Latimer Studio',
+      url: 'https://latimer.studio/contact',
+    },
+  })
+
   // Land at the very top on entry.
   useEffect(() => {
     const lenis = getLenis()
@@ -22,6 +36,9 @@ export default function ContactPage() {
           mark plus a Typeform embed with no heading markup, so this gives
           crawlers/screen readers a real page title. */}
       <h1 className="sr-only">Contact Latimer Studio</h1>
+      <h2 className="sr-only">
+        Reach out to start a custom website, brand identity, or UI/UX design project with Latimer Studio in Denver.
+      </h2>
 
       {/* Mobile — logo, copy, and typeform stacked, film-tape rails dropped
           in favor of just using FilmFooter's own mobile layout below */}

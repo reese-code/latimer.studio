@@ -4,9 +4,22 @@ import PosterGallery from '../components/PosterGallery'
 import TicketMenu from '../components/TicketMenu'
 import { getGalleryControls } from '../lib/galleryControl'
 import { useSiteData } from '../hooks/useSiteData'
+import { useDocumentHead } from '../hooks/useDocumentHead'
 
 export default function HomePage() {
   const { projects, loading } = useSiteData()
+  useDocumentHead({
+    title: 'Latimer Studio — Denver Web Design & Branding Studio for Custom, High-Converting Websites',
+    description:
+      'Latimer Studio is a Denver-based design studio building custom, high-converting websites and brand identities — UI/UX design, React development, and branding for businesses that want to stand out.',
+    path: '/',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Latimer Studio',
+      url: 'https://latimer.studio/',
+    },
+  })
   const [galleryPhase, setGalleryPhase] = useState('scene1-gate')
   const handlePhaseChange = useCallback((p) => setGalleryPhase(p), [])
   const location = useLocation()
@@ -57,6 +70,9 @@ export default function HomePage() {
       <h1 className="sr-only">
         Websites with the structure of a Nolan plot, where every detail pays off later. Latimer Studio
       </h1>
+      <h2 className="sr-only">
+        Denver web design studio building custom websites, brand identities, and UI/UX design for businesses that want to stand out.
+      </h2>
       <PosterGallery onPhaseChange={handlePhaseChange} projects={projects} />
       <TicketMenu forceHidden={hideNavTicket} />
     </>

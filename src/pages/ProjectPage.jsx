@@ -8,6 +8,7 @@ import studioRoLogo from '../assets/Studio-ro.svg'
 import { getLenis } from '../hooks/useLenis'
 import { useSiteData } from '../hooks/useSiteData'
 import { optimizedImageUrl, srcSetFor } from '../lib/sanityImage'
+import { useDocumentHead } from '../hooks/useDocumentHead'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -20,6 +21,23 @@ export default function ProjectPage() {
   const navigate     = useNavigate()
   const { projects, projectById, loading } = useSiteData()
   const project       = projectById(id)
+
+  useDocumentHead({
+    title: project ? `${project.label} — ${project.type || 'Case Study'} | Latimer Studio` : undefined,
+    description: project?.tagline || project?.description || undefined,
+    path: project ? `/projects/${project.id}` : undefined,
+    jsonLd: project
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'CreativeWork',
+          name: project.label,
+          description: project.tagline || project.description,
+          image: project.poster,
+          url: `https://latimer.studio/projects/${project.id}`,
+          creator: { '@type': 'Organization', name: 'Latimer Studio' },
+        }
+      : undefined,
+  })
 
   // Entrance — the case study simply fades onto screen on mount, no
   // transition overlay.
@@ -383,6 +401,10 @@ function CaseStudyHero({ project }) {
             {project.label.replace(' ', '-')}
           </h1>
         )}
+        <h2 className="sr-only">
+          {project.label} — {project.category || project.type} case study by Latimer Studio
+          {project.industry ? `, a ${project.industry.toLowerCase()} brand` : ''}.
+        </h2>
         {project.tagline && (
           <p className="m-0 font-embodiment text-base leading-[145%] uppercase tracking-[0.06em] text-cream">
             {project.tagline}

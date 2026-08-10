@@ -8,6 +8,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import useLenis from './hooks/useLenis'
 import { SiteDataProvider } from './lib/SiteDataContext'
 import { useSiteData } from './hooks/useSiteData'
+import { useOrganizationSchema } from './hooks/useOrganizationSchema'
 import LoadingScreen from './components/LoadingScreen'
 
 // Code-split — the Studio bundle is large and should never load for
@@ -18,8 +19,9 @@ const StudioPage = lazy(() => import('./pages/StudioPage'))
 // loading screen overlay — so once the overlay slides away the first frame
 // is already there rather than popping in.
 function MainSite() {
-  const { loading } = useSiteData()
+  const { loading, siteSettings } = useSiteData()
   const [showLoader, setShowLoader] = useState(true)
+  useOrganizationSchema(siteSettings?.contactLinks)
 
   return (
     <>
