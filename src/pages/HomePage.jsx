@@ -50,6 +50,13 @@ export default function HomePage() {
 
   return (
     <>
+      {/* Visually hidden — the gallery below is an entirely visual/canvas
+          experience with no real page copy, so this is the only text that
+          gives crawlers (and screen readers) something to read as the
+          page's actual title. */}
+      <h1 className="sr-only">
+        Websites with the structure of a Nolan plot, where every detail pays off later. Latimer Studio
+      </h1>
       <PosterGallery onPhaseChange={handlePhaseChange} projects={projects} />
       <TicketMenu forceHidden={hideNavTicket} />
     </>

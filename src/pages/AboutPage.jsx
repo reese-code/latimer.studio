@@ -18,6 +18,11 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen w-full bg-ink">
+      {/* Visually hidden — the page itself is the "Latimer Studio" logo
+          mark plus body copy with no heading markup, so this gives
+          crawlers/screen readers a real page title. */}
+      <h1 className="sr-only">About Latimer Studio</h1>
+
       {/* Mobile — logo, copy, and image stacked, film-tape rails dropped in
           favor of just using FilmFooter's own mobile layout below */}
       <div className="md:hidden">

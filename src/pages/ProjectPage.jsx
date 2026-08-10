@@ -7,6 +7,7 @@ import FilmFooter from '../components/FilmFooter'
 import studioRoLogo from '../assets/Studio-ro.svg'
 import { getLenis } from '../hooks/useLenis'
 import { useSiteData } from '../hooks/useSiteData'
+import { optimizedImageUrl, srcSetFor } from '../lib/sanityImage'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -125,9 +126,9 @@ function MoreProjectsSection({ currentId, projects }) {
     <div className="w-full pt-30">
       <div className="flex flex-row items-center justify-center gap-2 bg-case-bg px-3 py-6 md:px-5">
         <span className="text-[8px] text-maroon">★</span>
-        <span className="font-embodiment text-base tracking-[0.14em] text-[#4a4238]">
+        <h2 className="m-0 font-embodiment text-base font-normal tracking-[0.14em] text-[#4a4238]">
           MORE PROJECTS
-        </span>
+        </h2>
         <span className="text-[8px] text-maroon">★</span>
       </div>
 
@@ -208,9 +209,13 @@ function MoreProjectCard({ project }) {
       className="group relative block h-[70vh] min-h-105 w-full cursor-pointer overflow-hidden bg-ink md:h-[85vh] md:flex-1"
     >
       <img
-        src={project.poster}
+        src={optimizedImageUrl(project.poster, { width: 1200 })}
+        srcSet={srcSetFor(project.poster, [480, 768, 1200, 1800])}
+        sizes="(min-width: 768px) 50vw, 100vw"
         alt={project.label}
         draggable={false}
+        loading="lazy"
+        decoding="async"
         className="absolute inset-0 h-full w-full select-none object-cover transition-transform duration-500 ease-out group-hover:scale-105"
       />
 
@@ -346,9 +351,13 @@ function CaseStudyHero({ project }) {
   return (
     <div className="relative h-[100vh] min-h-[520px] w-full overflow-hidden bg-ink">
       <img
-        src={project.poster}
+        src={optimizedImageUrl(project.poster, { width: 1920 })}
+        srcSet={srcSetFor(project.poster, [768, 1200, 1920, 2560])}
+        sizes="100vw"
         alt={project.label}
         draggable={false}
+        fetchPriority="high"
+        decoding="async"
         className="absolute inset-0 h-full w-full select-none object-cover object-[center_25%]"
       />
 
@@ -358,11 +367,17 @@ function CaseStudyHero({ project }) {
       {/* Title + tagline */}
       <div className="absolute top-8 left-3 right-3 md:left-5 md:right-5">
         {TITLE_LOGOS[project.id] ? (
-          <img
-            src={TITLE_LOGOS[project.id]}
-            alt={project.label}
-            className="mb-2 block h-auto w-full md:max-w-144.5"
-          />
+          <>
+            {/* Logo art carries the visual title, so it doesn't produce a
+                real heading on its own — this hidden h1 gives the page an
+                actual (crawlable, screen-reader-visible) title. */}
+            <h1 className="sr-only">{project.label}</h1>
+            <img
+              src={TITLE_LOGOS[project.id]}
+              alt={project.label}
+              className="mb-2 block h-auto w-full md:max-w-144.5"
+            />
+          </>
         ) : (
           <h1 className="mb-2 font-3don text-[200px] leading-[0.9] font-light tracking-[-1px] text-cream">
             {project.label.replace(' ', '-')}
@@ -500,9 +515,13 @@ const ComboMedia = forwardRef(function ComboMedia({ combo, className, alt = '' }
   return (
     <img
       ref={ref}
-      src={combo.image}
+      src={optimizedImageUrl(combo.image, { width: 1000 })}
+      srcSet={srcSetFor(combo.image, [480, 768, 1000, 1500])}
+      sizes="(min-width: 768px) 33vw, 100vw"
       alt={alt}
       draggable={false}
+      loading="lazy"
+      decoding="async"
       className={className}
     />
   )
@@ -737,9 +756,9 @@ function StackingTitles({ sections, index, comboOffsets, titleRefs, sectionRefs,
         <span className="w-9 shrink-0 text-xs tracking-[0.14em] text-[#4a4238] uppercase md:text-base">
           {section.number}
         </span>
-        <span className="text-xs tracking-[0.14em] text-[#4a4238] uppercase md:text-base">
+        <h3 className="m-0 text-xs font-normal tracking-[0.14em] text-[#4a4238] uppercase md:text-base">
           {section.title}
-        </span>
+        </h3>
       </button>
 
       {combos.map((combo, j) => (
@@ -780,9 +799,9 @@ function ProjectDescription({ project }) {
     <div className="pt-8 pb-30">
       <div className="mb-6 flex flex-row items-center gap-2">
         <span className="text-[8px] text-maroon">★</span>
-        <span className="font-embodiment text-base tracking-[0.14em] text-[#4a4238]">
+        <h2 className="m-0 font-embodiment text-base font-normal tracking-[0.14em] text-[#4a4238]">
           MANDATE
-        </span>
+        </h2>
       </div>
 
       <div className="flex flex-col gap-10 md:flex-row md:justify-between">
@@ -837,9 +856,9 @@ function ProjectTestimonial({ testimonial }) {
     <div className="pt-8 pb-30">
       <div className="mb-6 flex flex-row items-center gap-2">
         <span className="text-[8px] text-maroon">★</span>
-        <span className="font-embodiment text-base tracking-[0.14em] text-[#4a4238] uppercase">
+        <h2 className="m-0 font-embodiment text-base font-normal tracking-[0.14em] text-[#4a4238] uppercase">
           {testimonial.name}
-        </span>
+        </h2>
       </div>
 
       <p className="m-0 w-full font-embodiment text-[2rem] leading-[120%] tracking-[0.06em] text-[#4a4238] uppercase md:text-[3rem]">

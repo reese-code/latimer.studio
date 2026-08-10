@@ -32,9 +32,9 @@ export default function PrivacyPolicyPage() {
           <div key={section.title} className="flex flex-col gap-3">
             <div className="flex flex-row items-center gap-2">
               <span className="text-[8px] text-maroon">★</span>
-              <span className="font-embodiment text-base tracking-[0.14em] text-[#4a4238] uppercase">
+              <h2 className="m-0 font-embodiment text-base font-normal tracking-[0.14em] text-[#4a4238] uppercase">
                 {section.title}
-              </span>
+              </h2>
             </div>
             <p className="m-0 font-embodiment text-base leading-[150%] tracking-[0.06em] text-[#4a4238] uppercase">
               {section.body}
