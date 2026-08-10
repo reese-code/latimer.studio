@@ -27,21 +27,28 @@ export default function AboutPosterDesktop() {
             className="mx-auto mt-4 w-full max-w-225 select-none brightness-0 invert"
           />
 
-          <div className="mt-14 flex w-full flex-row items-start gap-12">
+          <div className="mt-14 flex w-full flex-row gap-12">
             <p className="min-w-0 flex-1 font-sans text-[48px] font-medium uppercase leading-[1.2] tracking-[0.01em] text-cream">
               {siteSettings?.aboutCopy}
             </p>
-            <div className="aspect-4/3 w-full flex-1 overflow-hidden rounded-sm bg-cream">
+            {/* Column stretches to match the text column's height (default
+                flex cross-axis stretch). The image inside is sticky within
+                that column, so on a short image it pins to the top of the
+                viewport as you scroll and un-sticks the instant its bottom
+                edge reaches the bottom of the text — never sticks past it. */}
+            <div className="w-full flex-1">
               {siteSettings?.aboutImage && (
-                <img
-                  src={optimizedImageUrl(siteSettings.aboutImage, { width: 1000 })}
-                  srcSet={srcSetFor(siteSettings.aboutImage, [480, 768, 1000, 1500])}
-                  sizes="50vw"
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full select-none object-cover"
-                />
+                <div className="sticky top-0 overflow-hidden rounded-sm bg-cream">
+                  <img
+                    src={optimizedImageUrl(siteSettings.aboutImage, { width: 1000 })}
+                    srcSet={srcSetFor(siteSettings.aboutImage, [480, 768, 1000, 1500])}
+                    sizes="50vw"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="h-auto w-full select-none object-cover"
+                  />
+                </div>
               )}
             </div>
           </div>
