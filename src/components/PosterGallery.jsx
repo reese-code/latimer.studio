@@ -15,6 +15,11 @@ const SCENE2 = { folder: '/frames/scene_2', total: 121 }
 // plays well above the standard 24fps so a committed gate resolves quickly
 // instead of dragging.
 const AUTO_PLAY_SPEED = 2.8
+// Touch-swipe input (mobile, no wheel) reads as noticeably harder to clear
+// a gate with than the equivalent desktop wheel/trackpad distance — this
+// multiplies touch deltaY specifically so mobile only needs about half the
+// physical scroll distance desktop does to commit any gate.
+const MOBILE_TOUCH_BOOST = 2
 // While a gate is charging, the scene scrubs through a slice of its frames
 // with the charge (forward into itself, or backward into the tail of the
 // previous scene) — this is the primary visual read that scrolling is doing
@@ -388,21 +393,22 @@ export default function PosterGallery({ onPhaseChange, projects }) {
       setPhase('scene2-gate')
     }, AUTO_PLAY_SPEED, SCENE1_PEEK)
   }, [setPhase])
-  // Latches once the very first forward scroll input lands, so "Scroll to
-  // enter" can hand off to "Keep scrolling down" and stay handed off even
-  // if charge later decays back to 0 while still sitting at this gate.
+  // Reflects live charge while sitting at gate 1, rather than latching once
+  // forward scroll starts: scrolling forward flips "Scroll down to enter"
+  // to "Keep scrolling down", and rubber-banding back to rest (released
+  // before the gate commits) flips it back — matching the actual charge,
+  // not just "has this ever been touched." Once the gate commits, phase
+  // moves past 'scene1-gate' and this simply stops updating, leaving it on
+  // "Keep scrolling down" for the rest of the pre-poster phases.
   const [introScrollStarted, setIntroScrollStarted] = useState(false)
-  const handleGate1Charge = useCallback((v) => {
-    if (v > 0) setIntroScrollStarted(true)
-  }, [])
   const gate1Charge = useChargeGate(phase === 'scene1-gate', {
     onCommitForward: handleScene1CommitForward,
-    // The opening gate is the first thing anyone touches, and on mobile
-    // (touch-swipe, no wheel) it was reading as noticeably harder to clear
-    // than on desktop — give touch input a boost here specifically.
-    touchBoost: 1.25,
-    onCharge: handleGate1Charge,
+    touchBoost: MOBILE_TOUCH_BOOST,
   })
+  useEffect(() => {
+    if (phase !== 'scene1-gate' || gate1Charge == null) return
+    setIntroScrollStarted(gate1Charge > 0)
+  }, [gate1Charge, phase])
 
   // Gate 2 — sits at the start of scene_2. Charging it forward plays scene_2
   // through in full and reveals the poster/ticket. Charging it backward
@@ -428,6 +434,7 @@ export default function PosterGallery({ onPhaseChange, projects }) {
   const gate2Charge = useChargeGate(phase === 'scene2-gate', {
     onCommitForward: handleScene2CommitForward,
     onCommitBackward: handleScene2CommitBackward,
+    touchBoost: MOBILE_TOUCH_BOOST,
   })
 
   // Poster gate — sits on the poster gallery itself, active on every poster.
@@ -554,6 +561,7 @@ export default function PosterGallery({ onPhaseChange, projects }) {
   const posterGateCharge = useChargeGate(phase === 'poster', {
     onCommitForward: handlePosterCommitForward,
     onCommitBackward: handlePosterCommitBackwardGate,
+    touchBoost: MOBILE_TOUCH_BOOST,
   })
 
   // Peek into the poster-to-poster transition clips as the poster gate
@@ -685,15 +693,23 @@ export default function PosterGallery({ onPhaseChange, projects }) {
         isMobile={isMobile}
       />
 
-      <ScrollChargeIndicator
-        visible={activeGateCharge != null}
-        charge={activeGateCharge}
-      />
+      <div className="pointer-events-none fixed inset-x-0 top-0 z-20">
+        {/* Small gradient so the hint/progress-bar text stays legible over
+            whatever's playing in the canvas behind it. */}
+        <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/50 to-transparent" />
 
-      <ScrollHint
-        showEnter={phase === 'scene1-gate' && !introScrollStarted}
-        showKeepScrolling={introScrollStarted && phase !== 'poster' && phase !== 'transition' && phase !== 'theater'}
-      />
+        <div className="relative flex flex-col items-center gap-3 pt-3">
+          <ScrollHint
+            showEnter={phase === 'scene1-gate' && !introScrollStarted}
+            showKeepScrolling={introScrollStarted && phase !== 'poster' && phase !== 'transition' && phase !== 'theater'}
+          />
+
+          <ScrollChargeIndicator
+            visible={activeGateCharge != null}
+            charge={activeGateCharge}
+          />
+        </div>
+      </div>
     </>
   )
 }

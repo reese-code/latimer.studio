@@ -2,7 +2,8 @@ import { COMMIT_THRESHOLD } from '../lib/chargeGate'
 
 // Secondary feedback for the scene charge gates (see chargeGate.js) — the
 // scene itself scrubs with the charge (forward or backward), this bar is
-// just a quiet progress cue underneath that. Charge is signed; the bar only
+// just a quiet progress cue right below the scroll-hint text (see
+// PosterGallery's shared centered wrapper). Charge is signed; the bar only
 // cares about magnitude. Normalized against COMMIT_THRESHOLD so it reads
 // 0-100% over the range that actually matters — full at the point the gate
 // commits, not stuck looking half-empty right when it fires.
@@ -11,7 +12,7 @@ export default function ScrollChargeIndicator({ visible, charge }) {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-10 z-30 flex justify-center pointer-events-none"
+      className="pointer-events-none flex justify-center"
       style={{
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.35s ease',
