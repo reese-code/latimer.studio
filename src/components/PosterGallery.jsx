@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import gsap from 'gsap'
 import ProjectTicket from './ProjectTicket'
 import ScrollChargeIndicator from './ScrollChargeIndicator'
+import ScrollHint from './ScrollHint'
 import { nextCharge, decayCharge, COMMIT_THRESHOLD, GATE_IDLE_MS } from '../lib/chargeGate'
 import { setGalleryControls } from '../lib/galleryControl'
 
@@ -16,11 +17,30 @@ const SCENE2 = { folder: '/frames/scene_2', total: 121 }
 const AUTO_PLAY_SPEED = 2.8
 // While a gate is charging, the scene scrubs through a slice of its frames
 // with the charge (forward into itself, or backward into the tail of the
-// previous scene) — a little "give" so scrolling visibly does something —
-// then eases back if you let up before it commits.
-const PEEK_FRACTION = 0.14
-const SCENE1_PEEK = Math.round(SCENE1.total * PEEK_FRACTION)
-const SCENE2_PEEK = Math.round(SCENE2.total * PEEK_FRACTION)
+// previous scene) — this is the primary visual read that scrolling is doing
+// something (siena.film-style). Scroll only drives the first slice of the
+// scene; committing hands off to an auto-play that continues seamlessly
+// from wherever that peek left off (not a reset to the start) through the
+// rest of the scene at AUTO_PLAY_SPEED. Easing back if you let up before it
+// commits works the same as before, just over a shorter visible travel.
+const PEEK_FRACTION = 0.3
+// Capped at total - 1 (not total) so a fully-charged gate's peek lands on
+// the sequence's actual last valid frame index — using `total` itself would
+// hand SequencePlayer.play() an out-of-range startFrame, which reads as a
+// "not loaded yet" frame and stalls for a full second before bailing.
+const SCENE1_PEEK = Math.min(SCENE1.total - 1, Math.round(SCENE1.total * PEEK_FRACTION))
+const SCENE2_PEEK = Math.min(SCENE2.total - 1, Math.round(SCENE2.total * PEEK_FRACTION))
+// Same idea for the poster-to-poster hand-offs (see the poster gate below).
+const POSTER_PEEK_FRACTION = 0.3
+
+// Full-charge peek target for a poster transition of the given length —
+// mirrors SCENE1_PEEK/SCENE2_PEEK's capping so a scroll-committed transition
+// can resume playback exactly where the peek scrub left off, instead of
+// restarting from the clip's own natural start (which reads as the
+// animation reverting back to the beginning).
+function posterPeekFrames(total) {
+  return Math.min(total - 1, Math.round(total * POSTER_PEEK_FRACTION))
+}
 
 // POSTER_TRANSITIONS[i] = transition between project i and project (i+1)%3
 const POSTER_TRANSITIONS = [
@@ -133,6 +153,17 @@ function peekProgress(charge) {
   return Math.max(-1, Math.min(1, charge / COMMIT_THRESHOLD))
 }
 
+// Draws a peeked frame on `player` for a gate charging in one direction.
+// `forward` is the *player's own* natural playback direction for this
+// hand-off (from resolveTransition) — peeking "into" that direction reads
+// from its head (0..peekFrames), peeking "away" from it reads its tail
+// (total-1..total-1-peekFrames). `magnitude` is 0..1 (see peekProgress).
+function drawPeek(canvas, player, total, forward, magnitude, peekFrames) {
+  const span = Math.round(magnitude * peekFrames)
+  const idx = forward ? span : total - 1 - span
+  player.drawFrame(canvas, Math.max(0, Math.min(total - 1, idx)))
+}
+
 // Which transition video connects `from` and `to`, and in which direction
 function resolveTransition(from, to, n) {
   if (to === (from + 1) % n)     return { idx: from, forward: true  } // next
@@ -152,7 +183,17 @@ function resolveTransition(from, to, n) {
 // `touchBoost` scales touch-swipe input specifically (leaving wheel/trackpad
 // untouched) — mobile has no wheel, so this is the mobile-difficulty knob.
 // ---------------------------------------------------------------------------
-function useChargeGate(active, { onCommitForward, onCommitBackward, touchBoost = 1 } = {}) {
+// How quickly the *displayed* charge (what the peek-scrub and charge
+// indicator actually render) catches up to the raw physics charge each
+// frame. Decoupling display from the raw value means a single bursty
+// wheel/touch event (a fast flick, a big wheel-mouse notch) glides smoothly
+// across the frames in between over a few animation frames, instead of the
+// canvas snapping straight to whatever frame the raw jump lands on and
+// visibly skipping the frames in between. Commit timing is unaffected —
+// that's still decided by the raw value, not this smoothed one.
+const DISPLAY_SMOOTHING_RATE = 22
+
+function useChargeGate(active, { onCommitForward, onCommitBackward, touchBoost = 1, onCharge } = {}) {
   const [charge, setCharge] = useState(null)
 
   useEffect(() => {
@@ -161,23 +202,20 @@ function useChargeGate(active, { onCommitForward, onCommitBackward, touchBoost =
       return
     }
 
-    let value = 0
+    let value = 0   // raw physics charge — drives commit/decay
+    let display = 0 // smoothed charge — what consumers (peek, indicator) see
     let lastInputAt = performance.now()
     let lastTick = 0
     let raf = null
     let committed = false
     setCharge(0)
 
-    function apply(v) {
-      value = v
-      setCharge(v)
-    }
-
     function feed(deltaY) {
       if (committed) return
       lastInputAt = performance.now()
       const next = nextCharge(value, deltaY)
-      apply(next)
+      value = next
+      onCharge?.(next)
       if (next >= COMMIT_THRESHOLD && onCommitForward) {
         committed = true
         setCharge(null)
@@ -205,11 +243,14 @@ function useChargeGate(active, { onCommitForward, onCommitBackward, touchBoost =
     function onKeyDown(e) { if (SCROLL_KEYS.has(e.key)) e.preventDefault() }
 
     function tick(now) {
+      if (committed) return
       const dt = lastTick ? (now - lastTick) / 1000 : 0
       lastTick = now
       if (now - lastInputAt > GATE_IDLE_MS && value !== 0) {
-        apply(decayCharge(value, dt))
+        value = decayCharge(value, dt)
       }
+      display += (value - display) * Math.min(1, dt * DISPLAY_SMOOTHING_RATE)
+      setCharge(display)
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
@@ -226,7 +267,7 @@ function useChargeGate(active, { onCommitForward, onCommitBackward, touchBoost =
       window.removeEventListener('keydown',    onKeyDown)
       if (raf) cancelAnimationFrame(raf)
     }
-  }, [active, onCommitForward, onCommitBackward, touchBoost])
+  }, [active, onCommitForward, onCommitBackward, touchBoost, onCharge])
 
   return charge
 }
@@ -294,25 +335,22 @@ export default function PosterGallery({ onPhaseChange, projects }) {
       if (canvasRef.current) scene1Player.current.drawFrame(canvasRef.current, 0)
     })
 
-    const preloadRest = () => {
-      scene2Player.current?.preload()
-      posterPlayers.current?.forEach(p => p.preload())
+    // scene_1 (needed almost immediately) and the page's own initial paint
+    // get the network/CPU first; scene_2 and the poster transitions start
+    // preloading a beat later, staggered one after another via
+    // requestIdleCallback, instead of all four sequences (~460 images)
+    // racing the page's own JS/CSS — and each other — for bandwidth in the
+    // same tick. Applies on both mobile and desktop now: doesn't change what
+    // loads or when it's needed, only spreads out when the browser starts
+    // fetching it. Safari never shipped requestIdleCallback, hence the
+    // timeout fallback.
+    const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 200))
+    const preloadStaggered = (players, gapMs = 150) => {
+      players.forEach((p, i) => {
+        setTimeout(() => ric(() => p?.preload()), i * gapMs)
+      })
     }
-
-    if (window.innerWidth < 768) {
-      // Mobile — scene_1 (needed almost immediately) and the page's own
-      // initial paint get the network/CPU first; scene_2 and the poster
-      // transitions start a beat later via requestIdleCallback instead of
-      // all four sequences (~460 images) racing the page's own JS/CSS for
-      // bandwidth in the same tick, which is exactly the window mobile
-      // PageSpeed tools measure. Doesn't change what loads or when it's
-      // needed — only when the browser starts fetching it. Safari never
-      // shipped requestIdleCallback, hence the timeout fallback.
-      const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 200))
-      ric(preloadRest)
-    } else {
-      preloadRest()
-    }
+    preloadStaggered([scene2Player.current, ...posterPlayers.current])
   }, [])
 
   // Ticket starts fully hidden below the viewport — it's revealed only once
@@ -350,12 +388,20 @@ export default function PosterGallery({ onPhaseChange, projects }) {
       setPhase('scene2-gate')
     }, AUTO_PLAY_SPEED, SCENE1_PEEK)
   }, [setPhase])
+  // Latches once the very first forward scroll input lands, so "Scroll to
+  // enter" can hand off to "Keep scrolling down" and stay handed off even
+  // if charge later decays back to 0 while still sitting at this gate.
+  const [introScrollStarted, setIntroScrollStarted] = useState(false)
+  const handleGate1Charge = useCallback((v) => {
+    if (v > 0) setIntroScrollStarted(true)
+  }, [])
   const gate1Charge = useChargeGate(phase === 'scene1-gate', {
     onCommitForward: handleScene1CommitForward,
     // The opening gate is the first thing anyone touches, and on mobile
     // (touch-swipe, no wheel) it was reading as noticeably harder to clear
     // than on desktop — give touch input a boost here specifically.
     touchBoost: 1.25,
+    onCharge: handleGate1Charge,
   })
 
   // Gate 2 — sits at the start of scene_2. Charging it forward plays scene_2
@@ -384,11 +430,13 @@ export default function PosterGallery({ onPhaseChange, projects }) {
     onCommitBackward: handleScene2CommitBackward,
   })
 
-  // Gate 3 — sits on the poster gallery itself, but only once you're back on
-  // the first poster (ciao), since that's the one scene_2 actually lands on.
-  // It only takes backward charge: scrolling up hard enough plays scene_2 in
-  // reverse, back to the end of scene_1 (scene_2's gate). There's no forward
-  // side — moving between posters is what the ticket's arrows are for.
+  // Poster gate — sits on the poster gallery itself, active on every poster.
+  // Forward charge always advances to the next project, wrapping around
+  // forever (an infinite loop through the projects). Backward charge steps
+  // back to the previous project — except from the first poster (ciao),
+  // where nothing precedes it in the gallery, so backward charge instead
+  // plays scene_2 in reverse back to the end of scene_1 (scene_2's gate),
+  // exiting the poster loop back out through the intro.
   const onFirstPoster = activeProject === projects[0]
   const handlePosterCommitBackward = useCallback(() => {
     const canvas = canvasRef.current
@@ -401,9 +449,6 @@ export default function PosterGallery({ onPhaseChange, projects }) {
       setPhase('scene2-gate')
     }, AUTO_PLAY_SPEED)
   }, [setPhase])
-  const gate3Charge = useChargeGate(phase === 'poster' && onFirstPoster, {
-    onCommitBackward: handlePosterCommitBackward,
-  })
 
   // Scrub through a slice of frames as each gate charges — forward into the
   // gate's own scene, backward into the tail of the previous one — and ease
@@ -427,24 +472,17 @@ export default function PosterGallery({ onPhaseChange, projects }) {
     }
   }, [gate2Charge, phase])
 
-  useEffect(() => {
-    if (phase !== 'poster' || gate3Charge == null || gate3Charge >= 0) return
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const idx = SCENE2.total - 1 + Math.round(peekProgress(gate3Charge) * SCENE2_PEEK)
-    scene2Player.current?.drawFrame(canvas, Math.max(0, idx))
-  }, [gate3Charge, phase])
-
-  const activeGateCharge =
-    phase === 'scene1-gate' ? gate1Charge :
-    phase === 'scene2-gate' ? gate2Charge :
-    phase === 'poster' ? gate3Charge :
-    null
-
   // ------------------------------------------------------------------
   // Arrow: skip to next/prev poster via transition video
   // ------------------------------------------------------------------
-  const goTo = useCallback((next) => {
+  // `continueFromPeek` is true only for scroll-gate commits — it resumes
+  // playback from wherever the pre-commit peek scrub already reached
+  // (matching drawPeek's own head/tail formula below) instead of restarting
+  // from the clip's natural start, which used to read as the animation
+  // reverting back to the beginning right after the user had scrolled
+  // through part of it. Arrow-button navigation (prev/next) still plays the
+  // whole clip from the start, since there's no preceding scroll to resume.
+  const goTo = useCallback((next, continueFromPeek = false) => {
     if (phaseRef.current !== 'poster') return
     const from = activeRef.current
     if (from === next) return
@@ -454,6 +492,10 @@ export default function PosterGallery({ onPhaseChange, projects }) {
     if (!trans || !canvas || !posterPlayers.current) return
 
     const player = posterPlayers.current[trans.idx]
+    const total  = POSTER_TRANSITIONS[trans.idx].total
+    const peek   = posterPeekFrames(total)
+    const startFrame = continueFromPeek ? (trans.forward ? peek : total - 1 - peek) : null
+    const speed  = continueFromPeek ? AUTO_PLAY_SPEED : 1
     player.preload()
     setPhase('transition')
 
@@ -486,11 +528,74 @@ export default function PosterGallery({ onPhaseChange, projects }) {
           ease: 'power3.out',
         })
       }
-    })
+    }, speed, startFrame)
   }, [setPhase, projects])
 
   const prev = () => goTo((activeRef.current - 1 + projects.length) % projects.length)
   const next = () => goTo((activeRef.current + 1) % projects.length)
+
+  // Poster gate — sits on the poster gallery itself, active on every poster.
+  // Forward charge always advances to the next project via goTo, wrapping
+  // around forever (an infinite loop through the projects). Backward charge
+  // steps back to the previous project the same way — except from the first
+  // poster (ciao), where nothing precedes it in the gallery, so backward
+  // charge instead plays scene_2 in reverse back to the end of scene_1
+  // (scene_2's gate), exiting the poster loop back out through the intro.
+  const handlePosterCommitForward = useCallback(() => {
+    goTo((activeRef.current + 1) % projects.length, true)
+  }, [goTo, projects.length])
+  const handlePosterCommitBackwardGate = useCallback(() => {
+    if (onFirstPoster) {
+      handlePosterCommitBackward()
+    } else {
+      goTo((activeRef.current - 1 + projects.length) % projects.length, true)
+    }
+  }, [onFirstPoster, handlePosterCommitBackward, goTo, projects.length])
+  const posterGateCharge = useChargeGate(phase === 'poster', {
+    onCommitForward: handlePosterCommitForward,
+    onCommitBackward: handlePosterCommitBackwardGate,
+  })
+
+  // Peek into the poster-to-poster transition clips as the poster gate
+  // charges — forward charge peeks the head of the "next" transition,
+  // backward charge peeks the tail of the "prev" transition (unless we're
+  // on the first poster, where backward instead peeks scene_2's tail, same
+  // as the old first-poster-only gate did).
+  useEffect(() => {
+    if (phase !== 'poster' || posterGateCharge == null) return
+    const canvas = canvasRef.current
+    if (!canvas || !posterPlayers.current) return
+    const progress = peekProgress(posterGateCharge)
+    const from = activeRef.current
+
+    if (progress > 0) {
+      const to = (from + 1) % projects.length
+      const trans = resolveTransition(from, to, projects.length)
+      if (!trans) return
+      const total = POSTER_TRANSITIONS[trans.idx].total
+      const peek = posterPeekFrames(total)
+      drawPeek(canvas, posterPlayers.current[trans.idx], total, trans.forward, progress, peek)
+    } else if (progress < 0) {
+      const magnitude = Math.abs(progress)
+      if (onFirstPoster) {
+        const idx = SCENE2.total - 1 + Math.round(magnitude * SCENE2_PEEK)
+        scene2Player.current?.drawFrame(canvas, Math.max(0, idx))
+        return
+      }
+      const to = (from - 1 + projects.length) % projects.length
+      const trans = resolveTransition(from, to, projects.length)
+      if (!trans) return
+      const total = POSTER_TRANSITIONS[trans.idx].total
+      const peek = posterPeekFrames(total)
+      drawPeek(canvas, posterPlayers.current[trans.idx], total, trans.forward, magnitude, peek)
+    }
+  }, [posterGateCharge, phase, onFirstPoster, projects.length])
+
+  const activeGateCharge =
+    phase === 'scene1-gate' ? gate1Charge :
+    phase === 'scene2-gate' ? gate2Charge :
+    phase === 'poster' ? posterGateCharge :
+    null
 
   // ------------------------------------------------------------------
   // Enter: play theater transition then navigate. The ticket drops down
@@ -583,6 +688,11 @@ export default function PosterGallery({ onPhaseChange, projects }) {
       <ScrollChargeIndicator
         visible={activeGateCharge != null}
         charge={activeGateCharge}
+      />
+
+      <ScrollHint
+        showEnter={phase === 'scene1-gate' && !introScrollStarted}
+        showKeepScrolling={introScrollStarted && phase !== 'poster' && phase !== 'transition' && phase !== 'theater'}
       />
     </>
   )

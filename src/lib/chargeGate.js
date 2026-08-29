@@ -14,7 +14,7 @@
 // range still maps to the gate's full visual scrub (see the peek-drawing
 // effects in PosterGallery), so it *reads* as scrolling further per pixel
 // of input, not less.
-const CHARGE_PER_PIXEL = 0.0034
+const CHARGE_PER_PIXEL = 0.0008
 const RESISTANCE = 0.45
 const RELEASE_MULTIPLIER = 1.4
 export const COMMIT_THRESHOLD = 0.5
