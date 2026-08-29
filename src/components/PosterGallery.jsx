@@ -4,6 +4,7 @@ import gsap from 'gsap'
 import ProjectTicket from './ProjectTicket'
 import ScrollChargeIndicator from './ScrollChargeIndicator'
 import ScrollHint from './ScrollHint'
+import PosterHint from './PosterHint'
 import { nextCharge, decayCharge, COMMIT_THRESHOLD, GATE_IDLE_MS } from '../lib/chargeGate'
 import { setGalleryControls } from '../lib/galleryControl'
 
@@ -704,12 +705,31 @@ export default function PosterGallery({ onPhaseChange, projects }) {
             showKeepScrolling={introScrollStarted && phase !== 'poster' && phase !== 'transition' && phase !== 'theater'}
           />
 
+          <PosterHint
+            visible={phase === 'poster'}
+            charging={!!posterGateCharge}
+          />
+
           <ScrollChargeIndicator
             visible={activeGateCharge != null}
             charge={activeGateCharge}
           />
         </div>
       </div>
+
+      {/* Center tap zone — lets you enter the theater by tapping anywhere on
+          screen while sitting on a poster, matching the "Tap to enter
+          theater" hint above. Sits below the nav ticket (z-[1000]) and the
+          project ticket (z-[900]), so their own buttons/flaps still take the
+          click first over this catch-all. */}
+      {phase === 'poster' && (
+        <button
+          type="button"
+          onClick={handleEnter}
+          aria-label="Enter theater"
+          className="fixed inset-0 z-30 cursor-pointer border-none bg-transparent p-0"
+        />
+      )}
     </>
   )
 }
