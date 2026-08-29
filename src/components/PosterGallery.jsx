@@ -699,16 +699,27 @@ export default function PosterGallery({ onPhaseChange, projects }) {
             whatever's playing in the canvas behind it. */}
         <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/50 to-transparent" />
 
-        <div className="relative flex flex-col items-center gap-3 pt-3">
-          <ScrollHint
-            showEnter={phase === 'scene1-gate' && !introScrollStarted}
-            showKeepScrolling={introScrollStarted && phase !== 'poster' && phase !== 'transition' && phase !== 'theater'}
-          />
+        <div className="relative flex flex-col items-center gap-2 pt-3">
+          {/* Both hints are absolutely stacked into one shared 1.5rem slot —
+              they're mutually exclusive by phase, so only one is ever
+              actually visible, but rendering them side-by-side in flow
+              would reserve space for both and push the bar below down by
+              a full extra line even while it's invisible. */}
+          <div className="relative h-6 w-full">
+            <div className="absolute inset-0">
+              <ScrollHint
+                showEnter={phase === 'scene1-gate' && !introScrollStarted}
+                showKeepScrolling={introScrollStarted && phase !== 'poster' && phase !== 'transition' && phase !== 'theater'}
+              />
+            </div>
 
-          <PosterHint
-            visible={phase === 'poster'}
-            charging={!!posterGateCharge}
-          />
+            <div className="absolute inset-0">
+              <PosterHint
+                visible={phase === 'poster'}
+                charging={!!posterGateCharge}
+              />
+            </div>
+          </div>
 
           <ScrollChargeIndicator
             visible={activeGateCharge != null}
