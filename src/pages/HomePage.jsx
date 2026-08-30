@@ -49,11 +49,24 @@ export default function HomePage() {
   // PosterGallery, not by document scroll position — the page itself never
   // actually scrolls, so swallow wheel/touch input globally rather than
   // letting the browser try to scroll a page with nowhere to go.
+  //
+  // At the very start (scene1-gate, nothing precedes it), backward scroll
+  // has no gate to charge and bottoms out with the page pinned at its
+  // scroll origin. With no scrollable content to rubber-band against,
+  // trackpads/touch overscroll there instead reads as a swipe-navigation
+  // gesture — Chrome/Edge treat it as "back", replaying the loading screen
+  // when it lands back on this same route. `overscroll-behavior: none`
+  // (scoped to just while Home is mounted, so other pages keep normal
+  // scroll/overscroll behavior) tells the browser not to hand the gesture
+  // off to navigation at all.
   useEffect(() => {
     function block(e) { e.preventDefault() }
+    const prevOverscroll = document.body.style.overscrollBehavior
+    document.body.style.overscrollBehavior = 'none'
     window.addEventListener('wheel', block, { passive: false })
     window.addEventListener('touchmove', block, { passive: false })
     return () => {
+      document.body.style.overscrollBehavior = prevOverscroll
       window.removeEventListener('wheel', block)
       window.removeEventListener('touchmove', block)
     }

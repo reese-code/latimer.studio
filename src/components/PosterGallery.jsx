@@ -4,7 +4,6 @@ import gsap from 'gsap'
 import ProjectTicket from './ProjectTicket'
 import ScrollChargeIndicator from './ScrollChargeIndicator'
 import ScrollHint from './ScrollHint'
-import PosterHint from './PosterHint'
 import { nextCharge, decayCharge, COMMIT_THRESHOLD, GATE_IDLE_MS } from '../lib/chargeGate'
 import { setGalleryControls } from '../lib/galleryControl'
 
@@ -606,6 +605,39 @@ export default function PosterGallery({ onPhaseChange, projects }) {
     phase === 'poster' ? posterGateCharge :
     null
 
+  // Rolling-counter index into ScrollHint's line stack (see LINES there).
+  // 'transition' and 'theater' have no line of their own — they're brief,
+  // scroll- or tap-driven hand-offs — so the index simply holds wherever it
+  // last was instead of resetting, keeping copy on screen the whole time
+  // rather than disappearing mid-hand-off.
+  const [hintIndex, setHintIndex] = useState(0)
+  useEffect(() => {
+    let target = null
+    if (phase === 'scene1-gate' && !introScrollStarted) target = 0
+    else if (phase === 'scene1-gate' || phase === 'scene1' || phase === 'scene2-gate' || phase === 'scene2') target = 1
+    else if (phase === 'poster') target = posterGateCharge ? 3 : 2
+    if (target != null) setHintIndex(target)
+  }, [phase, introScrollStarted, posterGateCharge])
+
+  // Charge progress bar — mirrors the active gate's charge while one is
+  // active, but on commit (activeGateCharge drops to null) it snaps to a
+  // full bar in the committed direction and fades out via
+  // ScrollChargeIndicator's own opacity transition, instead of just
+  // vanishing mid-fill.
+  const [barCharge, setBarCharge] = useState(null)
+  const [barVisible, setBarVisible] = useState(false)
+  const prevGateChargeRef = useRef(null)
+  useEffect(() => {
+    if (activeGateCharge != null) {
+      setBarCharge(activeGateCharge)
+      setBarVisible(true)
+    } else if (prevGateChargeRef.current != null) {
+      setBarCharge((Math.sign(prevGateChargeRef.current) || 1) * COMMIT_THRESHOLD)
+      setBarVisible(false)
+    }
+    prevGateChargeRef.current = activeGateCharge
+  }, [activeGateCharge])
+
   // ------------------------------------------------------------------
   // Enter: play theater transition then navigate. The ticket drops down
   // out of view (and the nav ticket lifts back up, handled by the parent
@@ -700,30 +732,11 @@ export default function PosterGallery({ onPhaseChange, projects }) {
         <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/50 to-transparent" />
 
         <div className="relative flex flex-col items-center gap-2 pt-3">
-          {/* Both hints are absolutely stacked into one shared 1.5rem slot —
-              they're mutually exclusive by phase, so only one is ever
-              actually visible, but rendering them side-by-side in flow
-              would reserve space for both and push the bar below down by
-              a full extra line even while it's invisible. */}
-          <div className="relative h-6 w-full">
-            <div className="absolute inset-0">
-              <ScrollHint
-                showEnter={phase === 'scene1-gate' && !introScrollStarted}
-                showKeepScrolling={introScrollStarted && phase !== 'poster' && phase !== 'transition' && phase !== 'theater'}
-              />
-            </div>
-
-            <div className="absolute inset-0">
-              <PosterHint
-                visible={phase === 'poster'}
-                charging={!!posterGateCharge}
-              />
-            </div>
-          </div>
+          <ScrollHint index={hintIndex} />
 
           <ScrollChargeIndicator
-            visible={activeGateCharge != null}
-            charge={activeGateCharge}
+            visible={barVisible}
+            charge={barCharge}
           />
         </div>
       </div>

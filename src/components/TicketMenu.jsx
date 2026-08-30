@@ -26,23 +26,31 @@ export default function TicketMenu({ forceHidden = false }) {
       : false
   )
 
-  // Detect touch + responsive width
+  // Detect touch device
   useEffect(() => {
     isTouch.current = isTouchDevice
-
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
   }, [isTouchDevice])
 
+  const isHomePage = location.pathname === '/'
 
-
-  // Set initial hidden state — translateY 50% so bottom half is off-screen
-  useEffect(() => {
-    if (ticketRef.current) {
-      gsap.set(ticketRef.current, { y: '50%' })
-    }
+  // Non-home pages rest with only 60px of the ticket peeking up from the
+  // bottom edge, rather than the homepage's 50%-off-screen resting state.
+  const PEEK_VISIBLE_PX = 60
+  const getPeekOffset = useCallback(() => {
+    const height = ticketRef.current?.offsetHeight || 0
+    return Math.max(height - PEEK_VISIBLE_PX, 0)
   }, [])
+
+  // Set initial resting state — homepage starts half off-screen (y: 50%);
+  // other pages start with just the 60px peek showing.
+  useEffect(() => {
+    if (!ticketRef.current) return
+    if (isHomePage) {
+      gsap.set(ticketRef.current, { y: '50%' })
+    } else {
+      gsap.set(ticketRef.current, { y: getPeekOffset() })
+    }
+  }, [isHomePage, getPeekOffset])
 
   const slideUp = useCallback(() => {
     gsap.to(ticketRef.current, {
@@ -59,6 +67,16 @@ export default function TicketMenu({ forceHidden = false }) {
       ease: 'power3.inOut',
     })
   }, [])
+
+  // Non-home resting position — recedes until only 60px of the ticket
+  // remains visible above the bottom edge (rather than sliding fully away).
+  const peekDown = useCallback(() => {
+    gsap.to(ticketRef.current, {
+      y: getPeekOffset(),
+      duration: 0.45,
+      ease: 'power3.inOut',
+    })
+  }, [getPeekOffset])
 
   // Fully drop the ticket out of view (used when the project ticket takes
   // over, or when scrolling down) or lift it back to its normal peeking
@@ -77,8 +95,15 @@ export default function TicketMenu({ forceHidden = false }) {
   // tap-toggle on touch) always win over the scroll state — you can still
   // pop the ticket open by hovering/clicking, it just isn't reachable while
   // fully dropped away (nothing there to hover).
-  const scrollHiddenRef = useRef(false)
+  // Non-home pages start "receded" (only the 60px peek showing) and only
+  // reveal once scrolling motion is detected.
+  const scrollHiddenRef = useRef(!isHomePage)
   const hoverRef = useRef(false)
+  // True once the scroll has reached the very bottom of the page — on any
+  // page, the ticket drops fully out of view there (rather than just
+  // receding to its 60px peek), since there's nothing further to scroll to
+  // reveal it for.
+  const atBottomRef = useRef(false)
 
   const resolveVisibility = useCallback(() => {
     if (!ticketRef.current) return
@@ -90,12 +115,35 @@ export default function TicketMenu({ forceHidden = false }) {
       slideUp()
       return
     }
+    if (atBottomRef.current) {
+      dropAway()
+      return
+    }
+    if (!isHomePage) {
+      if (scrollHiddenRef.current) {
+        peekDown()
+      } else {
+        slideUp()
+      }
+      return
+    }
     if (scrollHiddenRef.current) {
       dropAway()
       return
     }
     slideDown()
-  }, [forceHidden, dropAway, slideUp, slideDown])
+  }, [forceHidden, dropAway, slideUp, slideDown, peekDown, isHomePage])
+
+  // Responsive width — ticket size (and so the peek offset) changes across
+  // the breakpoint, so re-resolve position once it's laid out.
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+      requestAnimationFrame(() => resolveVisibility())
+    }
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [resolveVisibility])
 
   useEffect(() => {
     if (!forceHidden) isOpenRef.current = false
@@ -110,9 +158,32 @@ export default function TicketMenu({ forceHidden = false }) {
   // other flips the state.
   const lastDecisionScrollRef = useRef(0)
   const SCROLL_THRESHOLD = 10
+  const BOTTOM_EPSILON = 4
 
   useEffect(() => {
-    const onScroll = ({ scroll }) => {
+    const onScroll = ({ scroll, limit }) => {
+      const nowAtBottom = limit > 0 && scroll >= limit - BOTTOM_EPSILON
+      if (nowAtBottom !== atBottomRef.current) {
+        atBottomRef.current = nowAtBottom
+        resolveVisibility()
+      }
+
+      if (!isHomePage) {
+        // Other pages: any sustained scroll motion reveals the ticket;
+        // scrolling back down sends it back to its 60px peek (it never
+        // stops — it just stays wherever the last motion left it).
+        const delta = scroll - lastDecisionScrollRef.current
+        if (delta > SCROLL_THRESHOLD) {
+          scrollHiddenRef.current = true
+          lastDecisionScrollRef.current = scroll
+          resolveVisibility()
+        } else if (delta < -SCROLL_THRESHOLD) {
+          scrollHiddenRef.current = false
+          lastDecisionScrollRef.current = scroll
+          resolveVisibility()
+        }
+        return
+      }
       if (scroll <= 4) {
         scrollHiddenRef.current = false
         lastDecisionScrollRef.current = scroll
@@ -153,7 +224,7 @@ export default function TicketMenu({ forceHidden = false }) {
       if (rafId) cancelAnimationFrame(rafId)
       lenis?.off('scroll', onScroll)
     }
-  }, [resolveVisibility])
+  }, [resolveVisibility, isHomePage])
 
   const handleMouseEnter = () => {
     if (isTouch.current || forceHidden) return
@@ -263,6 +334,7 @@ export default function TicketMenu({ forceHidden = false }) {
             src={ticketBg}
             alt=""
             className="block w-full h-auto"
+            onLoad={() => resolveVisibility()}
           />
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pt-10">
             {/* Latimer Studio — PPPlayground font */}
