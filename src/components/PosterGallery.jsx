@@ -19,7 +19,7 @@ const AUTO_PLAY_SPEED = 2.8
 // a gate with than the equivalent desktop wheel/trackpad distance — this
 // multiplies touch deltaY specifically so mobile only needs about half the
 // physical scroll distance desktop does to commit any gate.
-const MOBILE_TOUCH_BOOST = 2
+const MOBILE_TOUCH_BOOST = 3
 // While a gate is charging, the scene scrubs through a slice of its frames
 // with the charge (forward into itself, or backward into the tail of the
 // previous scene) — this is the primary visual read that scrolling is doing
