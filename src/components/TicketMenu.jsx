@@ -6,7 +6,7 @@ import { getLenis } from '../hooks/useLenis'
 import { getGalleryControls } from '../lib/galleryControl'
 
 export default function TicketMenu({ forceHidden = false }) {
-  const links = ['CONTACT', 'ABOUT', 'HOME', 'PROJECTS']
+  const links = ['CONTACT', 'ABOUT', 'INFO', 'PROJECTS']
   const navigate = useNavigate()
   const location = useLocation()
   const ticketRef = useRef(null)
@@ -300,14 +300,39 @@ export default function TicketMenu({ forceHidden = false }) {
     }
   }
 
-  const handleLinkClick = (link) => {
-    if (link === 'HOME') handleHome()
-    else if (link === 'PROJECTS') handleProjects()
-    else if (link === 'ABOUT') handleAbout()
-    else if (link === 'CONTACT') handleContact()
+  // INFO — routes to the Info (blog) page. From the homepage/anywhere else
+  // that's a straight navigate; if already there, just reset scroll.
+  const handleInfo = () => {
+    if (location.pathname === '/info') {
+      const lenis = getLenis()
+      if (lenis) {
+        lenis.start()
+        lenis.scrollTo(0, { immediate: true, force: true })
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    } else {
+      navigate('/info')
+    }
   }
 
-  const LINK_HREFS = { HOME: '/', PROJECTS: '/', ABOUT: '/about', CONTACT: '/contact' }
+  const handleLinkClick = (link) => {
+    if (link === 'PROJECTS') handleProjects()
+    else if (link === 'ABOUT') handleAbout()
+    else if (link === 'CONTACT') handleContact()
+    else if (link === 'INFO') handleInfo()
+  }
+
+  const LINK_HREFS = { PROJECTS: '/', ABOUT: '/about', CONTACT: '/contact', INFO: '/info' }
+
+  // Logo — always returns to the home page. From the homepage itself that
+  // resets the scene gates back to the opening frame (same as the old HOME
+  // link); from any other page it's a route change first.
+  const handleLogoClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    handleHome()
+  }
 
   // Wrapper handles horizontal centering; ticketRef handles only Y animation.
   // pointer-events-none here because the wrapper's own layout box doesn't
@@ -338,13 +363,15 @@ export default function TicketMenu({ forceHidden = false }) {
           />
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pt-10">
             {/* Latimer Studio — PPPlayground font */}
-            <span
-              className={`font-heading font-light leading-4 tracking-normal text-maroon select-none ${
+            <a
+              href="/"
+              onClick={handleLogoClick}
+              className={`font-heading font-light leading-4 tracking-normal text-maroon no-underline select-none cursor-pointer ${
                 isMobile ? 'text-[64px]' : 'text-[72px]'
               }`}
             >
               Latimer Studio
-            </span>
+            </a>
 
             {/* Nav links — OTNeueMontreal (Montreal Squeeze) */}
             <div className="mt-0.5 flex items-center gap-1.5 font-sans font-medium text-base tracking-[0.08em] text-[#4a3a42]">

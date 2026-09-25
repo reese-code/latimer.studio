@@ -48,3 +48,42 @@ export const privacyPolicyQuery = `*[_type == "privacyPolicy"][0]{
   title,
   sections,
 }`
+
+export const infoPageQuery = `*[_type == "infoPage"][0]{
+  heading,
+  subheading,
+}`
+
+// Flattened list fields only — enough for the Info listing (and the
+// "related articles" strip), which just needs title/date/preview image.
+const ARTICLE_LIST_FIELDS = `
+  "id": slug.current,
+  title,
+  date,
+  "previewImage": previewImage.asset->url,
+`
+
+export const articlesQuery = `*[_type == "article"] | order(date desc) { ${ARTICLE_LIST_FIELDS} }`
+
+const ARTICLE_STORY_SECTIONS = `
+  "storySections": storySections[]{
+    number,
+    title,
+    combos[]{
+      paragraph,
+      "image": image.asset->url,
+      "video": video.asset->url,
+    },
+  },
+`
+
+export const articleBySlugQuery = `*[_type == "article" && slug.current == $slug][0]{
+  ${ARTICLE_LIST_FIELDS}
+  subheading,
+  author,
+  "authorIcon": authorIcon.asset->url,
+  excerpt,
+  storyRatio,
+  contentWidth,
+  ${ARTICLE_STORY_SECTIONS}
+}`

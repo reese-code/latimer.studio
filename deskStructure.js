@@ -21,6 +21,15 @@ export const deskStructure = (S) =>
             .schemaType('privacyPolicy')
             .documentId('privacyPolicy')
         ),
+      S.listItem()
+        .title('Info Page')
+        .id('infoPage')
+        .child(
+          S.document()
+            .schemaType('infoPage')
+            .documentId('infoPage')
+        ),
       S.divider(),
       S.documentTypeListItem('project').title('Projects'),
+      S.documentTypeListItem('article').title('Articles'),
     ])
