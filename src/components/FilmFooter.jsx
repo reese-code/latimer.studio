@@ -84,7 +84,7 @@ function LinkLine({ label, href, to, onClick, className = '', dark = false }) {
 // repeating the motif itself.
 export default function FilmFooter({ variant = 'default' }) {
   const dark = variant === 'ink'
-  const bg = dark ? 'bg-ink' : 'bg-case-bg'
+  const bg = dark ? 'bg-ink' : ''
   const navigate = useNavigate()
   const location = useLocation()
   const { siteSettings } = useSiteData()
@@ -97,17 +97,17 @@ export default function FilmFooter({ variant = 'default' }) {
   // it (via router state) to land on the posters once mounted.
   const handleProjects = (e) => {
     e.preventDefault()
-    if (location.pathname === '/') {
+    if (location.pathname === '/cinema') {
       getGalleryControls()?.jumpToPosters()
     } else {
-      navigate('/', { state: { scrollTo: 'posters' } })
+      navigate('/cinema', { state: { scrollTo: 'posters' } })
     }
   }
 
   const navLinks = [
     { label: 'ABOUT', to: '/about' },
     { label: 'CONTACT', to: '/contact' },
-    { label: 'PROJECTS', href: '/', onClick: handleProjects },
+    { label: 'PROJECTS', href: '/cinema', onClick: handleProjects },
     { label: 'PRIVACY POLICY', to: '/privacy-policy' },
   ]
 
@@ -127,7 +127,7 @@ export default function FilmFooter({ variant = 'default' }) {
   )
 }
 
-function Cell({ children, className = '', bg = 'bg-case-bg' }) {
+function Cell({ children, className = '', bg = '' }) {
   return (
     <div className={`relative ${bg} ${className}`}>{children}</div>
   )

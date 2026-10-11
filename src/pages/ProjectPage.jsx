@@ -108,7 +108,7 @@ export default function ProjectPage() {
 function PageShell({ children, visible }) {
   return (
     <div
-      className={`relative min-h-screen bg-case-bg transition-opacity duration-[0.6s] ease ${
+      className={`relative min-h-screen bg-concrete transition-opacity duration-[0.6s] ease ${
         visible ? 'opacity-100' : 'opacity-0'
       }`}
     >
@@ -119,7 +119,7 @@ function PageShell({ children, visible }) {
 
 function ProjectContent({ project, projects }) {
   return (
-    <div className="relative z-5 bg-case-bg">
+    <div className="relative z-5 bg-concrete">
       <CaseStudyHero project={project} />
 
       <div className="px-3 pt-16 md:px-5">
@@ -156,7 +156,7 @@ function MoreProjectsSection({ currentId, projects }) {
 
   return (
     <div className="w-full pt-30">
-      <div className="flex flex-row items-center justify-center gap-2 bg-case-bg px-3 py-6 md:px-5">
+      <div className="flex flex-row items-center justify-center gap-2 px-3 py-6 md:px-5">
         <span className="text-[8px] text-maroon">★</span>
         <h2 className="m-0 font-embodiment text-base font-normal tracking-[0.14em] text-[#4a4238]">
           MORE PROJECTS
@@ -789,7 +789,7 @@ function StackingTitles({ sections, index, comboOffsets, titleRefs, sectionRefs,
         ref={(el) => (titleRefs.current[index] = el)}
         onClick={() => onSelect(index)}
         style={{ top: STICKY_TOP + index * TITLE_STACK_GAP, height: TITLE_STACK_GAP }}
-        className="sticky z-10 flex w-full cursor-pointer items-center border-t border-[rgba(74,66,56,0.25)] bg-case-bg px-0 text-left font-embodiment"
+        className="sticky z-10 flex w-full cursor-pointer items-center border-t border-[rgba(74,66,56,0.25)] px-0 text-left font-embodiment"
       >
         <span className="w-9 shrink-0 text-xs tracking-[0.14em] text-[#4a4238] uppercase md:text-base">
           {section.number}

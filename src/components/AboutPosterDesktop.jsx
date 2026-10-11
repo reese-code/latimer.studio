@@ -38,7 +38,7 @@ export default function AboutPosterDesktop() {
                 edge reaches the bottom of the text — never sticks past it. */}
             <div className="w-full flex-1">
               {siteSettings?.aboutImage && (
-                <div className="sticky top-0 overflow-hidden rounded-sm bg-cream">
+                <div className="sticky top-0 overflow-hidden rounded-sm">
                   <img
                     src={optimizedImageUrl(siteSettings.aboutImage, { width: 1000 })}
                     srcSet={srcSetFor(siteSettings.aboutImage, [480, 768, 1000, 1500])}

@@ -104,7 +104,7 @@ function StackingSections({ sections, index, titleRefs, sectionRefs, onSelect, g
         ref={(el) => (titleRefs.current[index] = el)}
         onClick={() => onSelect(index)}
         style={{ top: STICKY_TOP + index * TITLE_STACK_GAP, height: TITLE_STACK_GAP }}
-        className="sticky z-10 flex w-full cursor-pointer items-center border-t border-ink/25 bg-cream px-0 text-left font-sans"
+        className="sticky z-10 flex w-full cursor-pointer items-center border-t border-ink/25 px-0 text-left font-sans"
       >
         {section.number && (
           <span className="w-9 shrink-0 text-xs tracking-[0.14em] text-ink uppercase md:text-base">

@@ -31,7 +31,7 @@ export default function TicketMenu({ forceHidden = false }) {
     isTouch.current = isTouchDevice
   }, [isTouchDevice])
 
-  const isHomePage = location.pathname === '/'
+  const isHomePage = location.pathname === '/cinema'
 
   // Non-home pages rest with only 60px of the ticket peeking up from the
   // bottom edge, rather than the homepage's 50%-off-screen resting state.
@@ -266,10 +266,10 @@ export default function TicketMenu({ forceHidden = false }) {
   // that resets the scene gates back to the opening frame; from any other
   // page (e.g. a case study) it's a route change first.
   const handleHome = () => {
-    if (location.pathname === '/') {
+    if (location.pathname === '/cinema') {
       getGalleryControls()?.reset()
     } else {
-      navigate('/')
+      navigate('/cinema')
     }
   }
 
@@ -277,10 +277,10 @@ export default function TicketMenu({ forceHidden = false }) {
   // gates. From another page, navigate home first and ask it (via router
   // state) to land on the posters once it's mounted.
   const handleProjects = () => {
-    if (location.pathname === '/') {
+    if (location.pathname === '/cinema') {
       getGalleryControls()?.jumpToPosters()
     } else {
-      navigate('/', { state: { scrollTo: 'posters' } })
+      navigate('/cinema', { state: { scrollTo: 'posters' } })
     }
   }
 
@@ -323,7 +323,7 @@ export default function TicketMenu({ forceHidden = false }) {
     else if (link === 'INFO') handleInfo()
   }
 
-  const LINK_HREFS = { PROJECTS: '/', ABOUT: '/about', CONTACT: '/contact', INFO: '/info' }
+  const LINK_HREFS = { PROJECTS: '/cinema', ABOUT: '/about', CONTACT: '/contact', INFO: '/info' }
 
   // Logo — always returns to the home page. From the homepage itself that
   // resets the scene gates back to the opening frame (same as the old HOME
@@ -364,7 +364,7 @@ export default function TicketMenu({ forceHidden = false }) {
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 pt-10">
             {/* Latimer Studio — PPPlayground font */}
             <a
-              href="/"
+              href="/cinema"
               onClick={handleLogoClick}
               className={`font-heading font-light leading-4 tracking-normal text-maroon no-underline select-none cursor-pointer ${
                 isMobile ? 'text-[64px]' : 'text-[72px]'

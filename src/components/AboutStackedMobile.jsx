@@ -28,7 +28,7 @@ export default function AboutStackedMobile() {
           <p className="w-full font-sans text-[32px] font-medium uppercase leading-tight tracking-[0.02em] text-cream">
             {siteSettings?.aboutCopy}
           </p>
-          <div className="aspect-4/3 w-full overflow-hidden rounded-sm bg-cream">
+          <div className="aspect-4/3 w-full overflow-hidden rounded-sm">
             {siteSettings?.aboutImage && (
               <img
                 src={optimizedImageUrl(siteSettings.aboutImage, { width: 900 })}

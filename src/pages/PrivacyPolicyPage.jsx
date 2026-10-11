@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
   }, [])
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-case-bg">
+    <div className="flex min-h-screen w-full flex-col bg-concrete">
       <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-5 py-24 md:px-0">
         <h1 className="m-0 font-embodiment text-[3rem] font-light uppercase tracking-[-1px] text-[#4a4238] md:text-[4rem]">
           {title}

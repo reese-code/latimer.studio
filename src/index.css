@@ -10,8 +10,15 @@
 
 @font-face {
   font-family: 'OTNeueMontreal';
-  src: url('./assets/OTNeueMontreal-MediumSqueezed.otf') format('opentype');
+  src: url('./assets/OTNeueMontreal-MediumSemiSqueezed.otf') format('opentype');
   font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OTNeueMontreal';
+  src: url('./assets/OTNeueMontreal-BoldSemiSqueezed.otf') format('opentype');
+  font-weight: 700;
   font-display: swap;
 }
 
@@ -30,7 +37,7 @@
   /* Ticket / case-study brand palette */
   --color-maroon: #722f37;
   --color-maroon-hover: #8a3a44;
-  --color-cream: #f4ede2;
+  --color-cream: #ededf3;
   --color-ink: #0c0a0b;
   --color-case-bg: #f1e9da;
 
@@ -46,6 +53,58 @@
   --font-3don: var(--font-heading);
 }
 
+/* New-homepage type scale — non-caps and small-caps variants of h2, h3,
+   and body copy. Kept as shared utilities (not scoped to one page) so any
+   future section can reach for the same scale. */
+@utility text-h2 {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: 0.18px;
+  text-transform: none;
+}
+@utility text-h2-caps {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+@utility text-h3 {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.3;
+  letter-spacing: 0.18px;
+  text-transform: none;
+}
+@utility text-h3-caps {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+@utility text-body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.18px;
+  text-transform: none;
+}
+@utility text-body-caps {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 @layer base {
   body {
     margin: 0;
@@ -53,12 +112,21 @@
     letter-spacing: 0.18px;
     color-scheme: light dark;
     color: var(--color-text);
-    background: var(--color-bg);
+    background: var(--color-bg) url('/concrete-texture.png') repeat fixed center top;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
+
+/* Concrete texture overlay — layered on top of a surface's own background
+   color (bg-cream / bg-case-bg) rather than replacing it, since the two are
+   separate CSS properties (background-image vs background-color) and the
+   color still shows through the texture's lighter/transparent pixels. */
+@utility bg-concrete {
+  background-image: url('/concrete-texture.png');
+  background-repeat: repeat;
 }
 
 /* Concave "scooped" corner button — a quarter-circle notch cut inward at

@@ -84,7 +84,7 @@ export default function ArticlePage() {
   const related = allArticles.filter((a) => a.id !== article.id).slice(0, RELATED_COUNT)
 
   return (
-    <div id={ARTICLE_PAGE_ROOT_ID} className="min-h-screen w-full bg-cream">
+    <div id={ARTICLE_PAGE_ROOT_ID} className="min-h-screen w-full bg-concrete">
       <BackToInfoArrow />
 
       <div className="px-8 pt-24 pb-20 md:px-20 md:pt-32">

@@ -1,15 +1,8 @@
-import { useState, useCallback, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import PosterGallery from '../components/PosterGallery'
-import TicketMenu from '../components/TicketMenu'
-import LoadingScreen from '../components/LoadingScreen'
-import { getGalleryControls } from '../lib/galleryControl'
-import { useSiteData } from '../hooks/useSiteData'
+import SiteNav from '../components/SiteNav'
+import LetsTalkButton from '../components/LetsTalkButton'
 import { useDocumentHead } from '../hooks/useDocumentHead'
 
 export default function HomePage() {
-  const { projects, loading } = useSiteData()
-  const [showLoader, setShowLoader] = useState(true)
   useDocumentHead({
     title: 'Latimer Studio — Denver Web Design & Branding Studio for Custom, High-Converting Websites',
     description:
@@ -22,79 +15,38 @@ export default function HomePage() {
       url: 'https://latimer.studio/',
     },
   })
-  const [galleryPhase, setGalleryPhase] = useState('scene1-gate')
-  const handlePhaseChange = useCallback((p) => setGalleryPhase(p), [])
-  const location = useLocation()
-  const navigate = useNavigate()
-
-  // Once we're in the project section (ticket has popped up), the nav
-  // ticket drops fully out of view. It lifts back up once the theater
-  // transition begins.
-  const inProjectSection = galleryPhase !== 'scene1-gate' && galleryPhase !== 'scene1'
-  const hideNavTicket = inProjectSection && galleryPhase !== 'theater'
-
-  // Returning from a project page (e.g. via "Back to Lobby") lands here at
-  // the very start of the site. The nav ticket's PROJECTS link can ask (via
-  // router state) to land here and jump straight to the poster gallery
-  // instead, skipping both scene gates.
-  useEffect(() => {
-    if (location.state?.scrollTo === 'posters') {
-      // Clear the one-shot state so a later back/forward nav doesn't replay it.
-      navigate('.', { replace: true, state: null })
-      getGalleryControls()?.jumpToPosters()
-    }
-  }, [])
-
-  // The whole experience is driven by scroll-charge gates inside
-  // PosterGallery, not by document scroll position — the page itself never
-  // actually scrolls, so swallow wheel/touch input globally rather than
-  // letting the browser try to scroll a page with nowhere to go.
-  //
-  // At the very start (scene1-gate, nothing precedes it), backward scroll
-  // has no gate to charge and bottoms out with the page pinned at its
-  // scroll origin. With no scrollable content to rubber-band against,
-  // trackpads/touch overscroll there instead reads as a swipe-navigation
-  // gesture — Chrome/Edge treat it as "back", replaying the loading screen
-  // when it lands back on this same route. `overscroll-behavior: none`
-  // (scoped to just while Home is mounted, so other pages keep normal
-  // scroll/overscroll behavior) tells the browser not to hand the gesture
-  // off to navigation at all.
-  useEffect(() => {
-    function block(e) { e.preventDefault() }
-    const prevOverscroll = document.body.style.overscrollBehavior
-    document.body.style.overscrollBehavior = 'none'
-    window.addEventListener('wheel', block, { passive: false })
-    window.addEventListener('touchmove', block, { passive: false })
-    return () => {
-      document.body.style.overscrollBehavior = prevOverscroll
-      window.removeEventListener('wheel', block)
-      window.removeEventListener('touchmove', block)
-    }
-  }, [])
 
   return (
-    <>
-      {showLoader && (
-        <LoadingScreen ready={!loading} onDone={() => setShowLoader(false)} />
-      )}
-      {loading || projects.length === 0 ? (
-        <div className="fixed inset-0 z-10 h-screen w-screen bg-ink" />
-      ) : (
-        <>
-          {/* Visually hidden — the gallery below is an entirely visual/canvas
-              experience with no real page copy, so this is the only text that
-              gives crawlers (and screen readers) something to read as the
-              page's actual title. */}
-          <h1 className="sr-only">
-            Websites with the structure of a Nolan plot, where every detail pays off later. Latimer Studio
-          </h1>
-          <h2 className="sr-only">
-            Denver web design studio building custom websites, brand identities, and UI/UX design for businesses that want to stand out.
-          </h2>
-          <PosterGallery onPhaseChange={handlePhaseChange} projects={projects} />
-          <TicketMenu forceHidden={hideNavTicket} />
-        </>
-      )}
-    </>
+    <main className="flex min-h-screen flex-col items-center justify-center overflow-hidden px-5 py-3">
+      <h1 className="sr-only">
+        Websites with the structure of a Nolan plot, where every detail pays off later. Latimer Studio
+      </h1>
+      <h2 className="sr-only">
+        Denver web design studio building custom websites, brand identities, and UI/UX design for businesses that want to stand out.
+      </h2>
+
+      <SiteNav />
+
+      <div className="flex w-full max-w-[935px] flex-col items-center">
+        <img
+          src="/Latimer.svg"
+          alt=""
+          className="w-full"
+        />
+
+        <div className="flex flex-col items-center gap-6 py-6 text-center">
+          <p className="text-body max-w-md text-ink">
+            Creating e-commerce design in Denver, Colorado that actually converts through data-driven decisions.
+          </p>
+          <LetsTalkButton />
+        </div>
+
+        <img
+          src="/Studio.svg"
+          alt=""
+          className="w-full max-w-[731px]"
+        />
+      </div>
+    </main>
   )
 }
