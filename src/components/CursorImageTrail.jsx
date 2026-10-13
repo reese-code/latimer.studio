@@ -12,8 +12,15 @@ const DESKTOP_QUERY = '(min-width: 768px)'
 // travelled this far since the last one, at most MAX_POPS at once.
 const POP_DISTANCE = 70
 const MAX_POPS = 8
-const POP_W = (370 / 3) * 2 * 0.75
-const POP_H = (450 / 3) * 2 * 0.75
+// Each pop picks a random aspect ratio (w / h) — 1:1, 4:3 or 3:4 — at roughly
+// the same area, so the trail varies in shape without varying in weight.
+const POP_RATIOS = [1, 4 / 3, 3 / 4]
+const POP_AREA = ((370 / 3) * 2 * 0.75) * ((450 / 3) * 2 * 0.75)
+const randomPopSize = () => {
+  const ratio = POP_RATIOS[Math.floor(Math.random() * POP_RATIOS.length)]
+  const w = Math.sqrt(POP_AREA * ratio)
+  return { w, h: w / ratio }
+}
 
 // ---------------------------------------------------------------------------
 // CursorImageTrail — wraps a hoverable area. On desktop widths, images pop up
@@ -47,7 +54,7 @@ export default function CursorImageTrail({ images, children, className = '' }) {
         lastPopPosRef.current = { x, y }
         popIdRef.current += 1
         const id = popIdRef.current
-        setPops((p) => [...p.slice(-(MAX_POPS - 1)), { id, x: x + OFFSET, y: y + OFFSET }])
+        setPops((p) => [...p.slice(-(MAX_POPS - 1)), { id, x: x + OFFSET, y: y + OFFSET, ...randomPopSize() }])
       }
     },
     [isDesktop]
@@ -67,7 +74,7 @@ export default function CursorImageTrail({ images, children, className = '' }) {
             index={p.id}
             onDone={() => removePop(p.id)}
             className="pointer-events-none absolute z-50"
-            style={{ left: p.x, top: p.y, width: POP_W, height: POP_H }}
+            style={{ left: p.x, top: p.y, width: p.w, height: p.h }}
           />
         ))}
     </div>

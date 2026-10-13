@@ -2,6 +2,7 @@ import SiteNav from '../components/SiteNav'
 import LetsTalkButton from '../components/LetsTalkButton'
 import CursorImageTrail from '../components/CursorImageTrail'
 import PopSlideCard from '../components/PopSlideCard'
+import ProjectsSection from '../components/ProjectsSection'
 import { useEffect, useMemo, useState } from 'react'
 import { useSiteData } from '../hooks/useSiteData'
 import { useDocumentHead } from '../hooks/useDocumentHead'
@@ -55,6 +56,7 @@ export default function HomePage() {
   })
 
   return (
+    <>
     <main className="relative flex h-dvh flex-col items-center overflow-hidden px-5 py-3 max-md:px-3 max-md:pt-16">
       <h1 className="sr-only">
         Websites with the structure of a Nolan plot, where every detail pays off later. Latimer Studio
@@ -91,7 +93,7 @@ export default function HomePage() {
         <PopSlideCard images={heroImages} className="min-h-0 w-full flex-1" />
 
         <div className="flex w-full flex-col items-start gap-3">
-          <p className="w-full text-left font-sans text-[24px] font-medium leading-[115%] text-ink">
+          <p className="w-full text-left font-sans text-[16px] font-medium leading-[115%] text-ink">
             {heroText}
           </p>
           <LetsTalkButton />
@@ -99,5 +101,7 @@ export default function HomePage() {
       </div>
 
     </main>
+    <ProjectsSection />
+    </>
   )
 }

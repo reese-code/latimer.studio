@@ -9,28 +9,27 @@ const MAX_STACK = 4
 const MAX_TILT = (7 * Math.PI) / 180
 // Mobile pops slide up from further below, springing into place with the tilt.
 const RISE = 40
+// Each pop picks a random aspect ratio (w / h): 1:1, 4:3 or 3:4.
+const POP_RATIOS = [1, 4 / 3, 3 / 4]
+const randomRatio = () => POP_RATIOS[Math.floor(Math.random() * POP_RATIOS.length)]
 
 // ---------------------------------------------------------------------------
 // PopSlideCard — mobile version of the "multi" option. Occupies the same slot
 // as the desktop pops, but stacks popped images in place on its own timer (no cursor).
 // ---------------------------------------------------------------------------
 export default function PopSlideCard({ images, className = '' }) {
-  const [pops, setPops] = useState([{ id: 0 }])
+  const [pops, setPops] = useState(() => [{ id: 0, ratio: randomRatio() }])
   const idRef = useRef(0)
   const [paused, setPaused] = useState(false)
   const slotRef = useRef(null)
-  const [scale, setScale] = useState(0.82)
+  const [slot, setSlot] = useState({ w: 0, h: 0 })
 
   useEffect(() => {
     const el = slotRef.current
     if (!el) return
     const measure = () => {
       const { width: w, height: h } = el.getBoundingClientRect()
-      if (!w || !h) return
-      const sin = Math.sin(MAX_TILT)
-      const cos = Math.cos(MAX_TILT)
-      // Rotated bounding box of a (s*w) x (s*h) rect must fit inside w x h.
-      setScale(Math.min(w / (w * cos + h * sin), h / (w * sin + h * cos)))
+      if (w && h) setSlot({ w, h })
     }
     measure()
     const ro = new ResizeObserver(measure)
@@ -43,10 +42,18 @@ export default function PopSlideCard({ images, className = '' }) {
     const timer = setInterval(() => {
       idRef.current += 1
       const id = idRef.current
-      setPops((p) => [...p.slice(-(MAX_STACK - 1)), { id }])
+      setPops((p) => [...p.slice(-(MAX_STACK - 1)), { id, ratio: randomRatio() }])
     }, POP_INTERVAL)
     return () => clearInterval(timer)
   }, [paused])
+
+  // Largest pop of the given ratio whose rotated bounding box fits in the slot.
+  const popSize = (ratio) => {
+    const sin = Math.sin(MAX_TILT)
+    const cos = Math.cos(MAX_TILT)
+    const ph = Math.min(slot.w / (ratio * cos + sin), slot.h / (ratio * sin + cos))
+    return { width: ph * ratio, height: ph }
+  }
 
   // Tap toggles pause/play.
   return (
@@ -60,7 +67,7 @@ export default function PopSlideCard({ images, className = '' }) {
           rise={RISE}
           gentle
           className="absolute inset-0 m-auto"
-          style={{ width: `${scale * 100}%`, height: `${scale * 100}%` }}
+          style={popSize(p.ratio)}
         />
       ))}
     </div>

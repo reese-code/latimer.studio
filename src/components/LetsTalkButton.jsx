@@ -2,10 +2,10 @@ import { Link } from 'react-router-dom'
 
 // New pill button for the homepage — distinct from TicketMenu's old
 // ticket-png-background button, which stays as-is in cinema mode.
-export default function LetsTalkButton({ className = '', inverted = false, arrowAlways = false, ...props }) {
+export default function LetsTalkButton({ label = 'Let\u2019s talk', to = '/contact', className = '', inverted = false, arrowAlways = false, ...props }) {
   return (
     <Link
-      to="/contact"
+      to={to}
       className={`group relative inline-flex items-center justify-center rounded-lg px-8 py-3 text-body-caps no-underline ${inverted ? 'bg-white text-ink' : 'bg-ink text-white'} ${className}`}
       {...props}
     >
@@ -14,13 +14,13 @@ export default function LetsTalkButton({ className = '', inverted = false, arrow
           second copy as if it were waiting just out of view below. */}
       <span className="relative block h-[1em] overflow-hidden leading-none">
         <span className="block transition-transform duration-300 ease-out group-hover:-translate-y-full">
-          Let&rsquo;s talk
+          {label}
         </span>
         <span
           aria-hidden="true"
           className="absolute inset-0 block translate-y-full transition-transform duration-300 ease-out group-hover:translate-y-0"
         >
-          Let&rsquo;s talk
+          {label}
         </span>
       </span>
 
