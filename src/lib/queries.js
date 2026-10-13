@@ -39,6 +39,7 @@ export const projectBySlugQuery = `*[_type == "project" && slug.current == $slug
 export const siteSettingsQuery = `*[_type == "siteSettings"][0]{
   aboutCopy,
   "aboutImage": aboutImage.asset->url,
+  "heroTrailImages": heroTrailImages[].asset->url,
   footerTaglines,
   contactLinks,
   typeformId,

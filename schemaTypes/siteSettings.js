@@ -21,6 +21,14 @@ export default defineType({
       description: 'Fills the box next to the About page copy. Falls back to a plain cream box when empty.',
     }),
     defineField({
+      name: 'heroTrailImages',
+      title: 'Homepage hero cursor trail images',
+      type: 'array',
+      of: [{ type: 'image', options: { hotspot: true } }],
+      description:
+        'Images that trail the cursor when hovering the homepage hero. Falls back to five placeholder colors when empty.',
+    }),
+    defineField({
       name: 'footerTaglines',
       title: 'Footer taglines',
       type: 'array',
