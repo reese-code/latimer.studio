@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import PosterGallery from '../components/PosterGallery'
 import TicketMenu from '../components/TicketMenu'
+import SiteNav from '../components/SiteNav'
 import LoadingScreen from '../components/LoadingScreen'
 import { getGalleryControls } from '../lib/galleryControl'
 import { useSiteData } from '../hooks/useSiteData'
@@ -23,6 +24,7 @@ export default function CinemaPage() {
     },
   })
   const [galleryPhase, setGalleryPhase] = useState('scene1-gate')
+  const [menuOpen, setMenuOpen] = useState(false)
   const handlePhaseChange = useCallback((p) => setGalleryPhase(p), [])
   const location = useLocation()
   const navigate = useNavigate()
@@ -92,7 +94,8 @@ export default function CinemaPage() {
             Denver web design studio building custom websites, brand identities, and UI/UX design for businesses that want to stand out.
           </h2>
           <PosterGallery onPhaseChange={handlePhaseChange} projects={projects} />
-          <TicketMenu forceHidden={hideNavTicket} />
+          <TicketMenu forceHidden={hideNavTicket || menuOpen} />
+          <SiteNav floating onOpenChange={setMenuOpen} />
         </>
       )}
     </>

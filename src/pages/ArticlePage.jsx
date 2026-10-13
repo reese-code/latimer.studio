@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import TicketMenu from '../components/TicketMenu'
+import SiteNav from '../components/SiteNav'
 import FilmFooter from '../components/FilmFooter'
 import StoryAccordion from '../components/StoryAccordion'
 import ArticleHoverList from '../components/ArticleHoverList'
@@ -155,7 +155,7 @@ export default function ArticlePage() {
         )}
       </div>
 
-      <TicketMenu />
+      <SiteNav />
       <FilmFooter />
     </div>
   )

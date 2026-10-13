@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import TicketMenu from '../components/TicketMenu'
+import SiteNav from '../components/SiteNav'
 import AboutPosterDesktop from '../components/AboutPosterDesktop'
 import AboutStackedMobile from '../components/AboutStackedMobile'
 import { getLenis } from '../hooks/useLenis'
@@ -52,7 +52,7 @@ export default function AboutPage() {
         <AboutPosterDesktop />
       </div>
 
-      <TicketMenu />
+      <SiteNav />
     </div>
   )
 }

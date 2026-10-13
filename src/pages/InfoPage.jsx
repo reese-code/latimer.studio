@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import TicketMenu from '../components/TicketMenu'
+import SiteNav from '../components/SiteNav'
 import FilmFooter from '../components/FilmFooter'
 import ArticleHoverList from '../components/ArticleHoverList'
 import { getLenis } from '../hooks/useLenis'
@@ -80,7 +80,7 @@ export default function InfoPage() {
         </div>
       </div>
 
-      <TicketMenu />
+      <SiteNav />
       <FilmFooter />
     </div>
   )

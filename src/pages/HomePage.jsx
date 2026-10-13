@@ -1,16 +1,46 @@
 import SiteNav from '../components/SiteNav'
 import LetsTalkButton from '../components/LetsTalkButton'
 import CursorImageTrail from '../components/CursorImageTrail'
-import HeroSlideCard from '../components/HeroSlideCard'
 import PopSlideCard from '../components/PopSlideCard'
-import CursorModeToggle from '../components/CursorModeToggle'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSiteData } from '../hooks/useSiteData'
 import { useDocumentHead } from '../hooks/useDocumentHead'
+import { sanityClient } from '../lib/sanityClient'
+import { homeQuery } from '../lib/queries'
+import { optimizedImageUrl } from '../lib/sanityImage'
+
+const DEFAULT_HERO_TEXT =
+  'Creating e-commerce design in Denver, Colorado that actually converts through data-driven decisions.'
 
 export default function HomePage() {
   const { siteSettings } = useSiteData()
-  const [cursorMode, setCursorMode] = useState('movement')
+  const [hero, setHero] = useState(null)
+  useEffect(() => {
+    let cancelled = false
+    sanityClient.fetch(homeQuery).then(
+      (res) => !cancelled && setHero(res?.hero || null),
+      () => {}
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  // Home doc wins; fall back to the legacy siteSettings images.
+  const legacyImages = siteSettings?.heroTrailImages
+  const rawHeroImages = hero?.images?.length ? hero.images : legacyImages
+  // Uploads can be huge (e.g. 2400x3000 AVIF) — resize via Sanity's CDN so
+  // cards don't render as bare colors while a giant file decodes.
+  const heroImages = useMemo(
+    () => rawHeroImages?.map((u) => optimizedImageUrl(u, { width: 900 })),
+    [rawHeroImages]
+  )
+  useEffect(() => {
+    heroImages?.forEach((u) => {
+      const img = new Image()
+      img.src = u
+    })
+  }, [heroImages])
+  const heroText = hero?.text || DEFAULT_HERO_TEXT
   useDocumentHead({
     title: 'Latimer Studio — Denver Web Design & Branding Studio for Custom, High-Converting Websites',
     description:
@@ -25,7 +55,7 @@ export default function HomePage() {
   })
 
   return (
-    <main className="relative flex h-dvh flex-col items-center overflow-hidden px-5 py-3 max-md:pt-16">
+    <main className="relative flex h-dvh flex-col items-center overflow-hidden px-5 py-3 max-md:px-3 max-md:pt-16">
       <h1 className="sr-only">
         Websites with the structure of a Nolan plot, where every detail pays off later. Latimer Studio
       </h1>
@@ -40,15 +70,14 @@ export default function HomePage() {
           so they keep scaling up on larger screens, capped by max-h so they
           still shrink to fit on short viewports. */}
       <CursorImageTrail
-        images={siteSettings?.heroTrailImages}
-        mode={cursorMode}
+        images={heroImages}
         className="hidden min-h-0 w-full max-w-[1400px] flex-1 flex-col items-center justify-center md:flex"
       >
         <img src="/Latimer.svg" alt="" className="w-[min(62vw,1100px)] max-h-[32vh] object-contain" />
 
         <div className="flex flex-col items-center gap-6 py-6 text-center">
           <p className="text-body max-w-md text-ink">
-            Creating e-commerce design in Denver, Colorado that actually converts through data-driven decisions.
+            {heroText}
           </p>
           <LetsTalkButton />
         </div>
@@ -56,36 +85,19 @@ export default function HomePage() {
         <img src="/Studio.svg" alt="" className="w-[min(48vw,860px)] max-h-[24vh] object-contain" />
       </CursorImageTrail>
 
-      {/* Mobile — Latimer, Studio right under it, then a static
-          (non-cursor-following) image card filling the remaining width and
-          height, then left-aligned copy and button. */}
-      <div className="flex min-h-0 w-full flex-1 flex-col items-center gap-5 py-4 md:hidden">
-        {/* Side by side: flex-grow matches each logo's aspect ratio (1099x354,
-            861x346) so both come out the same height. */}
-        <div className="flex w-full items-center gap-3">
-          <img src="/Latimer.svg" alt="" className="h-auto min-w-0 basis-0" style={{ flexGrow: 1099 / 354 }} />
-          <img src="/Studio.svg" alt="" className="h-auto min-w-0 basis-0" style={{ flexGrow: 861 / 346 }} />
-        </div>
+      {/* Mobile — static (non-cursor-following) image card at the top filling
+          the remaining space, then the headline and button at the bottom. */}
+      <div className="flex min-h-0 w-full flex-1 flex-col items-start gap-5 py-4 md:hidden">
+        <PopSlideCard images={heroImages} className="min-h-0 w-full flex-1" />
 
-        {cursorMode === 'multi' ? (
-          <PopSlideCard images={siteSettings?.heroTrailImages} className="mt-2 min-h-0 w-full flex-1" />
-        ) : (
-          <HeroSlideCard images={siteSettings?.heroTrailImages} className="mt-2 min-h-0 w-full flex-1" />
-        )}
-
-        <div className="flex w-full flex-col items-start gap-3 pr-14 text-left">
-          <p className="text-body max-w-md text-ink">
-            Creating e-commerce design in Denver, Colorado that actually converts through data-driven decisions.
+        <div className="flex w-full flex-col items-start gap-3">
+          <p className="w-full text-left font-sans text-[24px] font-medium leading-[115%] text-ink">
+            {heroText}
           </p>
           <LetsTalkButton />
         </div>
       </div>
 
-      <CursorModeToggle
-        mode={cursorMode}
-        onChange={setCursorMode}
-        className="absolute bottom-3 right-4 md:left-4 md:right-auto"
-      />
     </main>
   )
 }

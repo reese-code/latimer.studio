@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import TicketMenu from '../components/TicketMenu'
+import SiteNav from '../components/SiteNav'
 import FilmFooter from '../components/FilmFooter'
 import { getLenis } from '../hooks/useLenis'
 import { useSanityData } from '../hooks/useSanityData'
@@ -59,7 +59,7 @@ export default function PrivacyPolicyPage() {
         ))}
       </div>
 
-      <TicketMenu />
+      <SiteNav />
       <FilmFooter />
     </div>
   )

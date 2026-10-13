@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import TicketMenu from '../components/TicketMenu'
+import SiteNav from '../components/SiteNav'
 import FilmFooter from '../components/FilmFooter'
 import FilmRail, { useFilmRailEntrance, useRailHeight } from '../components/FilmRail'
 import latimerStudioLogo from '../assets/Latimer-Studio.svg'
@@ -43,7 +43,7 @@ export default function NotFoundPage() {
       <div className="hidden md:block">
         <NotFoundDesktop />
       </div>
-      <TicketMenu />
+      <SiteNav />
     </div>
   )
 }

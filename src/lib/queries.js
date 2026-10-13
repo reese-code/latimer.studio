@@ -50,6 +50,13 @@ export const privacyPolicyQuery = `*[_type == "privacyPolicy"][0]{
   sections,
 }`
 
+export const homeQuery = `*[_type == "home"][0]{
+  "hero": hero{
+    "images": images[].asset->url,
+    text,
+  },
+}`
+
 export const infoPageQuery = `*[_type == "infoPage"][0]{
   heading,
   subheading,

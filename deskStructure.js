@@ -6,6 +6,14 @@ export const deskStructure = (S) =>
     .title('Content')
     .items([
       S.listItem()
+        .title('Home')
+        .id('home')
+        .child(
+          S.document()
+            .schemaType('home')
+            .documentId('home')
+        ),
+      S.listItem()
         .title('Site Settings')
         .id('siteSettings')
         .child(

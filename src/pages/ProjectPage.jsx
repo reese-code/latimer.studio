@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useRef, useEffect, useState, useLayoutEffect, forwardRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import TicketMenu from '../components/TicketMenu'
+import SiteNav from '../components/SiteNav'
 import FilmFooter from '../components/FilmFooter'
 import studioRoLogo from '../assets/Studio-ro.svg'
 import { getLenis } from '../hooks/useLenis'
@@ -73,23 +73,6 @@ export default function ProjectPage() {
     return () => cancelAnimationFrame(raf)
   }, [id, project])
 
-  // Nav ticket only appears while scrolling up on the case study — hidden
-  // by default, and again while scrolling down. Scrolling (including all
-  // the way up) never navigates away — leaving is click-only.
-  const [showTicket, setShowTicket] = useState(false)
-  useEffect(() => {
-    let lastY = window.scrollY
-    function onScroll() {
-      const y     = window.scrollY
-      const delta = y - lastY
-      if (Math.abs(delta) < 4) return
-      setShowTicket(delta < 0 && y > 40)
-      lastY = y
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
   if (!project) {
     if (loading) return null
     return <NotFoundPage />
@@ -98,7 +81,7 @@ export default function ProjectPage() {
   return (
     <PageShell visible={visible}>
       <ProjectContent project={project} projects={projects} />
-      <TicketMenu forceHidden={!showTicket} />
+      <SiteNav />
     </PageShell>
   )
 }
