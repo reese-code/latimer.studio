@@ -25,7 +25,7 @@ export default function HomePage() {
   })
 
   return (
-    <main className="relative flex h-dvh flex-col items-center overflow-hidden px-5 py-3">
+    <main className="relative flex h-dvh flex-col items-center overflow-hidden px-5 py-3 max-md:pt-16">
       <h1 className="sr-only">
         Websites with the structure of a Nolan plot, where every detail pays off later. Latimer Studio
       </h1>
@@ -60,8 +60,12 @@ export default function HomePage() {
           (non-cursor-following) image card filling the remaining width and
           height, then left-aligned copy and button. */}
       <div className="flex min-h-0 w-full flex-1 flex-col items-center gap-5 py-4 md:hidden">
-        <img src="/Latimer.svg" alt="" className="h-[9vh] max-w-full object-contain" />
-        <img src="/Studio.svg" alt="" className="h-[9vh] max-w-full object-contain" />
+        {/* Side by side: flex-grow matches each logo's aspect ratio (1099x354,
+            861x346) so both come out the same height. */}
+        <div className="flex w-full items-center gap-3">
+          <img src="/Latimer.svg" alt="" className="h-auto min-w-0 basis-0" style={{ flexGrow: 1099 / 354 }} />
+          <img src="/Studio.svg" alt="" className="h-auto min-w-0 basis-0" style={{ flexGrow: 861 / 346 }} />
+        </div>
 
         {cursorMode === 'multi' ? (
           <PopSlideCard images={siteSettings?.heroTrailImages} className="mt-2 min-h-0 w-full flex-1" />

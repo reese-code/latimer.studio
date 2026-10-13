@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import PopImage from './PopImage'
 
-const POP_INTERVAL = 800
+const POP_INTERVAL = 500
 // Pops stack in place; once there are this many, the oldest is removed.
 const MAX_STACK = 4
 // The pop is scaled down inside the slot so the slot (and its spacing to the
@@ -15,18 +15,21 @@ const POP_SCALE = 0.82
 export default function PopSlideCard({ images, className = '' }) {
   const [pops, setPops] = useState([{ id: 0 }])
   const idRef = useRef(0)
+  const [paused, setPaused] = useState(false)
 
   useEffect(() => {
+    if (paused) return
     const timer = setInterval(() => {
       idRef.current += 1
       const id = idRef.current
       setPops((p) => [...p.slice(-(MAX_STACK - 1)), { id }])
     }, POP_INTERVAL)
     return () => clearInterval(timer)
-  }, [])
+  }, [paused])
 
+  // Tap toggles pause/play.
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} onClick={() => setPaused((p) => !p)}>
       {pops.map((p) => (
         <PopImage
           key={p.id}

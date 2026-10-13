@@ -32,8 +32,10 @@ export default function SiteNav() {
   const time = useDenverClock()
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 py-3 text-ink">
-      <div className="mix-blend-color-dodge flex items-center gap-1 text-body">
+    <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 py-3 text-ink"
+      style={{ background: "var(--color-bg) url('/concrete-texture.png') repeat fixed center top" }}
+    >
+      <div className="flex items-center gap-1 text-body">
         {NAV_LINKS.map((link, i) => (
           <span key={link.label}>
             <Link to={link.to} className="text-inherit no-underline hover:underline">
@@ -45,7 +47,7 @@ export default function SiteNav() {
         ))}
       </div>
 
-      <div className="mix-blend-color-dodge hidden items-center gap-2 text-body sm:flex">
+      <div className="hidden items-center gap-2 text-body sm:flex">
         <span>Denver, CO {time}</span>
         <Link to="/cinema" className="text-inherit no-underline hover:underline">
           cinema mode
