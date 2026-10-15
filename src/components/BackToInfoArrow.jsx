@@ -86,7 +86,7 @@ export default function BackToInfoArrow() {
   return (
     <div
       ref={barRef}
-      className="fixed inset-x-0 top-0 z-50 flex h-14 items-center border-b border-ink/10 px-6 md:h-16 md:px-8"
+      className="fixed inset-x-0 top-0 z-50 flex h-14 items-center border-b border-ink/10 px-2 md:h-16 md:px-8"
     >
       <button
         type="button"

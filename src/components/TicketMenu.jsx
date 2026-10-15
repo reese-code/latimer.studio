@@ -341,7 +341,7 @@ export default function TicketMenu({ forceHidden = false }) {
   // the wrapper keeps intercepting clicks meant for whatever is underneath
   // it even after dropAway() has visually moved the nav out of the way.
   const wrapperClass = isMobile
-    ? 'fixed bottom-0 left-3 right-3 z-[1000] pointer-events-none'
+    ? 'fixed bottom-0 left-2 right-2 z-[1000] pointer-events-none'
     : 'fixed bottom-0 left-1/2 -translate-x-1/2 w-[400px] z-[1000] pointer-events-none'
 
   return (

@@ -6,10 +6,10 @@ export default function ProjectsSection() {
   if (!projects.length) return null
 
   return (
-    <section className="w-full px-4 py-10 md:py-20">
+    <section className="mx-auto w-full max-w-[120rem] px-2 py-10 md:px-4 md:py-20">
       {/* Title row — short bar, label, then a bar filling the rest of the
           width. All at 60% of the dark (ink) color. */}
-      <div className="flex items-center gap-5 text-ink/60">
+      <div className="flex items-center gap-3 text-ink/60 md:gap-5">
         <span className="h-0.5 w-8 bg-current md:w-15" />
         <h2 className="text-body m-0 uppercase">Projects</h2>
         <span className="h-0.5 flex-1 bg-current" />

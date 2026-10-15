@@ -55,6 +55,21 @@ export const homeQuery = `*[_type == "home"][0]{
     "images": images[].asset->url,
     text,
   },
+  pricing,
+  "about": about{
+    label,
+    paragraphs,
+    buttonLabel,
+    buttonHref,
+    "slides": slides[]{ color, "image": image.asset->url },
+  },
+  "faqs": faqs{
+    label,
+    title,
+    buttonLabel,
+    buttonHref,
+    "items": items[]{ _key, question, overview, buttonLabel, "slug": article->slug.current },
+  },
 }`
 
 export const infoPageQuery = `*[_type == "infoPage"][0]{

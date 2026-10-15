@@ -106,7 +106,7 @@ function ProjectContent({ project, projects }) {
     <div className="relative z-5 bg-concrete">
       <CaseStudyHero project={project} />
 
-      <div className="px-3 pt-16 md:px-5">
+      <div className="px-2 pt-16 md:px-5">
         <ProjectDescription project={project} />
         {project.storySections && (
           <ScrollStorySection sections={project.storySections} />
@@ -140,7 +140,7 @@ function MoreProjectsSection({ currentId, projects }) {
 
   return (
     <div className="w-full pt-30">
-      <div className="flex flex-row items-center justify-center gap-2 px-3 py-6 md:px-5">
+      <div className="flex flex-row items-center justify-center gap-2 px-2 py-6 md:px-5">
         <span className="text-[8px] text-maroon">★</span>
         <h2 className="m-0 font-embodiment text-base font-normal tracking-[0.14em] text-[#4a4238]">
           MORE PROJECTS

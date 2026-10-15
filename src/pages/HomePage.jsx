@@ -3,6 +3,11 @@ import LetsTalkButton from '../components/LetsTalkButton'
 import CursorImageTrail from '../components/CursorImageTrail'
 import PopSlideCard from '../components/PopSlideCard'
 import ProjectsSection from '../components/ProjectsSection'
+import ServicesSection from '../components/ServicesSection'
+import AboutSection from '../components/AboutSection'
+import PricingSection from '../components/PricingSection'
+import FaqSection from '../components/FaqSection'
+import FilmFooter from '../components/FilmFooter'
 import { useEffect, useMemo, useState } from 'react'
 import { useSiteData } from '../hooks/useSiteData'
 import { useDocumentHead } from '../hooks/useDocumentHead'
@@ -16,10 +21,13 @@ const DEFAULT_HERO_TEXT =
 export default function HomePage() {
   const { siteSettings } = useSiteData()
   const [hero, setHero] = useState(null)
+  const [pricing, setPricing] = useState(null)
+  const [about, setAbout] = useState(null)
+  const [faqs, setFaqs] = useState(null)
   useEffect(() => {
     let cancelled = false
     sanityClient.fetch(homeQuery).then(
-      (res) => !cancelled && setHero(res?.hero || null),
+      (res) => !cancelled && (setHero(res?.hero || null), setPricing(res?.pricing || null), setAbout(res?.about || null), setFaqs(res?.faqs || null)),
       () => {}
     )
     return () => {
@@ -57,7 +65,7 @@ export default function HomePage() {
 
   return (
     <>
-    <main className="relative flex h-dvh flex-col items-center overflow-hidden px-5 py-3 max-md:px-3 max-md:pt-16">
+    <main className="relative flex h-dvh flex-col items-center overflow-hidden px-5 py-3 max-md:px-2 max-md:pt-16">
       <h1 className="sr-only">
         Websites with the structure of a Nolan plot, where every detail pays off later. Latimer Studio
       </h1>
@@ -102,6 +110,11 @@ export default function HomePage() {
 
     </main>
     <ProjectsSection />
+    <ServicesSection />
+    <PricingSection pricing={pricing} />
+    <AboutSection about={about} />
+    <FaqSection faqs={faqs} />
+    <FilmFooter />
     </>
   )
 }

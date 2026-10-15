@@ -58,7 +58,7 @@ export default function InfoPage() {
 
   return (
     <div className="min-h-screen w-full bg-concrete">
-      <div className="px-8 pt-24 pb-20 md:px-20 md:pt-32">
+      <div className="px-2 pt-24 pb-20 md:px-20 md:pt-32">
         {/* Title block — full width until a laptop-sized viewport, then
             capped so it never grows arbitrarily wide on huge monitors. */}
         <div className="mx-auto flex w-full max-w-360 flex-col items-center text-center">

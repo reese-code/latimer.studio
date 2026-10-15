@@ -10,7 +10,7 @@ import { useSiteData } from '../hooks/useSiteData'
 // measured against the container's actual width (recomputed on resize) so
 // the cells never wrap to a second row and never overflow — just an even
 // spread of gaps between fixed-size boxes, box size scaled down on mobile.
-function SprocketRow() {
+export function SprocketRow() {
   const containerRef = useRef(null)
   const [count, setCount] = useState(12)
 
