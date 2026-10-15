@@ -68,7 +68,7 @@ function Plan({ plan }) {
   const total = (plan.basePrice || 0) + (dev ? devPrice : 0)
 
   return (
-    <div className="grid gap-6 rounded-2xl border border-[#CFCFCF] bg-white/50 p-3 md:grid-cols-2 md:gap-5 md:p-4">
+    <div className="grid gap-6 rounded-2xl border border-[#CFCFCF] bg-white/50 p-3 max-md:border-2 md:grid-cols-2 md:gap-5 md:p-4">
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-3">
           <h3 className="text-h3 m-0 text-ink">{plan.name}</h3>
@@ -86,7 +86,7 @@ function Plan({ plan }) {
             role="switch"
             aria-checked={dev}
             onClick={() => setDev((v) => !v)}
-            className="flex w-full cursor-pointer flex-col gap-2 rounded-xl border border-ink bg-ink p-3 text-left text-cream"
+            className="flex w-full cursor-pointer flex-col gap-2 rounded-xl border border-ink bg-ink p-3 max-md:border-2 text-left text-cream"
           >
             <span className="text-body flex w-full items-center justify-between">
               {plan.developmentLabel || 'Add Development'}
@@ -106,7 +106,7 @@ function Plan({ plan }) {
         {plan.extras?.map((x, i) => (
           <div
             key={i}
-            className="text-body flex items-center justify-between rounded-xl border border-[#CFCFCF] bg-[var(--color-bg)] p-3 text-ink"
+            className="text-body flex items-center justify-between rounded-xl border border-[#CFCFCF] bg-[var(--color-bg)] p-3 max-md:border-2 text-ink"
           >
             <span>{x.label}</span>
             <span>{x.price}</span>
@@ -117,7 +117,7 @@ function Plan({ plan }) {
           <ul className="m-0 mt-2 flex list-none flex-col gap-3 p-0">
             {plan.features.map((f, i) => (
               <li key={i} className="text-body flex max-w-md items-start gap-3 text-ink">
-                <span className="mt-[7px] text-[8px] text-maroon">★</span>
+                <span className="mt-[5px] text-[12px] text-maroon">★</span>
                 {f}
               </li>
             ))}
@@ -126,7 +126,7 @@ function Plan({ plan }) {
       </div>
 
       <div className="flex flex-col gap-3 md:self-start">
-        <div className="flex aspect-[4/3] flex-col justify-between rounded-2xl border border-[#CFCFCF] bg-ink p-5 text-white md:aspect-[5/3]">
+        <div className="flex aspect-[4/3] flex-col justify-between rounded-2xl border border-[#CFCFCF] max-md:border-2 bg-ink p-5 text-white md:aspect-[5/3]">
           <div className="flex w-full items-end gap-3 md:gap-5">
             <WhiteSvg src="/Latimer.svg" ratio={1099 / 354} />
             <WhiteSvg src="/Studio.svg" ratio={861 / 346} />
@@ -140,7 +140,7 @@ function Plan({ plan }) {
                   dev ? 'translate-y-0 opacity-100' : 'translate-y-1.5 opacity-0'
                 }`}
               >
-                {' + development'}
+                {plan.developmentSuffix || ' + development'}
               </span>
             </p>
             <h2 className="text-h2 m-0">
@@ -153,7 +153,7 @@ function Plan({ plan }) {
             label={plan.startLabel || 'Start Project'}
             to={plan.startHref || '/contact'}
             inverted
-            className="border border-[#CFCFCF]"
+            className="border border-[#CFCFCF] max-md:border-2"
           />
           <LetsTalkButton
             label={plan.messageLabel || 'Send Message'}

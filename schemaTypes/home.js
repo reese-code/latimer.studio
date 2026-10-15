@@ -103,6 +103,13 @@ export default defineType({
                   type: 'string',
                   description: 'Shown above the price, e.g. "Landing page design". " + development" is appended when the toggle is on.',
                 }),
+                defineField({
+                  name: 'developmentSuffix',
+                  title: 'Price card suffix (toggle on)',
+                  type: 'string',
+                  description: 'Appended to the price card label when the development toggle is on.',
+                  initialValue: ' + development',
+                }),
                 defineField({ name: 'startLabel', title: 'Start button label', type: 'string', initialValue: 'Start Project' }),
                 defineField({ name: 'startHref', title: 'Start button link', type: 'string', initialValue: '/contact' }),
                 defineField({ name: 'messageLabel', title: 'Message button label', type: 'string', initialValue: 'Send Message' }),
