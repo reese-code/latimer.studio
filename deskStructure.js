@@ -37,6 +37,14 @@ export const deskStructure = (S) =>
             .schemaType('infoPage')
             .documentId('infoPage')
         ),
+      S.listItem()
+        .title('About')
+        .id('aboutPage')
+        .child(
+          S.document()
+            .schemaType('aboutPage')
+            .documentId('aboutPage')
+        ),
       S.divider(),
       S.documentTypeListItem('project').title('Projects'),
       S.documentTypeListItem('article').title('Articles'),

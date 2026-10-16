@@ -75,6 +75,17 @@ export const homeQuery = `*[_type == "home"][0]{
   },
 }`
 
+export const aboutPageQuery = `*[_type == "aboutPage"][0]{
+  "founderLetter": founderLetter{
+    label,
+    title,
+    paragraphs,
+    "image": image.asset->url,
+    buttonLabel,
+    buttonHref,
+  },
+}`
+
 export const infoPageQuery = `*[_type == "infoPage"][0]{
   heading,
   subheading,
