@@ -148,11 +148,13 @@ function LeftCell({ bg, dark, contactLinks }) {
 function CenterCell({ bg, dark, footerTaglines }) {
   return (
     <Cell bg={bg} className={`flex min-h-40 flex-none flex-col items-center justify-end gap-3 py-5 md:min-h-64 md:w-[38%] ${dark ? '' : 'px-5'}`}>
-      <img
-        src={latimerStudioLogo}
-        alt="Latimer Studio"
-        className={`w-full select-none md:w-105 ${dark ? 'brightness-0 invert' : ''}`}
-      />
+      <Link to="/" className="block w-full md:w-105">
+        <img
+          src={latimerStudioLogo}
+          alt="Latimer Studio"
+          className={`w-full select-none ${dark ? 'brightness-0 invert' : ''}`}
+        />
+      </Link>
       <div className="flex flex-row flex-wrap items-center justify-center gap-x-4 gap-y-1">
         {footerTaglines.map((tagline) => (
           <span

@@ -1,36 +1,15 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { SERVICES } from '../lib/services'
 
 // `image` is optional — services without one show a maroon placeholder card.
-const SERVICES = [
-  { label: 'Art Direction', blurb: 'Shaping the look', to: '/contact' },
-  { label: 'Development', blurb: 'Building the site', to: '/contact' },
-  { label: 'UI/UX Design', blurb: 'Designing the site', to: '/contact' },
-  { label: 'SEO Audit', blurb: 'Getting you found', to: '/contact' },
-  { label: 'Branding', blurb: 'Defining the identity', to: '/contact' },
-]
-
-function SideNote({ service, selected, className = '' }) {
-  return (
-    <span className={`text-body whitespace-nowrap font-medium ${className}`}>
-      {selected ? (
-        <Link
-          to={service.to}
-          onClick={(e) => e.stopPropagation()}
-          className="text-maroon underline"
-        >
-          Learn more
-        </Link>
-      ) : (
-        service.blurb
-      )}
-    </span>
-  )
+function SideNote({ service, className = '' }) {
+  return <span className={`text-body whitespace-nowrap font-medium ${className}`}>{service.blurb}</span>
 }
 
 export default function ServicesSection() {
   const [active, setActive] = useState(null) // hovered / scrolled-to row
-  const [selected, setSelected] = useState(null) // clicked row
+  const navigate = useNavigate()
   const [cardTop, setCardTop] = useState(0)
   const rowRefs = useRef([])
   const sectionRef = useRef(null)
@@ -56,7 +35,7 @@ export default function ServicesSection() {
     document.fonts?.ready.then(fit)
     return () => window.removeEventListener('resize', fit)
   }, [])
-  const current = selected ?? active
+  const current = active
 
   // The card never travels: it vanishes instantly, jumps to the new row, then
   // grows out on the y-axis (0.15s).
@@ -79,7 +58,6 @@ export default function ServicesSection() {
           if (!e.isIntersecting) continue
           const i = Number(e.target.dataset.index)
           setActive(i)
-          setSelected((s) => (s === i ? s : null))
         }
       },
       { rootMargin: '-50% 0px -50% 0px' }
@@ -120,7 +98,6 @@ export default function ServicesSection() {
 
         {SERVICES.map((s, i) => {
           const isCurrent = current === i
-          const isSelected = selected === i
           const dim = current != null && !isCurrent
           return (
             <div
@@ -128,20 +105,19 @@ export default function ServicesSection() {
               ref={(el) => (rowRefs.current[i] = el)}
               data-index={i}
               onMouseEnter={() => setActive(i)}
-              onClick={() => setSelected(isSelected ? null : i)}
+              onClick={() => navigate(`/services/${s.slug}`)}
               className="relative w-full flex cursor-pointer justify-center"
             >
               <span
                 ref={(el) => (labelRefs.current[i] = el)}
                 className={`relative inline-block whitespace-nowrap font-sans font-bold uppercase leading-[0.85] tracking-[-0.04em] transition-colors duration-300 ${
                   isCurrent ? 'z-20' : 'z-0'
-                } ${isSelected ? 'text-maroon' : dim ? 'text-ink/50' : 'text-ink'}`}
+                } ${dim ? 'text-ink/50' : 'text-ink'}`}
                 style={{ fontSize: 'var(--services-fs)' }}
               >
                 {s.label}
                 <SideNote
                   service={s}
-                  selected={isSelected}
                   className={`absolute left-full top-1/2 ml-3 -translate-y-1/2 text-ink normal-case tracking-normal transition-opacity duration-300 max-md:hidden ${
                     isCurrent ? 'opacity-100' : 'opacity-0'
                   }`}

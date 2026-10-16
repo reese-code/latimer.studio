@@ -1,16 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import SiteNav from '../components/SiteNav'
+import AboutSection from '../components/AboutSection'
 import FilmFooter from '../components/FilmFooter'
 import ArticleHoverList from '../components/ArticleHoverList'
 import { getLenis } from '../hooks/useLenis'
 import { useDocumentHead } from '../hooks/useDocumentHead'
 import { sanityClient } from '../lib/sanityClient'
-import { articlesQuery, infoPageQuery } from '../lib/queries'
+import { articlesQuery, infoPageQuery, homeQuery } from '../lib/queries'
 
 export default function InfoPage() {
   const [infoPage, setInfoPage] = useState(null)
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
+  const [home, setHome] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -30,8 +32,46 @@ export default function InfoPage() {
     }
   }, [])
 
+  // About-the-Studio slides/label come from the homepage's Sanity content.
+  useEffect(() => {
+    let cancelled = false
+    sanityClient.fetch(homeQuery).then(
+      (res) => !cancelled && setHome(res || null),
+      () => {}
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  const about = home?.about
+
+  const heroRef = useRef(null)
+  const titleRef = useRef(null)
+
   const heading = infoPage?.heading || 'Web Info'
-  const subheading = infoPage?.subheading || 'The only place you need for info about websites.'
+  const subheading = infoPage?.subheading || 'The only resource you need in order to build a successful website. Each article is researched to help improve conversions.'
+
+  // Mobile: size the title so it spans the full width of the page.
+  useLayoutEffect(() => {
+    const hero = heroRef.current
+    const title = titleRef.current
+    if (!hero || !title) return
+    const mq = window.matchMedia('(max-width: 767px)')
+    const fit = () => {
+      // Desktop keeps the fixed 128px; mobile fits the title to the page width.
+      if (!mq.matches) {
+        title.style.removeProperty('font-size')
+        return
+      }
+      title.style.fontSize = '100px'
+      const w = title.getBoundingClientRect().width
+      if (w) title.style.fontSize = `${(100 * hero.clientWidth) / w}px`
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    document.fonts?.ready.then(fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [heading])
 
   useDocumentHead({
     title: `${heading} | Latimer Studio`,
@@ -58,21 +98,25 @@ export default function InfoPage() {
 
   return (
     <div className="min-h-screen w-full bg-concrete">
-      <div className="px-2 pt-24 pb-20 md:px-20 md:pt-32">
-        {/* Title block — full width until a laptop-sized viewport, then
-            capped so it never grows arbitrarily wide on huge monitors. */}
-        <div className="mx-auto flex w-full max-w-360 flex-col items-center text-center">
-          <h1 className="m-0 font-sans text-[13vw] leading-[0.95] font-medium tracking-[0.02em] text-ink uppercase sm:text-[64px] md:text-[80px]">
-            {heading}
-          </h1>
-          <h3 className="mt-4 max-w-2xl font-sans text-base font-normal tracking-[0.06em] text-ink uppercase md:text-xl">
-            {subheading}
-          </h3>
+      <div className="px-2 pt-20 md:px-5 md:pt-24">
+        {/* Hero — 80px above and below. The inline-flex wrapper shrinks to
+            the title's width, and the w-0/min-w-full body copy wraps to it
+            without stretching it. */}
+        <div ref={heroRef} className="w-full py-20">
+          <div className="mx-auto flex w-fit max-w-full flex-col items-center text-center">
+            <h1
+              ref={titleRef}
+              className="m-0 whitespace-nowrap font-sans text-[128px] leading-[0.9] font-bold tracking-[-0.03em] text-ink uppercase"
+            >
+              {heading}
+            </h1>
+            <p className="text-body m-0 mt-4 w-0 min-w-full text-ink">{subheading}</p>
+          </div>
         </div>
 
-        <div className="mx-auto mt-16 max-w-4xl md:mt-24">
+        <div className="mx-auto w-full pb-10 md:pb-20">
           {!loading && articles.length === 0 && (
-            <p className="text-center font-sans text-ink/60 uppercase">
+            <p className="text-body text-center text-ink/60">
               No articles yet — check back soon.
             </p>
           )}
@@ -80,6 +124,7 @@ export default function InfoPage() {
         </div>
       </div>
 
+      <AboutSection about={about} />
       <SiteNav />
       <FilmFooter />
     </div>

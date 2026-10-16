@@ -14,6 +14,9 @@ const NAV_LINKS = [
   { label: 'projects', to: '/cinema' },
 ]
 
+// Mobile shows the wordmark as its home link, so Home is desktop-only.
+const DESKTOP_NAV_LINKS = [{ label: 'home', to: '/' }, ...NAV_LINKS]
+
 // Mobile menu timing (ms). Keep CLOSE_* shorter than REVEAL_MS.
 const REVEAL_MS = 450
 const STAGGER_MS = 60
@@ -154,12 +157,12 @@ export default function SiteNav({ floating = false, onOpenChange }) {
         <>
           {/* Desktop links */}
           <div className="hidden items-center gap-1 text-body-caps md:flex">
-            {NAV_LINKS.map((link, i) => (
+            {DESKTOP_NAV_LINKS.map((link, i) => (
               <span key={link.label}>
                 <Link to={link.to} className="text-inherit no-underline hover:underline">
                   {link.label}
                 </Link>
-                {i < NAV_LINKS.length - 1 && ', '}
+                {i < DESKTOP_NAV_LINKS.length - 1 && ', '}
               </span>
             ))}
           </div>

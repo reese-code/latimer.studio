@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage'
 import CinemaPage from './pages/CinemaPage'
 import ProjectPage from './pages/ProjectPage'
 import AboutPage from './pages/AboutPage'
+import ServicesPage from './pages/ServicesPage'
 import ContactPage from './pages/ContactPage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import InfoPage from './pages/InfoPage'
@@ -29,6 +30,8 @@ function MainSite() {
         <Route path="/cinema" element={<CinemaPage />} />
         <Route path="/projects/:id" element={<ProjectPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/services/:slug" element={<ServicesPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/info" element={<InfoPage />} />
         <Route path="/info/:slug" element={<ArticlePage />} />
