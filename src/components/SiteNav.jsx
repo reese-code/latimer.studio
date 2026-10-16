@@ -11,7 +11,7 @@ const NAV_LINKS = [
   { label: 'Contact', to: '/contact' },
   { label: 'about', to: '/about' },
   { label: 'info', to: '/info' },
-  { label: 'projects', to: '/cinema' },
+  { label: 'projects', to: '/projects' },
 ]
 
 // Mobile shows the wordmark as its home link, so Home is desktop-only.
@@ -47,9 +47,10 @@ function useDenverClock() {
 }
 
 // `onOpenChange(isOpen)` lets a page react to the menu opening (e.g. hide its own nav).
+// `background` overrides the default textured bar background.
 // `floating` renders only the hamburger (no bar background, no desktop links)
 // at every breakpoint, for pages like Cinema that bring their own chrome.
-export default function SiteNav({ floating = false, onOpenChange }) {
+export default function SiteNav({ floating = false, onOpenChange, background }) {
   const time = useDenverClock()
   const { pathname } = useLocation()
   const navigate = useNavigate()
@@ -141,7 +142,7 @@ export default function SiteNav({ floating = false, onOpenChange }) {
       className={`fixed inset-x-0 top-0 flex items-center justify-between px-5 py-3 max-md:px-2 ${
         floating ? 'pointer-events-none z-[1100] justify-end' : 'z-50 text-ink'
       }`}
-      style={floating ? undefined : { background: "var(--color-bg) url('/concrete-texture.png') repeat fixed center top" }}
+      style={floating ? undefined : { background: background ?? "var(--color-bg) url('/concrete-texture.png') repeat fixed center top" }}
     >
       {!floating && (
       <Link

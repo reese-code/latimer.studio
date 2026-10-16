@@ -2,7 +2,6 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { optimizedImageUrl } from '../lib/sanityImage'
-import { triggerImageExpandTransition } from '../lib/imageExpandTransition'
 
 // 4:3, desktop-image-sized — wider and taller than a portrait card, but
 // capped as a share of the viewport so it never overruns small screens.
@@ -213,17 +212,8 @@ export default function ArticleHoverList({ articles, heading }) {
   }, [isTouch, articles])
 
   const handleClick = useCallback((article) => {
-    if (isTouch || !boxRef.current) {
-      navigate(`/info/${article.id}`)
-      return
-    }
-    const rect = boxRef.current.getBoundingClientRect()
-    const frontEl = layerRefs.current[activeLayer.current]
-    triggerImageExpandTransition(navigate, `/info/${article.id}`, {
-      src: frontEl.src,
-      rect,
-    })
-  }, [isTouch, navigate])
+    navigate(`/info/${article.id}`)
+  }, [navigate])
 
   if (!articles?.length) return null
 

@@ -121,6 +121,5 @@ export const articleBySlugQuery = `*[_type == "article" && slug.current == $slug
   "authorIcon": authorIcon.asset->url,
   excerpt,
   storyRatio,
-  contentWidth,
   ${ARTICLE_STORY_SECTIONS}
 }`

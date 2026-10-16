@@ -114,9 +114,9 @@ export default defineType({
     }),
     defineField({
       name: 'excerpt',
-      title: 'Excerpt',
+      title: 'Overview (H3)',
       type: 'text',
-      description: 'Optional short summary — not shown on the site yet, but handy for search/SEO.',
+      description: 'Shown under "Article Overview" above the story sections and again under "Article Summary" at the bottom. Also used for search/SEO.',
     }),
     defineField({
       name: 'storyRatio',
@@ -130,20 +130,6 @@ export default defineType({
         layout: 'radio',
       },
       initialValue: 'default',
-    }),
-    defineField({
-      name: 'contentWidth',
-      title: 'Article content width',
-      description: 'Controls the width of the accordion/story content below the title. The title itself is always full-width up to a laptop-sized cap.',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Full width', value: 'full' },
-          { title: 'Contained', value: 'contained' },
-        ],
-        layout: 'radio',
-      },
-      initialValue: 'full',
     }),
     defineField({
       name: 'storySections',

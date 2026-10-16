@@ -91,23 +91,21 @@ export default function FilmFooter({ variant = 'default' }) {
   const contactLinks = siteSettings?.contactLinks || []
   const footerTaglines = siteSettings?.footerTaglines || []
 
-  // PROJECTS is the only nav link that isn't a real page — it jumps
-  // straight to the poster gallery on the homepage, skipping both scene
-  // gates. From another page that means navigating home first and asking
-  // it (via router state) to land on the posters once mounted.
+  // PROJECTS goes to the projects page, except on the cinema page where it
+  // jumps straight to the poster gallery.
   const handleProjects = (e) => {
     e.preventDefault()
     if (location.pathname === '/cinema') {
       getGalleryControls()?.jumpToPosters()
     } else {
-      navigate('/cinema', { state: { scrollTo: 'posters' } })
+      navigate('/projects')
     }
   }
 
   const navLinks = [
     { label: 'ABOUT', to: '/about' },
     { label: 'CONTACT', to: '/contact' },
-    { label: 'PROJECTS', href: '/cinema', onClick: handleProjects },
+    { label: 'PROJECTS', href: '/projects', onClick: handleProjects },
     { label: 'PRIVACY POLICY', to: '/privacy-policy' },
   ]
 

@@ -23,8 +23,13 @@ import { optimizedImageUrl, srcSetFor } from '../lib/sanityImage'
 // section[i]'s wrapper gives every title exactly that range for free.
 // ---------------------------------------------------------------------------
 
-const STICKY_TOP = 0
 const TITLE_STACK_GAP = 40
+
+// Shared by every accordion use: 2px rule at 60% ink (full ink on hover), and the 20px (12px on
+// mobile) gap between columns, rows, and sections.
+const RULE_CLASS = 'border-t-2 border-ink/60 hover:border-ink'
+const GAP_CLASS = 'gap-x-3 md:gap-x-5'
+const NAV_OFFSET = 'var(--navbar-height, 56px)'
 
 const ComboMedia = forwardRef(function ComboMedia({ combo, className, alt = '' }, ref) {
   if (combo.video) {
@@ -66,7 +71,8 @@ export default function StoryAccordion({ sections, ratio = 'default' }) {
     const target = sectionRefs.current[index]
     if (!target) return
     const lenis = getLenis()
-    const offset = -(STICKY_TOP + index * TITLE_STACK_GAP)
+    const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height')) || 56
+    const offset = -(navH + index * TITLE_STACK_GAP)
     if (lenis) {
       lenis.scrollTo(target, { offset, duration: 1.1 })
     } else {
@@ -76,7 +82,11 @@ export default function StoryAccordion({ sections, ratio = 'default' }) {
 
   if (!sections?.length) return null
 
-  const gridCols = ratio === 'half' ? 'md:grid-cols-2' : 'md:grid-cols-[1fr_2fr]'
+  const half = ratio === 'half'
+  const gridCols = half ? 'md:grid-cols-2' : 'md:grid-cols-[1fr_2fr]'
+  // Title (and its rule) spans only the text column, so the rule lines up
+  // with the top of the image beside it.
+  const titleWidth = half ? 'md:w-[calc((100%-20px)/2)]' : 'md:w-[calc((100%-20px)/3)]'
 
   return (
     <div ref={containerRef} className="w-full">
@@ -87,12 +97,13 @@ export default function StoryAccordion({ sections, ratio = 'default' }) {
         sectionRefs={sectionRefs}
         onSelect={scrollToSection}
         gridCols={gridCols}
+        titleWidth={titleWidth}
       />
     </div>
   )
 }
 
-function StackingSections({ sections, index, titleRefs, sectionRefs, onSelect, gridCols }) {
+function StackingSections({ sections, index, titleRefs, sectionRefs, onSelect, gridCols, titleWidth }) {
   if (index >= sections.length) return null
   const section = sections[index]
   const combos = section.combos || []
@@ -103,33 +114,42 @@ function StackingSections({ sections, index, titleRefs, sectionRefs, onSelect, g
         type="button"
         ref={(el) => (titleRefs.current[index] = el)}
         onClick={() => onSelect(index)}
-        style={{ top: STICKY_TOP + index * TITLE_STACK_GAP, height: TITLE_STACK_GAP }}
-        className="sticky z-10 flex w-full cursor-pointer items-center border-t border-ink/25 px-0 text-left font-sans"
+        style={{
+          top: `calc(${NAV_OFFSET} + ${index * TITLE_STACK_GAP}px)`,
+          height: TITLE_STACK_GAP,
+          background: "var(--color-bg) url('/concrete-texture.png') repeat fixed center top",
+        }}
+        className={`sticky z-10 flex w-full cursor-pointer items-center px-0 text-left font-sans text-ink/60 transition-colors duration-200 hover:text-ink ${titleWidth} ${RULE_CLASS}`}
       >
         {section.number && (
-          <span className="w-9 shrink-0 text-xs tracking-[0.14em] text-ink uppercase md:text-base">
+          <span className="w-9 shrink-0 text-xs tracking-[0.14em] uppercase md:text-base">
             {section.number}
           </span>
         )}
         {section.title && (
-          <h3 className="m-0 text-xs font-normal tracking-[0.14em] text-ink uppercase md:text-base">
+          <h3 className="m-0 text-xs font-normal tracking-[0.14em] uppercase md:text-base">
             {section.title}
           </h3>
         )}
       </button>
 
       {combos.map((combo, j) => (
-        <div key={j} className={`grid gap-x-10 gap-y-6 pt-8 pb-16 ${gridCols}`}>
-          <p className="m-0 max-w-[85%] text-justify font-sans text-base leading-[150%] tracking-[0.06em] text-ink uppercase">
+        <div
+          key={j}
+          className={`grid gap-y-3 pb-3 md:gap-y-5 md:pb-5 ${GAP_CLASS} ${gridCols} ${
+            j === 0 ? 'md:-mt-[40px]' : 'pt-3 md:pt-5'
+          }`}
+        >
+          <p className="text-body m-0 self-end text-ink md:max-w-[85%]">
             {combo.paragraph}
           </p>
 
-          {/* Sticky-pinned image — 20px desktop / 12px mobile top offset.
+          {/* Sticky-pinned image — 20px below the nav on desktop.
               Pins only while its own row (as tall as the paragraph, when
               the paragraph runs longer) still has room above it to scroll
               through; otherwise it simply scrolls with the row like normal
               content. */}
-          <div className="top-3 h-fit md:sticky md:top-5">
+          <div className="h-fit md:sticky" style={{ top: `calc(${NAV_OFFSET} + 20px)` }}>
             <ComboMedia
               combo={combo}
               alt={section.title}
@@ -146,6 +166,7 @@ function StackingSections({ sections, index, titleRefs, sectionRefs, onSelect, g
         sectionRefs={sectionRefs}
         onSelect={onSelect}
         gridCols={gridCols}
+        titleWidth={titleWidth}
       />
     </div>
   )

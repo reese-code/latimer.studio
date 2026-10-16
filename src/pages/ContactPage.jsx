@@ -1,11 +1,19 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import SiteNav from '../components/SiteNav'
-import ContactPosterDesktop from '../components/ContactPosterDesktop'
-import ContactStackedMobile from '../components/ContactStackedMobile'
+import TypeformEmbed from '../components/TypeformEmbed'
+import FaqSection from '../components/FaqSection'
+import FilmFooter from '../components/FilmFooter'
+import { useSiteData } from '../hooks/useSiteData'
+import { sanityClient } from '../lib/sanityClient'
+import { homeQuery } from '../lib/queries'
 import { getLenis } from '../hooks/useLenis'
 import { useDocumentHead } from '../hooks/useDocumentHead'
 
+const CONTACT_BG = '#EDEDF3'
+
 export default function ContactPage() {
+  const { siteSettings } = useSiteData()
+  const [faqs, setFaqs] = useState(null)
   useDocumentHead({
     title: 'Contact Latimer Studio — Start Your Denver Web Design Project',
     description:
@@ -30,29 +38,33 @@ export default function ContactPage() {
     }
   }, [])
 
+  // Reuse the homepage's Sanity FAQs.
+  useEffect(() => {
+    let cancelled = false
+    sanityClient.fetch(homeQuery).then(
+      (res) => !cancelled && setFaqs(res?.faqs || null),
+      () => {}
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   return (
-    <div className="min-h-screen w-full bg-ink">
-      {/* Visually hidden — the page itself is the "Latimer Studio" logo
-          mark plus a Typeform embed with no heading markup, so this gives
-          crawlers/screen readers a real page title. */}
-      <h1 className="sr-only">Contact Latimer Studio</h1>
-      <h2 className="sr-only">
-        Reach out to start a custom website, brand identity, or UI/UX design project with Latimer Studio in Denver.
-      </h2>
+    <div className="min-h-screen w-full" style={{ background: CONTACT_BG }}>
+      <main className="flex flex-col items-center px-2 md:px-5">
+        <h1 className="m-0 w-full py-[80px] text-center font-sans text-[12vw] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-ink md:text-[128px]">
+          Contact
+        </h1>
 
-      {/* Mobile — logo, copy, and typeform stacked, film-tape rails dropped
-          in favor of just using FilmFooter's own mobile layout below */}
-      <div className="md:hidden">
-        <ContactStackedMobile />
-      </div>
+        <div className="w-full" style={{ minHeight: 700 }}>
+          <TypeformEmbed id={siteSettings?.typeformId} className="h-full w-full" style={{ minHeight: 700 }} />
+        </div>
+      </main>
 
-      {/* Desktop — poster layout with film-tape sprocket rails on the page
-          edges (not the footer), same as the About page */}
-      <div className="hidden md:block">
-        <ContactPosterDesktop />
-      </div>
-
-      <SiteNav />
+      <FaqSection faqs={faqs} />
+      <FilmFooter />
+      <SiteNav background={CONTACT_BG} />
     </div>
   )
 }
