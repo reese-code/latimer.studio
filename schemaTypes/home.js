@@ -56,6 +56,12 @@ export default defineType({
                 defineField({ name: 'name', title: 'Plan name', type: 'string', initialValue: 'Landing page' }),
                 defineField({ name: 'duration', title: 'Duration', type: 'string', initialValue: '15 - 20 days' }),
                 defineField({
+                  name: 'durationIcon',
+                  title: 'Duration icon',
+                  type: 'image',
+                  description: 'Shown left of the duration. Leave empty to use the default clock.',
+                }),
+                defineField({
                   name: 'basePrice',
                   title: 'Base price ($)',
                   type: 'number',

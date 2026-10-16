@@ -55,7 +55,10 @@ export const homeQuery = `*[_type == "home"][0]{
     "images": images[].asset->url,
     text,
   },
-  pricing,
+  "pricing": pricing{
+    ...,
+    "plans": plans[]{ ..., "durationIcon": durationIcon.asset->url },
+  },
   "about": about{
     label,
     paragraphs,

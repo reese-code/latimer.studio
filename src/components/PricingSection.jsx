@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import LetsTalkButton from './LetsTalkButton'
 
-// Drop the timer icon in src/assets (any name starting with "timer", .svg).
-const timerIcons = import.meta.glob('../assets/timer*.svg', { eager: true, query: '?url', import: 'default' })
-const timerIcon = Object.values(timerIcons)[0]
+// Default duration icon; a plan can override it with an upload in Sanity.
+import clockIcon from '../assets/clock.svg'
 
 const money = (n) => `$${Number(n || 0).toLocaleString('en-US')}`
 
@@ -70,11 +69,11 @@ function Plan({ plan }) {
   return (
     <div className="grid gap-6 rounded-2xl border border-[#CFCFCF] bg-white/50 p-3 max-md:border-2 md:grid-cols-2 md:gap-5 md:p-4">
       <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-end gap-3">
           <h3 className="text-h3 m-0 text-ink">{plan.name}</h3>
           {plan.duration && (
-            <span className="text-body flex items-center gap-1.5 text-ink">
-              {timerIcon && <img src={timerIcon} alt="" className="h-4 w-4" />}
+            <span className="text-body flex items-end gap-1.5 text-ink opacity-60">
+              <img src={plan.durationIcon || clockIcon} alt="" className="h-[1.5em] w-4 object-contain" />
               {plan.duration}
             </span>
           )}

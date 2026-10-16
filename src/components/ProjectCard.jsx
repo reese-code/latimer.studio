@@ -69,7 +69,7 @@ export default function ProjectCard({ project, className = '' }) {
       onKeyDown={(e) => {
         if (e.key === 'Enter') goToProject()
       }}
-      className={`group relative block cursor-pointer overflow-hidden bg-ink ${className}`}
+      className={`group relative isolate block cursor-pointer overflow-hidden bg-ink [contain:paint] ${className}`}
     >
       <img
         src={optimizedImageUrl(project.poster, { width: 1200 })}
@@ -79,10 +79,10 @@ export default function ProjectCard({ project, className = '' }) {
         draggable={false}
         loading="lazy"
         decoding="async"
-        className="absolute inset-0 h-full w-full select-none object-cover transition-transform duration-500 ease-out group-hover:scale-[1.01]"
+        className="absolute inset-0 h-full w-full select-none object-cover transform-gpu will-change-transform transition-transform duration-500 ease-out group-hover:scale-[1.01]"
       />
 
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.15)_40%,rgba(0,0,0,0.97)_100%)] md:bg-[linear-gradient(to_bottom,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0)_35%,rgba(0,0,0,0)_55%,rgba(0,0,0,0.75)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 transform-gpu bg-[linear-gradient(to_bottom,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.15)_40%,rgba(0,0,0,0.97)_100%)] md:bg-[linear-gradient(to_bottom,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0)_35%,rgba(0,0,0,0)_55%,rgba(0,0,0,0.75)_100%)]" />
 
       <h3 className="absolute top-8 left-3 m-0 font-embodiment text-[3rem] leading-[0.9] font-light tracking-[-1px] text-cream uppercase md:left-5">
         {project.label}
