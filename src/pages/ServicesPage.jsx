@@ -10,7 +10,7 @@ import { getLenis } from '../hooks/useLenis'
 import { useDocumentHead } from '../hooks/useDocumentHead'
 import { sanityClient } from '../lib/sanityClient'
 import { homeQuery } from '../lib/queries'
-import { getService } from '../lib/services'
+import { useServices } from '../hooks/useServices'
 
 const DEFAULT_PARAGRAPHS = [
   'We design and build custom websites and brand identities for businesses that want to stand out. Every project is built around one goal: turning visitors into customers.',
@@ -19,7 +19,7 @@ const DEFAULT_PARAGRAPHS = [
 
 export default function ServicesPage() {
   const { slug } = useParams()
-  const service = getService(slug)
+  const service = useServices().find((s) => s.slug === slug)
   const [home, setHome] = useState(null)
 
   useDocumentHead({
@@ -52,10 +52,13 @@ export default function ServicesPage() {
 
   const about = {
     ...home?.about,
-    label: 'About the Service',
-    paragraphs: service?.paragraphs || DEFAULT_PARAGRAPHS,
-    buttonLabel: 'Let’s talk',
-    buttonHref: '/contact',
+    label: service?.about?.label || 'About the Service',
+    paragraphs: service?.about?.paragraphs?.length
+      ? service.about.paragraphs
+      : service?.paragraphs || DEFAULT_PARAGRAPHS,
+    buttonLabel: service?.about?.buttonLabel || 'Let’s talk',
+    buttonHref: service?.about?.buttonHref || '/contact',
+    slides: service?.about?.slides,
   }
 
   return (

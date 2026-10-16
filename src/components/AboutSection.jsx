@@ -10,7 +10,6 @@ const COPIES = 3
 const DEFAULT_PARAGRAPHS = [
   'Latimer Studio is a Denver-based studio focusing on crafting visual experiences that amaze and convert. With 50+ custom sites built across multiple industries, we blend UI and UX expertise with React branding and an easy-to-edit CRM for even the least tech-savvy people.',
 ]
-const DEFAULT_SLIDES = ['#722f37', '#1a1a1a', '#c9b79c', '#3b5249'].map((color) => ({ color }))
 
 // The track holds 3 copies of the slides. Auto-scroll advances one copy's
 // width (33.33% of the track) and then snaps back to the start with no
@@ -100,11 +99,9 @@ function Carousel({ slides }) {
               key={`${c}-${i}`}
               aria-hidden={c !== 1 || undefined}
               className="shrink-0 overflow-hidden rounded-xl"
-              style={{ width: w, height: h, background: s.color || '#1a1a1a' }}
+              style={{ width: w, height: h }}
             >
-              {s.image && (
-                <img src={s.image} alt="" draggable={false} className="h-full w-full object-cover" />
-              )}
+              <img src={s.image} alt="" draggable={false} className="h-full w-full object-cover" />
             </div>
           ))
         )}
@@ -115,7 +112,8 @@ function Carousel({ slides }) {
 
 export default function AboutSection({ about }) {
   const paragraphs = about?.paragraphs?.length ? about.paragraphs : DEFAULT_PARAGRAPHS
-  const slides = about?.slides?.length ? about.slides : DEFAULT_SLIDES
+  // Slides without an image are dropped — no color-block placeholders.
+  const slides = (about?.slides || []).filter((s) => s?.image)
 
   return (
     <section className="mx-auto w-full max-w-[120rem] px-2 py-10 md:px-4 md:py-20">
@@ -134,7 +132,7 @@ export default function AboutSection({ about }) {
         <LetsTalkButton label={about?.buttonLabel || 'Learn more'} to={about?.buttonHref || '/info'} />
       </div>
 
-      <Carousel slides={slides} />
+      {slides.length > 0 && <Carousel slides={slides} />}
     </section>
   )
 }

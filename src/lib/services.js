@@ -1,5 +1,6 @@
 // Shared by the homepage Services list and the /services/:slug pages.
-// Copy is placeholder — replace with the real thing.
+// Fallback copy used until (or unless) services exist in Sanity — see
+// useServices(), which prefers the CMS `service` documents.
 export const SERVICES = [
   {
     slug: 'art-direction',

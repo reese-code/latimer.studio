@@ -18,7 +18,7 @@ export default defineType({
           type: 'array',
           of: [{ type: 'image', options: { hotspot: true } }],
           description:
-            'Upload once — used for the popping image cards (desktop and mobile) in place of the colored placeholder cards. Falls back to placeholder colors when empty.',
+            'Upload once — used for the popping image cards (desktop and mobile) Cards without an image are not shown.',
         }),
         defineField({
           name: 'text',
@@ -146,16 +146,15 @@ export default defineType({
           name: 'slides',
           title: 'Carousel slides',
           type: 'array',
-          description: 'Shown 500×700 in an infinite loop. A slide with no image shows its color block.',
+          description: 'Shown 500×700 in an infinite loop. Slides without an image are not shown.',
           of: [
             {
               type: 'object',
               name: 'slide',
               fields: [
-                defineField({ name: 'image', title: 'Image', type: 'image', options: { hotspot: true } }),
-                defineField({ name: 'color', title: 'Placeholder color (hex)', type: 'string', initialValue: '#1a1a1a' }),
+                defineField({ name: 'image', title: 'Image', type: 'image', options: { hotspot: true }, validation: (Rule) => Rule.required() }),
               ],
-              preview: { select: { media: 'image', title: 'color' } },
+              preview: { select: { media: 'image' }, prepare: ({ media }) => ({ title: 'Slide', media }) },
             },
           ],
         }),

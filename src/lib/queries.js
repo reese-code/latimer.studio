@@ -64,7 +64,7 @@ export const homeQuery = `*[_type == "home"][0]{
     paragraphs,
     buttonLabel,
     buttonHref,
-    "slides": slides[]{ color, "image": image.asset->url },
+    "slides": slides[]{ "image": image.asset->url },
   },
   "faqs": faqs{
     label,
@@ -122,4 +122,18 @@ export const articleBySlugQuery = `*[_type == "article" && slug.current == $slug
   excerpt,
   storyRatio,
   ${ARTICLE_STORY_SECTIONS}
+}`
+
+export const servicesQuery = `*[_type == "service"] | order(order asc) {
+  "slug": slug.current,
+  "label": title,
+  blurb,
+  "image": image.asset->url,
+  "about": about{
+    label,
+    paragraphs,
+    buttonLabel,
+    buttonHref,
+    "slides": slides[]{ "image": image.asset->url },
+  },
 }`

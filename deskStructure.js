@@ -48,4 +48,6 @@ export const deskStructure = (S) =>
       S.divider(),
       S.documentTypeListItem('project').title('Projects'),
       S.documentTypeListItem('article').title('Articles'),
+      S.divider(),
+      S.documentTypeListItem('service').title('Services'),
     ])

@@ -1,10 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 
-// Placeholder colors stand in for `images` until real art is set in Sanity
-// (siteSettings.heroTrailImages).
-const PLACEHOLDER_COLORS = ['#722f37', '#aa3bff', '#1f6f54', '#c9742d', '#2457c5']
-
 const RISE_DISTANCE = 18
 const START_ROTATE = -5
 const MIN_ROTATE = 2
@@ -25,7 +21,6 @@ export default function PopImage({ images, index, onDone, stay = false, rise = R
   const ref = useRef(null)
 
   const image = images?.length ? images[index % images.length] : null
-  const color = PLACEHOLDER_COLORS[index % PLACEHOLDER_COLORS.length]
 
   useEffect(() => {
     const el = ref.current
@@ -47,8 +42,8 @@ export default function PopImage({ images, index, onDone, stay = false, rise = R
   return (
     <div
       ref={ref}
-      className={`overflow-hidden opacity-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] ${className}`}
-      style={{ borderRadius: 16, backgroundColor: image ? undefined : color, ...style }}
+      className={`overflow-hidden opacity-0 ${image ? 'shadow-[0_2px_8px_rgba(0,0,0,0.08)]' : ''} ${className}`}
+      style={{ borderRadius: 16, ...style }}
     >
       {image && <img src={image} alt="" draggable={false} className="h-full w-full object-cover" />}
     </div>

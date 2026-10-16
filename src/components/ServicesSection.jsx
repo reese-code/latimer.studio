@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { SERVICES } from '../lib/services'
+import { useServices } from '../hooks/useServices'
 
 // `image` is optional — services without one show a maroon placeholder card.
 function SideNote({ service, className = '' }) {
@@ -8,6 +8,7 @@ function SideNote({ service, className = '' }) {
 }
 
 export default function ServicesSection() {
+  const SERVICES = useServices()
   const [active, setActive] = useState(null) // hovered / scrolled-to row
   const navigate = useNavigate()
   const [cardTop, setCardTop] = useState(0)
@@ -82,12 +83,12 @@ export default function ServicesSection() {
             current row's text. Scales in/out as it moves between rows. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-0 z-10 max-md:hidden aspect-[5/4] w-[42vw] overflow-hidden rounded-xl bg-maroon ease-out md:left-[3%] md:w-[28.6vw] md:max-w-[416px]"
+          className="pointer-events-none absolute left-0 z-10 max-md:hidden aspect-[5/4] w-[42vw] overflow-hidden rounded-xl ease-out md:left-[3%] md:w-[28.6vw] md:max-w-[416px]"
           style={{
             top: cardTop,
             // Only the entrance animates; closing (hover away / switching rows) is instant.
             transition: cardOpen ? 'transform 150ms ease-out, opacity 150ms ease-out' : 'none',
-            opacity: cardOpen ? 1 : 0,
+            opacity: cardOpen && SERVICES[cardIdx]?.image ? 1 : 0,
             transform: `translateY(-50%) scaleY(${cardOpen ? 1 : 0.5})`,
           }}
         >
