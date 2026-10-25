@@ -1,0 +1,161 @@
+[
+  {
+    "_createdAt": "2026-10-16T18:12:00Z",
+    "_id": "6d6aaa70-f08e-4d86-bef5-9b80d1b006df",
+    "_rev": "vZ3PhKRn9qjHDPGarJ7THG",
+    "_system": {
+      "base": {
+        "id": "6d6aaa70-f08e-4d86-bef5-9b80d1b006df",
+        "rev": "KgXlWfrto0uH4D0gY75cfl"
+      }
+    },
+    "_type": "service",
+    "_updatedAt": "2026-10-25T15:39:07Z",
+    "about": {
+      "buttonHref": "/contact",
+      "buttonLabel": "Book service",
+      "content": [
+        {
+          "_key": "b7eab83a2214",
+          "_type": "titledSection",
+          "body": [
+            {
+              "_key": "bbf688d440dc",
+              "_type": "paragraph",
+              "text": "Latimer Studio builds fast, easy-to-manage websites and online stores for Denver and Colorado businesses. We develop Shopify stores and custom React sites, and we also build in Webflow, WordPress and Framer when they fit your project. We especially enjoy working with Colorado outdoor and adventure brands."
+            },
+            {
+              "_key": "088ebd9efb8c",
+              "_type": "paragraph",
+              "text": "Most clients come to us to fix two things: slow load times and a page layout that doesn’t guide visitors to buy. We fix both in the build itself."
+            }
+          ],
+          "title": "Web Development for Denver E-commerce Businesses"
+        },
+        {
+          "_key": "cb675ab0d1f2",
+          "_type": "titledSection",
+          "body": [
+            {
+              "_key": "138c581c6d85",
+              "_type": "paragraph",
+              "text": "We designed and built Forge’s brand and website from scratch: a logo and visual identity, a fast-loading Shopify store, and a custom skincare quiz that recommends a full routine. Within about eight weeks of launch, Forge reported that customers who took the quiz raised average order value from $24 to $47. Their lifetime value was $78, compared with $24 for other customers, because the quiz led them to buy Forge’s whole product line and come back for more."
+            }
+          ],
+          "title": "Featured work: Forge"
+        },
+        {
+          "_key": "e5a265b34f18",
+          "_type": "titledSection",
+          "body": [
+            {
+              "_key": "ffbcb0148523",
+              "_type": "paragraph",
+              "text": "Shoppers leave pages that load slowly, and image-heavy sites are the most at risk. We build with performance in mind: compressed and resized images, lazy loading so only what’s needed loads first, and selective loading for heavy assets."
+            },
+            {
+              "_key": "09ae0f7baa8f",
+              "_type": "paragraph",
+              "text": "For example, on our own site we built an image sequence feature of 1,000 frames. By resizing images, lazy loading unused frames and selectively loading others, we cut load time from about 8 seconds to about 0.2 seconds. A short loading screen gives the frames time to load before anyone sees them. You can see it on the Cinema Mode page of this site."
+            }
+          ],
+          "title": "why speed matters for your sales"
+        },
+        {
+          "_key": "cf951268b8ae",
+          "_type": "titledSection",
+          "body": [
+            {
+              "_key": "da4940f60cc1",
+              "_type": "bulletList",
+              "items": [
+                "Shopify stores. Our recommendation for any e-commerce brand, because it offers a strong shopping and admin experience and supports custom components.",
+                "Custom React sites. Our choice for non-e-commerce sites that need speed and unique interactions.",
+                "Webflow, WordPress and Framer. Used when your team or budget calls for them.",
+                "Custom features. Quizzes (Forge reported that average order value rose from $24 to $47 for customers who took the skincare quiz we built), animated heroes and other interactive components."
+              ]
+            },
+            {
+              "_key": "696f315be47a",
+              "_type": "paragraph",
+              "text": "Every non-Shopify site comes with a content management system (typically Sanity), so you can update pages without calling a developer."
+            }
+          ],
+          "title": "What we build"
+        },
+        {
+          "_key": "e50ac9b77773",
+          "_type": "titledSection",
+          "body": [
+            {
+              "_key": "7e55e67e5795",
+              "_type": "paragraph",
+              "text": "Browse our portfolio to see Paliroots and rocio.dance. For rocio.dance, we built a site with an animated hero and navigation bar."
+            }
+          ],
+          "title": "More work"
+        },
+        {
+          "_key": "52d4c331e4c1",
+          "_type": "titledSection",
+          "body": [
+            {
+              "_key": "9b2077e12f81",
+              "_type": "bulletList",
+              "items": [
+                "Discovery call. We ask what you need from your site and what’s been frustrating about your current one.",
+                "Mood board. We review a mood board together and agree on the direction.",
+                "Design. We design your site and send progress updates along the way. Development begins once you approve the final design.",
+                "Development. We build it with weekly updates and milestone check-ins.",
+                "Launch and training. We show you how to use the CMS, add content and make revisions.",
+                "Ongoing support. An optional monthly plan (see below)."
+              ]
+            },
+            {
+              "_key": "c4ad2ec2a404",
+              "_type": "paragraph",
+              "text": "If you already have a design, we start at step 4."
+            }
+          ],
+          "title": "How it works"
+        },
+        {
+          "_key": "8841a809137e",
+          "_type": "titledSection",
+          "body": [
+            {
+              "_key": "c3c7e278d276",
+              "_type": "bulletList",
+              "items": [
+                "Development only: from $1,000. This includes a fast-loading landing page, basic SEO code optimization and a mobile-optimized layout. It’s for clients who already have a design.",
+                "Design and development together: from $3,149, plus $500 for each additional page. This is also the starting price for a basic Shopify store.",
+                "Optional monthly support plan: $1,000 per month. It covers hosting, design tasks and the development of those tasks, bug fixes, and CMS updates."
+              ]
+            },
+            {
+              "_key": "b6c23c0d3a96",
+              "_type": "paragraph",
+              "text": "Complex animations and custom components like quizzes add to the price. We give you a clear quote before we start."
+            },
+            {
+              "_key": "7e12ebb68cdf",
+              "_type": "paragraph",
+              "text": "A landing page typically takes about 10 days from our first call to launch. Larger sites take 10 to 30 days. Timelines depend on how quickly we receive your feedback and content."
+            }
+          ],
+          "title": "Pricing and timeline"
+        }
+      ],
+      "label": "About the service"
+    },
+    "blurb": "Builing the site",
+    "metaDescription": "Fast Shopify stores and custom React sites for Denver and Colorado businesses. Development from $1,000, design and development from $3,149.",
+    "metaTitle": "Web Development for Denver E-commerce | Latimer Studio",
+    "order": 1,
+    "slug": {
+      "_type": "slug",
+      "current": "development"
+    },
+    "title": "Development"
+  }
+]

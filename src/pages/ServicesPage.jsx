@@ -23,8 +23,9 @@ export default function ServicesPage() {
   const [home, setHome] = useState(null)
 
   useDocumentHead({
-    title: `${service?.label || 'Services'} — Latimer Studio Denver Web Design & Branding`,
+    title: service?.metaTitle || `${service?.label || 'Services'} — Latimer Studio Denver Web Design & Branding`,
     description:
+      service?.metaDescription ||
       'Custom web design, React development, and branding from Latimer Studio in Denver. See our services, pricing, and past projects.',
     path: service ? `/services/${service.slug}` : '/services',
   })
@@ -52,10 +53,11 @@ export default function ServicesPage() {
 
   const about = {
     ...home?.about,
-    label: service?.about?.label || 'About the Service',
+    hideLabel: true,
     paragraphs: service?.about?.paragraphs?.length
       ? service.about.paragraphs
       : service?.paragraphs || DEFAULT_PARAGRAPHS,
+    content: service?.about?.content,
     buttonLabel: service?.about?.buttonLabel || 'Let’s talk',
     buttonHref: service?.about?.buttonHref || '/contact',
     slides: service?.about?.slides,

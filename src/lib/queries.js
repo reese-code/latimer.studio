@@ -128,10 +128,16 @@ export const servicesQuery = `*[_type == "service"] | order(order asc) {
   "slug": slug.current,
   "label": title,
   blurb,
+  metaTitle,
+  metaDescription,
   "image": image.asset->url,
   "about": about{
     label,
     paragraphs,
+    content[]{
+      _type, _key, text, title, style, listType, items,
+      body[]{ _type, _key, text, listType, items },
+    },
     buttonLabel,
     buttonHref,
     "slides": slides[]{ "image": image.asset->url },
