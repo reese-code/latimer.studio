@@ -137,6 +137,15 @@ const contentBlocks = [
       defineField({ name: 'title', title: 'Title', type: 'string', validation: (Rule) => Rule.required() }),
       titleStyle,
       defineField({ name: 'body', title: 'Content', type: 'array', of: bodyBlocks, validation: (Rule) => Rule.required().min(1) }),
+      defineField({ name: 'buttonLabel', title: 'Button label (optional)', type: 'string', description: 'Leave empty for no button. Shown after the content.' }),
+      defineField({
+        name: 'buttonHref',
+        title: 'Button link',
+        type: 'string',
+        description: 'Page to open, e.g. /contact or /services/web-design.',
+        hidden: ({ parent }) => !parent?.buttonLabel,
+        validation: (Rule) => Rule.custom((v, { parent }) => (parent?.buttonLabel && !v ? 'Add a link for the button' : true)),
+      }),
     ],
     preview: {
       select: { title: 'title', body: 'body', style: 'style' },

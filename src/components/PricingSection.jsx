@@ -1,8 +1,27 @@
-import { useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import LetsTalkButton from './LetsTalkButton'
 
 // Default duration icon; a plan can override it with an upload in Sanity.
 import clockIcon from '../assets/clock.svg'
+
+// Adds timeframes to a duration, number by number: "15 - 20 days" + "10 - 15 days"
+// → "25 - 35 days". An extra can be a plain day count (5) or another duration
+// text; a single number is added to every number in the base.
+const nums = (x) =>
+  typeof x === 'number'
+    ? [x]
+    : String(x || '')
+        .match(/\d+/g)
+        ?.map(Number) || []
+const addDays = (text, extras) => {
+  const list = extras.map(nums).filter((n) => n.length)
+  if (!text || !list.length) return text
+  let i = -1
+  return text.replace(/\d+/g, (d) => {
+    i++
+    return Number(d) + list.reduce((sum, n) => sum + (n[i] ?? n[n.length - 1]), 0)
+  })
+}
 
 const money = (n) => `$${Number(n || 0).toLocaleString('en-US')}`
 
@@ -52,80 +71,186 @@ function Price({ value, total }) {
   if (t.total !== total) setT({ total, dir: total > t.total ? 'up' : 'down' })
   // Index from the right so a digit keeps its identity if the length changes.
   const chars = [...value].reverse()
+  return <span aria-label={value}>{chars.map((c, i) => <Digit key={i} char={c} dir={t.dir} />).reverse()}</span>
+}
+
+// Switch background the plan picks in Sanity. White matches the card (#fff at 50%).
+const SWITCH_THEMES = {
+  black: {
+    box: 'border-ink bg-ink text-cream',
+    track: 'bg-cream',
+    knob: 'bg-ink',
+  },
+  white: {
+    box: 'border-[#CFCFCF] bg-white/50 text-ink',
+    track: 'bg-ink',
+    knob: 'bg-cream',
+  },
+}
+
+function Switch({ color, label, price, on, onToggle }) {
+  const theme = SWITCH_THEMES[color] || SWITCH_THEMES.black
   return (
-    <span aria-label={value}>
-      {chars
-        .map((c, i) => <Digit key={i} char={c} dir={t.dir} />)
-        .reverse()}
-    </span>
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      onClick={onToggle}
+      className={`flex w-full cursor-pointer rounded-xl border p-3 max-md:border-2 text-left ${theme.box}`}
+    >
+      <span className="text-body flex w-full items-center justify-between gap-3">
+        <span className="flex items-baseline gap-3">
+          {label}
+          <span className="opacity-60">+{money(price)}</span>
+        </span>
+        <span className={`flex h-4 w-7 items-center rounded-full p-0.5 ${theme.track}`}>
+          {/* Springy slide — overshoots slightly, then settles. */}
+          <span
+            className={`h-3 w-3 rounded-full transition-transform duration-[250ms] ease-[cubic-bezier(0.34,1.25,0.64,1)] ${theme.knob} ${
+              on ? 'translate-x-3' : 'translate-x-0'
+            }`}
+          />
+        </span>
+      </span>
+    </button>
   )
 }
 
-function Plan({ plan }) {
+const FADE_OUT_MS = 200
+const RESIZE_MS = 300
+
+// The card shell, price card and buttons stay mounted across tabs. On a
+// change the left content fades out, swaps, then fades back in while the
+// shell eases to its new height; the price card just changes its text.
+function Plan({ plan: target, plans }) {
+  const [plan, setPlan] = useState(target)
   const [dev, setDev] = useState(false)
+  const [addOnsOn, setAddOnsOn] = useState({})
+  const shell = useRef(null)
+  const fromHeight = useRef(null)
+
+  useEffect(() => {
+    if (target._key === plan._key) return
+    const t = setTimeout(() => {
+      fromHeight.current = shell.current.offsetHeight
+      setDev(false)
+      setAddOnsOn({})
+      setPlan(target)
+    }, FADE_OUT_MS)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target._key])
+
+  // Runs right after the new content is in the DOM, before paint.
+  useLayoutEffect(() => {
+    const el = shell.current
+    const from = fromHeight.current
+    if (from === null || !el) return
+    fromHeight.current = null
+    el.style.transition = 'none'
+    el.style.height = 'auto'
+    const to = el.offsetHeight
+    el.style.height = `${from}px`
+    el.getBoundingClientRect() // commit the start height
+    el.style.transition = `height ${RESIZE_MS}ms ease-out`
+    el.style.height = `${to}px`
+    const done = setTimeout(() => {
+      el.style.transition = ''
+      el.style.height = ''
+    }, RESIZE_MS)
+    return () => clearTimeout(done)
+  }, [plan])
+
+  // Faded out from the moment a new tab is picked until its content swaps in.
+  const hidden = target._key !== plan._key
+  // Header follows the picked tab right away; its switches start off.
+  const head = hidden ? target : plan
   const devPrice = plan.developmentPrice || 0
-  const total = (plan.basePrice || 0) + (dev ? devPrice : 0)
+  // A switch linked to another plan (e.g. Add Branding → the Branding tab) takes
+  // that plan's price and timeframe, so the two always stay in step.
+  const addOns = (plan.addOns || []).map((a) => {
+    const linked =
+      a.linkedPlan &&
+      plans.find((p) => p._key !== plan._key && p.name?.trim().toLowerCase() === a.linkedPlan.trim().toLowerCase())
+    return linked ? { ...a, price: linked.basePrice || 0, extra: linked.duration } : { ...a, extra: a.days }
+  })
+  const extras = hidden ? [] : [dev ? plan.developmentDays : 0, ...addOns.map((a, i) => (addOnsOn[i] ? a.extra : 0))]
+  const duration = addDays(head.duration, extras)
+  const total =
+    (plan.basePrice || 0) +
+    (dev ? devPrice : 0) +
+    addOns.reduce((sum, a, i) => sum + (addOnsOn[i] ? a.price || 0 : 0), 0)
 
   return (
-    <div className="grid gap-6 rounded-2xl border border-[#CFCFCF] bg-white/50 p-3 max-md:border-2 md:grid-cols-2 md:gap-5 md:p-4">
-      <div className="flex flex-col gap-3">
-        <div className="flex items-end gap-3">
-          <h3 className="text-h3 m-0 text-ink">{plan.name}</h3>
-          {plan.duration && (
+    <div
+      ref={shell}
+      className="grid gap-[16px] overflow-hidden rounded-2xl border border-[#CFCFCF] bg-white/50 p-3 max-md:border-2 md:grid-cols-2 md:p-4"
+    >
+      <div className="flex flex-col gap-[8px]">
+        {/* Title and timeframe switch instantly — no fade. */}
+        <div className="mb-[16px] flex items-end gap-3">
+          <h3 className="text-h3 m-0 text-ink">{head.name}</h3>
+          {duration && (
             <span className="text-body flex items-end gap-1.5 text-ink opacity-60">
-              <img src={plan.durationIcon || clockIcon} alt="" className="h-[1.5em] w-4 object-contain" />
-              {plan.duration}
+              <img src={head.durationIcon || clockIcon} alt="" className="h-[1.5em] w-4 object-contain" />
+              {duration}
             </span>
           )}
         </div>
 
-        {devPrice > 0 && (
-          <button
-            type="button"
-            role="switch"
-            aria-checked={dev}
-            onClick={() => setDev((v) => !v)}
-            className="flex w-full cursor-pointer flex-col gap-2 rounded-xl border border-ink bg-ink p-3 max-md:border-2 text-left text-cream"
-          >
-            <span className="text-body flex w-full items-center justify-between">
-              {plan.developmentLabel || 'Add Development'}
-              <span className="flex h-4 w-7 items-center rounded-full bg-cream p-0.5">
-                {/* Springy slide — overshoots slightly, then settles. */}
-                <span
-                  className={`h-3 w-3 rounded-full bg-ink transition-transform duration-[250ms] ease-[cubic-bezier(0.34,1.25,0.64,1)] ${
-                    dev ? 'translate-x-3' : 'translate-x-0'
-                  }`}
-                />
-              </span>
-            </span>
-            <span className="text-body">+{money(devPrice)}</span>
-          </button>
-        )}
+        <div
+          className="flex flex-col gap-[8px] ease-out"
+          style={{
+            opacity: hidden ? 0 : 1,
+            filter: hidden ? 'blur(8px)' : 'blur(0)',
+            transition: `opacity ${hidden ? FADE_OUT_MS : RESIZE_MS}ms, filter ${hidden ? FADE_OUT_MS : RESIZE_MS}ms`,
+          }}
+        >
+          {devPrice > 0 && (
+            <Switch
+              color={plan.developmentColor}
+              label={plan.developmentLabel || 'Add Development'}
+              price={devPrice}
+              on={dev}
+              onToggle={() => setDev((v) => !v)}
+            />
+          )}
 
-        {plan.extras?.map((x, i) => (
-          <div
-            key={i}
-            className="text-body flex items-center justify-between rounded-xl border border-[#CFCFCF] bg-[var(--color-bg)] p-3 max-md:border-2 text-ink"
-          >
-            <span>{x.label}</span>
-            <span>{x.price}</span>
-          </div>
-        ))}
+          {addOns.map((a, i) => (
+            <Switch
+              key={a._key || i}
+              color={a.color}
+              label={a.label}
+              price={a.price}
+              on={!!addOnsOn[i]}
+              onToggle={() => setAddOnsOn((o) => ({ ...o, [i]: !o[i] }))}
+            />
+          ))}
 
-        {plan.features?.length > 0 && (
-          <ul className="m-0 mt-2 flex list-none flex-col gap-3 p-0">
-            {plan.features.map((f, i) => (
-              <li key={i} className="text-body flex max-w-md items-start gap-3 text-ink">
-                <span className="mt-[5px] text-[12px] text-maroon">★</span>
-                {f}
-              </li>
-            ))}
-          </ul>
-        )}
+          {plan.extras?.map((x, i) => (
+            <div
+              key={i}
+              className="text-body flex items-center justify-between rounded-xl border border-[#CFCFCF] bg-[var(--color-bg)] p-3 text-ink max-md:border-2"
+            >
+              <span>{x.label}</span>
+              <span>{x.price}</span>
+            </div>
+          ))}
+
+          {plan.features?.length > 0 && (
+            <ul className="m-0 mt-[16px] flex list-disc flex-col gap-3 pl-5 marker:text-black">
+              {plan.features.map((f, i) => (
+                <li key={i} className="text-body max-w-md text-ink">
+                  {f}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 md:self-start">
-        <div className="flex aspect-[4/3] flex-col justify-between rounded-2xl border border-[#CFCFCF] max-md:border-2 bg-ink p-5 text-white md:aspect-[5/3]">
+        <div className="flex aspect-[4/3] flex-col justify-between rounded-2xl border border-[#CFCFCF] bg-ink p-5 text-white max-md:border-2 md:aspect-[5/3]">
           <div className="flex w-full items-end gap-3 md:gap-5">
             <WhiteSvg src="/Latimer.svg" ratio={1099 / 354} />
             <WhiteSvg src="/Studio.svg" ratio={861 / 346} />
@@ -133,14 +258,11 @@ function Plan({ plan }) {
           <div className="flex flex-col gap-2">
             <p className="text-body-caps m-0">
               {plan.cardLabel || plan.name || ''}
-              {/* Fades in while drifting up slightly. */}
-              <span
-                className={`inline-block whitespace-pre transition-all duration-300 ease-out ${
-                  dev ? 'translate-y-0 opacity-100' : 'translate-y-1.5 opacity-0'
-                }`}
-              >
-                {plan.developmentSuffix || ' + development'}
-              </span>
+              {/* Development always sits next to the label; add-ons follow it. */}
+              <Suffix on={dev} text={plan.developmentSuffix || ' + development'} />
+              {addOns.map((a, i) => (
+                <Suffix key={a._key || i} on={!!addOnsOn[i]} text={a.suffix || ` + ${a.label}`} />
+              ))}
             </p>
             <h2 className="text-h2 m-0">
               <Price value={`+${money(total)}`} total={total} />
@@ -154,13 +276,24 @@ function Plan({ plan }) {
             inverted
             className="border border-[#CFCFCF] max-md:border-2"
           />
-          <LetsTalkButton
-            label={plan.messageLabel || 'Send Message'}
-            to={plan.messageHref || '/contact'}
-          />
+          <LetsTalkButton label={plan.messageLabel || 'Send Message'} to={plan.messageHref || '/contact'} />
         </div>
       </div>
     </div>
+  )
+}
+
+// Grows from zero width while fading in, so whatever follows it slides over
+// to make room (and slides back when it turns off).
+function Suffix({ on, text }) {
+  return (
+    <span
+      aria-hidden={!on}
+      className="inline-grid align-top transition-[grid-template-columns,opacity] duration-300 ease-out"
+      style={{ gridTemplateColumns: on ? '1fr' : '0fr', opacity: on ? 1 : 0 }}
+    >
+      <span className="min-w-0 overflow-hidden whitespace-pre">{text}</span>
+    </span>
   )
 }
 
@@ -176,6 +309,17 @@ const FILLER = {
       basePrice: 2149,
       developmentLabel: 'Add Development',
       developmentPrice: 1000,
+      developmentDays: 5,
+      addOns: [
+        {
+          _key: 'filler-landing-branding',
+          label: 'Add Branding',
+          linkedPlan: 'Branding',
+          price: 1800,
+          color: 'white',
+          suffix: ' + branding',
+        },
+      ],
       extras: [
         { label: 'Extra Pages', price: '+$500/PAGE' },
         { label: 'Animations', price: '+$300/PAGE' },
@@ -183,11 +327,22 @@ const FILLER = {
       features: Array(6).fill('This plan gets you a landing page and is great for a funnel'),
       cardLabel: 'Landing page design',
     },
+    {
+      _key: 'filler-branding',
+      name: 'Branding',
+      duration: '10 - 15 days',
+      basePrice: 1800,
+      extras: [{ label: 'Extra Concepts', price: '+$250/CONCEPT' }],
+      features: Array(4).fill('This plan gets you a full brand identity from logo to color'),
+      cardLabel: 'Branding design',
+    },
   ],
 }
 
 export default function PricingSection({ pricing: sanityPricing }) {
   const pricing = sanityPricing?.plans?.length ? sanityPricing : FILLER
+  const [activeKey, setActiveKey] = useState(null)
+  const plan = pricing.plans.find((p) => p._key === activeKey) || pricing.plans[0]
   return (
     <section className="mx-auto w-full max-w-[120rem] px-2 py-10 md:px-4 md:py-20">
       <div className="flex items-center gap-3 text-ink/60 md:gap-5">
@@ -201,9 +356,33 @@ export default function PricingSection({ pricing: sanityPricing }) {
       )}
 
       <div className="mx-auto mt-8 flex max-w-[1000px] flex-col gap-4 md:mt-12">
-        {pricing.plans.map((plan) => (
-          <Plan key={plan._key} plan={plan} />
-        ))}
+        {pricing.plans.length > 1 && (
+          <div
+            role="tablist"
+            className="-mx-2 flex gap-1 overflow-x-auto px-2 pb-4 [scrollbar-width:none] md:justify-center"
+          >
+            {pricing.plans.map((p) => {
+              const selected = p._key === plan._key
+              return (
+                <button
+                  key={p._key}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => setActiveKey(p._key)}
+                  className={`text-h3 shrink-0 cursor-pointer whitespace-nowrap rounded-full border-0 px-6 py-3 transition-[background-color,box-shadow,color] duration-200 md:px-8 ${
+                    selected
+                      ? 'bg-white text-ink shadow-[0_8px_24px_rgba(0,0,0,0.12)]'
+                      : 'bg-transparent text-ink/70 hover:text-ink'
+                  }`}
+                >
+                  {p.tabLabel || p.name}
+                </button>
+              )
+            })}
+          </div>
+        )}
+        <Plan plan={plan} plans={pricing.plans} />
       </div>
     </section>
   )

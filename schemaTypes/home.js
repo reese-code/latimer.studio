@@ -54,6 +54,12 @@ export default defineType({
               title: 'Plan',
               fields: [
                 defineField({ name: 'name', title: 'Plan name', type: 'string', initialValue: 'Landing page' }),
+                defineField({
+                  name: 'tabLabel',
+                  title: 'Tab label',
+                  type: 'string',
+                  description: 'Shown in the selector above the card. Leave empty to use the plan name.',
+                }),
                 defineField({ name: 'duration', title: 'Duration', type: 'string', initialValue: '15 - 20 days' }),
                 defineField({
                   name: 'durationIcon',
@@ -74,10 +80,88 @@ export default defineType({
                   initialValue: 'Add Development',
                 }),
                 defineField({
+                  name: 'developmentColor',
+                  title: 'Development switch background',
+                  type: 'string',
+                  options: {
+                    list: [
+                      { title: 'Black', value: 'black' },
+                      { title: 'White (50%)', value: 'white' },
+                    ],
+                    layout: 'radio',
+                  },
+                  initialValue: 'black',
+                }),
+                defineField({
                   name: 'developmentPrice',
                   title: 'Development price ($)',
                   type: 'number',
                   description: 'Added to the total when the toggle is on.',
+                  validation: (r) => r.min(0),
+                }),
+                defineField({
+                  name: 'addOns',
+                  title: 'Extra offer switches',
+                  type: 'array',
+                  description: 'More switches like the development one. Each adds its price to the total when on.',
+                  of: [
+                    {
+                      type: 'object',
+                      name: 'addOn',
+                      fields: [
+                        defineField({ name: 'label', title: 'Switch label', type: 'string', validation: (r) => r.required() }),
+                        defineField({
+                          name: 'linkedPlan',
+                          title: 'Link to plan',
+                          type: 'string',
+                          description:
+                            'Type the exact name of another plan, e.g. Branding. Price and timeframe then come from that plan and stay in sync with it. Leave empty to set them below.',
+                        }),
+                        defineField({
+                          name: 'price',
+                          title: 'Price ($)',
+                          type: 'number',
+                          description: 'Ignored when linked to a plan.',
+                          hidden: ({ parent }) => !!parent?.linkedPlan,
+                          validation: (r) => r.custom((v, { parent }) => (parent?.linkedPlan || v >= 0 ? true : 'Add a price or link a plan')),
+                        }),
+                        defineField({
+                          name: 'color',
+                          title: 'Switch background',
+                          type: 'string',
+                          options: {
+                            list: [
+                              { title: 'Black', value: 'black' },
+                              { title: 'White (50%)', value: 'white' },
+                            ],
+                            layout: 'radio',
+                          },
+                          initialValue: 'black',
+                        }),
+                        defineField({
+                          name: 'days',
+                          title: 'Extra days',
+                          type: 'number',
+                          description: 'Added to every number in the duration when on. Ignored when linked to a plan.',
+                          hidden: ({ parent }) => !!parent?.linkedPlan,
+                          validation: (r) => r.min(0),
+                        }),
+                        defineField({
+                          name: 'suffix',
+                          title: 'Price card suffix (switch on)',
+                          type: 'string',
+                          description: 'Appended to the price card label when on, e.g. " + branding".',
+                        }),
+                      ],
+                      preview: { select: { title: 'label', subtitle: 'price' } },
+                    },
+                  ],
+                }),
+                defineField({
+                  name: 'developmentDays',
+                  title: 'Development extra days',
+                  type: 'number',
+                  description: 'Added to every number in the duration when the toggle is on (15 - 20 days + 5 = 20 - 25 days).',
                   validation: (r) => r.min(0),
                 }),
                 defineField({

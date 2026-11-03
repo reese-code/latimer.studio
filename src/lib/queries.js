@@ -135,7 +135,7 @@ export const servicesQuery = `*[_type == "service"] | order(order asc) {
     label,
     paragraphs,
     content[]{
-      _type, _key, text, title, style, listType, items,
+      _type, _key, text, title, style, listType, items, buttonLabel, buttonHref,
       body[]{ _type, _key, text, listType, items },
     },
     buttonLabel,

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import LetsTalkButton from './LetsTalkButton'
+import { getLenis } from '../hooks/useLenis'
 
 // 500×700 scaled down 20% on desktop, 40% on mobile.
 const SIZES = { desktop: { w: 400, h: 560 }, mobile: { w: 300, h: 420 } }
@@ -158,22 +159,30 @@ function Title({ children }) {
   return <h3 className={`text-h3 m-0 mb-6 mt-[60px] text-left text-[24px] text-ink first:mt-0 md:mb-10 ${TEXT_W}`}>{children}</h3>
 }
 
-// Accordion titles stack under the navbar exactly like the project pages
-// (see StackingSections in StoryAccordion.jsx): each title pins 40px below
-// the previous one, and stays pinned until the end of its group because the
-// following sections are nested inside its wrapper.
+// Accordion titles pin under the navbar and stay pinned until the end of
+// their group because the following sections are nested inside its wrapper.
+// Collapsed, every title pins at the same spot so only the current one shows
+// (later titles paint over earlier ones); hovering a pinned title pops the
+// whole stack down, each title 40px below the previous one.
 const TITLE_STACK_GAP = 40
 const NAV_OFFSET = 'var(--navbar-height, 56px)'
 
-function StickyTitle({ index, first, children }) {
+function StickyTitle({ index, first, expanded, onEnter, onLeave, onClick, children }) {
   return (
     <div
+      onClick={onClick}
+      onMouseEnter={(e) => {
+        // Only a title that is actually pinned (not one still in the flow) opens the stack.
+        const pinnedTop = parseFloat(getComputedStyle(e.currentTarget).top)
+        if (expanded || e.currentTarget.getBoundingClientRect().top <= pinnedTop + 1) onEnter()
+      }}
+      onMouseLeave={onLeave}
       style={{
-        top: `calc(${NAV_OFFSET} + ${index * TITLE_STACK_GAP}px)`,
+        top: `calc(${NAV_OFFSET} + ${expanded ? index * TITLE_STACK_GAP : 0}px)`,
         height: TITLE_STACK_GAP,
         background: "var(--color-bg) url('/concrete-texture.png') repeat fixed center top",
       }}
-      className={`sticky z-10 mb-6 flex items-center border-t-2 border-ink/60 text-left font-sans text-ink/60 transition-colors duration-200 hover:border-ink hover:text-ink md:mb-10 ${TEXT_W} ${
+      className={`sticky z-10 mb-6 flex items-center border-t-2 transition-[top,color,border-color] duration-200 border-ink/60 cursor-pointer text-left font-sans text-ink/60 hover:border-ink hover:text-ink md:mb-10 ${TEXT_W} ${
         first ? '' : 'mt-[60px]'
       }`}
     >
@@ -182,30 +191,56 @@ function StickyTitle({ index, first, children }) {
   )
 }
 
-function Stack({ sections, index = 0, first }) {
+function Stack({ sections, index = 0, first, expanded, onEnter, onLeave }) {
   const s = sections[index]
+  const ref = useRef(null)
   if (!s) return null
+  // Scroll so the section's top lands where its title sits in the open stack.
+  const scrollToSection = () => {
+    const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height')) || 56
+    const offset = -(navH + index * TITLE_STACK_GAP)
+    const lenis = getLenis()
+    if (lenis) lenis.scrollTo(ref.current, { offset, duration: 1.1 })
+    else window.scrollTo({ top: ref.current.getBoundingClientRect().top + window.scrollY + offset, behavior: 'smooth' })
+  }
   return (
-    <div className="relative">
-      <StickyTitle index={index} first={first && index === 0}>
+    <div ref={ref} className="relative">
+      <StickyTitle index={index} first={first && index === 0} expanded={expanded} onEnter={onEnter} onLeave={onLeave} onClick={scrollToSection}>
         {s.title}
       </StickyTitle>
       {s.body.map((c) => (
         <Block key={c._key} b={c} />
       ))}
-      <Stack sections={sections} index={index + 1} />
+      <Stack sections={sections} index={index + 1} expanded={expanded} onEnter={onEnter} onLeave={onLeave} />
     </div>
   )
 }
+
+// A title block's optional button renders as one more block after its content.
+const withButton = (b) => [
+  ...(b.body || []),
+  ...(b.buttonLabel && b.buttonHref ? [{ _type: 'button', _key: `${b._key}-button`, label: b.buttonLabel, href: b.buttonHref }] : []),
+]
 
 const isAccordion = (b) => (b._type === 'heading' || b._type === 'titledSection') && b.style !== 'h3'
 
 // Accordion titles start a section; everything until the next one is its body.
 function Content({ blocks }) {
+  const [expanded, setExpanded] = useState(false)
+  const closeTimer = useRef(null)
+  const onEnter = () => {
+    clearTimeout(closeTimer.current)
+    setExpanded(true)
+  }
+  // Short delay so moving between titles as they slide doesn't flicker the stack shut.
+  const onLeave = () => {
+    clearTimeout(closeTimer.current)
+    closeTimer.current = setTimeout(() => setExpanded(false), 120)
+  }
   const lead = []
   const sections = []
   for (const b of blocks) {
-    if (isAccordion(b)) sections.push({ title: b._type === 'heading' ? b.text : b.title, body: [...(b.body || [])] })
+    if (isAccordion(b)) sections.push({ title: b._type === 'heading' ? b.text : b.title, body: withButton(b) })
     else (sections.length ? sections[sections.length - 1].body : lead).push(b)
   }
   return (
@@ -213,7 +248,7 @@ function Content({ blocks }) {
       {lead.map((c) => (
         <Block key={c._key} b={c} />
       ))}
-      <Stack sections={sections} first={!lead.length} />
+      <Stack sections={sections} first={!lead.length} expanded={expanded} onEnter={onEnter} onLeave={onLeave} />
     </>
   )
 }
@@ -243,9 +278,15 @@ function Block({ b }) {
       return (
         <div className="mt-[60px] first:mt-0">
           <Title>{b.title}</Title>
-          {b.body?.map((c) => (
+          {withButton(b).map((c) => (
             <Block key={c._key} b={c} />
           ))}
+        </div>
+      )
+    case 'button':
+      return (
+        <div className={`mb-4 ${TEXT_W}`}>
+          <LetsTalkButton label={b.label} to={b.href} />
         </div>
       )
     default:
