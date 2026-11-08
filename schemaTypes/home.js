@@ -32,8 +32,10 @@ export default defineType({
     }),
     defineField({
       name: 'pricing',
-      title: 'Pricing',
+      title: 'Pricing (legacy)',
       type: 'object',
+      description: 'Moved to the Pricing tab. Only used as a fallback until plans exist there.',
+      hidden: true,
       options: { collapsible: false },
       fields: [
         defineField({ name: 'label', title: 'Section label', type: 'string', initialValue: 'Pricing' }),

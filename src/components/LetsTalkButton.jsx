@@ -3,9 +3,12 @@ import { Link } from 'react-router-dom'
 // New pill button for the homepage — distinct from TicketMenu's old
 // ticket-png-background button, which stays as-is in cinema mode.
 export default function LetsTalkButton({ label = 'Let\u2019s talk', to = '/contact', className = '', inverted = false, arrowAlways = false, ...props }) {
+  // No `to` renders a plain button (e.g. to open a menu via onClick).
+  const Tag = to ? Link : 'button'
+  const tagProps = to ? { to } : { type: 'button' }
   return (
-    <Link
-      to={to}
+    <Tag
+      {...tagProps}
       className={`group relative inline-flex items-center justify-center rounded-lg px-8 py-3 text-body-caps no-underline ${inverted ? 'bg-white text-ink' : 'bg-ink text-white'} ${className}`}
       {...props}
     >
@@ -36,6 +39,6 @@ export default function LetsTalkButton({ label = 'Let\u2019s talk', to = '/conta
         <path d="M1.82812 11.8789L11.8281 1.87891" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M1.82812 1.87891H11.8281V11.8789" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-    </Link>
+    </Tag>
   )
 }

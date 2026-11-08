@@ -50,4 +50,18 @@ export const deskStructure = (S) =>
       S.documentTypeListItem('article').title('Articles'),
       S.divider(),
       S.documentTypeListItem('service').title('Services'),
+      S.listItem()
+        .title('Pricing')
+        .id('pricing')
+        .child(
+          S.list()
+            .title('Pricing')
+            .items([
+              S.listItem()
+                .title('Section Heading')
+                .id('pricingSettings')
+                .child(S.document().schemaType('pricingSettings').documentId('pricingSettings')),
+              S.documentTypeListItem('pricingPlan').title('Plans'),
+            ])
+        ),
     ])

@@ -6,5 +6,7 @@ import infoPage from './infoPage'
 import home from './home'
 import aboutPage from './aboutPage'
 import service from './service'
+import pricingPlan from './pricingPlan'
+import pricingSettings from './pricingSettings'
 
-export const schemaTypes = [project, siteSettings, privacyPolicy, article, infoPage, home, aboutPage, service]
+export const schemaTypes = [project, siteSettings, privacyPolicy, article, infoPage, home, aboutPage, service, pricingPlan, pricingSettings]

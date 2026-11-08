@@ -67,10 +67,12 @@ function Faq({ faq }) {
             inert={!open}
           >
             {faq.overview && <p className="text-body m-0 max-w-xl text-ink">{faq.overview}</p>}
-            <LetsTalkButton
-              label={faq.buttonLabel || 'Learn more'}
-              to={faq.slug ? `/info/${faq.slug}` : '/info'}
-            />
+            {faq.buttonLabel && (
+              <LetsTalkButton
+                label={faq.buttonLabel}
+                to={faq.slug ? `/info/${faq.slug}` : '/info'}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -90,7 +92,7 @@ export default function FaqSection({ faqs: sanityFaqs }) {
 
       <div className="mx-auto mt-10 max-w-[1000px] md:mt-16">
         {faqs.title && <h3 className="text-h3 m-0 mb-4 text-ink">{faqs.title}</h3>}
-        <LetsTalkButton label={faqs.buttonLabel || 'View all articles'} to={faqs.buttonHref || '/info'} />
+        {faqs.buttonLabel && <LetsTalkButton label={faqs.buttonLabel} to={faqs.buttonHref || '/info'} />}
 
         <div className="mt-8 flex flex-col gap-2 md:mt-12">
           {faqs.items.map((faq) => (

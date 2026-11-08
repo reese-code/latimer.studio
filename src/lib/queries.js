@@ -150,3 +150,19 @@ export const servicesQuery = `*[_type == "service"] | order(order asc) {
     "items": items[]{ _key, question, overview, buttonLabel, "slug": article->slug.current },
   },
 }`
+
+// Pricing section: heading + one doc per plan. `_key` is the doc id so the
+// component can treat plans like the old inline array items. `legacy` is the
+// old Home → Pricing content, used only until plans exist in the Pricing tab.
+export const pricingQuery = `{
+  "settings": *[_type == "pricingSettings"][0]{ label, title },
+  "plans": *[_type == "pricingPlan"] | order(orderRank asc){
+    ...,
+    "_key": _id,
+    "durationIcon": durationIcon.asset->url,
+  },
+  "legacy": *[_type == "home"][0].pricing{
+    ...,
+    "plans": plans[]{ ..., "durationIcon": durationIcon.asset->url },
+  },
+}`

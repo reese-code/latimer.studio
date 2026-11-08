@@ -51,7 +51,7 @@ export default function ProjectsPage() {
         <ProjectsSection showHeading={false} />
       </main>
 
-      <PricingSection pricing={home?.pricing} />
+      <PricingSection />
       <FaqSection faqs={home?.faqs} />
       <FilmFooter />
       <SiteNav />

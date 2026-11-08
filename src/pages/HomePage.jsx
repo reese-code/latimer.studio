@@ -21,13 +21,12 @@ const DEFAULT_HERO_TEXT =
 export default function HomePage() {
   const { siteSettings } = useSiteData()
   const [hero, setHero] = useState(null)
-  const [pricing, setPricing] = useState(null)
   const [about, setAbout] = useState(null)
   const [faqs, setFaqs] = useState(null)
   useEffect(() => {
     let cancelled = false
     sanityClient.fetch(homeQuery).then(
-      (res) => !cancelled && (setHero(res?.hero || null), setPricing(res?.pricing || null), setAbout(res?.about || null), setFaqs(res?.faqs || null)),
+      (res) => !cancelled && (setHero(res?.hero || null), setAbout(res?.about || null), setFaqs(res?.faqs || null)),
       () => {}
     )
     return () => {
@@ -111,7 +110,7 @@ export default function HomePage() {
     </main>
     <ProjectsSection />
     <ServicesSection />
-    <PricingSection pricing={pricing} />
+    <PricingSection />
     <AboutSection about={about} />
     <FaqSection faqs={faqs} />
     <FilmFooter />

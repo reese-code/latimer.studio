@@ -77,7 +77,7 @@ export default function ServicesPage() {
       </main>
 
       <AboutSection about={about} />
-      <PricingSection pricing={home?.pricing} />
+      <PricingSection />
       <ProjectsSection />
       <FaqSection faqs={faqs} />
       <FilmFooter />

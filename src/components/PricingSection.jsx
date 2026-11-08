@@ -1,5 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { gsap } from 'gsap'
 import LetsTalkButton from './LetsTalkButton'
+import { useSiteData } from '../hooks/useSiteData'
+import { usePricing } from '../hooks/usePricing'
 
 // Default duration icon; a plan can override it with an upload in Sanity.
 import clockIcon from '../assets/clock.svg'
@@ -233,7 +236,7 @@ function Plan({ plan: target, plans }) {
               className="text-body flex items-center justify-between rounded-xl border border-[#CFCFCF] bg-[var(--color-bg)] p-3 text-ink max-md:border-2"
             >
               <span>{x.label}</span>
-              <span>{x.price}</span>
+              <span>{dev && x.devPrice ? x.devPrice : x.price}</span>
             </div>
           ))}
 
@@ -276,8 +279,131 @@ function Plan({ plan: target, plans }) {
             inverted
             className="border border-[#CFCFCF] max-md:border-2"
           />
-          <LetsTalkButton label={plan.messageLabel || 'Send Message'} to={plan.messageHref || '/contact'} />
+          <MessageMenu label={plan.messageLabel || 'Send Message'} />
         </div>
+      </div>
+    </div>
+  )
+}
+
+// "Send Message" opens a small menu to copy the email or phone number (from
+// the same contactLinks the footer uses) rather than navigating away.
+function MessageMenu({ label }) {
+  const { siteSettings } = useSiteData()
+  const links = siteSettings?.contactLinks || []
+  const pick = (prefix) =>
+    links.find((l) => l.href?.startsWith(prefix))?.href.slice(prefix.length).split('?')[0].trim()
+  const options = [
+    { key: 'email', value: pick('mailto:') },
+    { key: 'phone', value: pick('tel:') },
+  ].filter((o) => o.value)
+
+  const [open, setOpen] = useState(false)
+  const [copied, setCopied] = useState(null)
+  const wrap = useRef(null)
+  const timer = useRef(null)
+  const panelRef = useRef(null)
+  const fieldRefs = useRef([])
+
+  useEffect(() => () => clearTimeout(timer.current), [])
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e) => {
+      if (!wrap.current?.contains(e.target)) setOpen(false)
+    }
+    const onKey = (e) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('pointerdown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  const copy = async (o) => {
+    try {
+      await navigator.clipboard.writeText(o.value)
+    } catch {
+      return
+    }
+    setCopied(o.key)
+    clearTimeout(timer.current)
+    timer.current = setTimeout(() => {
+      setCopied(null)
+      setOpen(false)
+    }, 900)
+  }
+
+  // A slight spring out of the button's corner; the backdrop blur then
+  // fades in behind the panel once it has landed.
+  const hasOptions = options.length > 0
+  const blur = (px) => ({ backdropFilter: `blur(${px}px)`, WebkitBackdropFilter: `blur(${px}px)` })
+  useLayoutEffect(() => {
+    const panel = panelRef.current
+    if (!panel) return
+    gsap.set(panel, { autoAlpha: 0, y: 6, scale: 0.96, transformOrigin: 'bottom left', ...blur(0) })
+    gsap.set(fieldRefs.current.filter(Boolean), { opacity: 0, y: 8 })
+  }, [hasOptions])
+
+  useLayoutEffect(() => {
+    const panel = panelRef.current
+    if (!panel) return
+    const fields = fieldRefs.current.filter(Boolean)
+    gsap.killTweensOf([panel, ...fields])
+
+    if (open) {
+      gsap.to(panel, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.3)' })
+      gsap.to(panel, { ...blur(24), duration: 0.35, ease: 'power1.out', delay: 0.15 })
+      gsap.to(fields, { opacity: 1, y: 0, duration: 0.35, ease: 'back.out(1.3)', stagger: 0.05, delay: 0.08 })
+    } else {
+      gsap.to(fields, { opacity: 0, y: 6, duration: 0.15, ease: 'power1.in' })
+      gsap.to(panel, { autoAlpha: 0, y: 6, scale: 0.96, ...blur(0), duration: 0.25, ease: 'power2.inOut', delay: 0.04 })
+    }
+  }, [open, hasOptions])
+
+  // Nothing to copy (settings not loaded / none set): fall back to the form.
+  if (!options.length) return <LetsTalkButton label={label} to="/contact" />
+
+  return (
+    <div ref={wrap} className="relative">
+      <LetsTalkButton label={label} to={null} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((v) => !v)} />
+      <div
+        ref={panelRef}
+        role="menu"
+        className="absolute bottom-full left-0 z-20 mb-2 min-w-64 overflow-hidden rounded-2xl bg-white/70 p-1 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
+      >
+        {/* The card's #CFCFCF border as a gradient ring: full strength along the
+            edges, easing to lower opacity toward the corners. Drawn by masking
+            the fill down to just the padding ring. */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 rounded-2xl p-px max-md:p-0.5"
+          style={{
+            background:
+              'radial-gradient(ellipse farthest-corner at center, #CFCFCF 0 70%, rgba(207,207,207,0.3) 100%)',
+            WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+            WebkitMaskComposite: 'xor',
+            mask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+            maskComposite: 'exclude',
+          }}
+        />
+        <p ref={(el) => (fieldRefs.current[0] = el)} className="text-body-caps m-0 mb-1 px-2 py-1.5 text-ink/60">Click to copy</p>
+        {options.map((o, i) => (
+          <button
+            key={o.key}
+            ref={(el) => (fieldRefs.current[i + 1] = el)}
+            type="button"
+            role="menuitem"
+            onClick={() => copy(o)}
+            className="flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-xl border-none bg-transparent px-2 py-1.5 text-left transition-colors hover:bg-black/5"
+          >
+            <span className="text-body">
+              {o.value}
+              {copied === o.key && " Copied"}
+            </span>
+          </button>
+        ))}
       </div>
     </div>
   )
@@ -297,7 +423,7 @@ function Suffix({ on, text }) {
   )
 }
 
-// Filler shown until a pricing plan is added in Sanity (Home → Pricing).
+// Filler shown until a pricing plan is added in Sanity (the Pricing tab).
 const FILLER = {
   label: 'Pricing',
   title: 'You can choose between which service you want, or combine multiple',
@@ -339,7 +465,8 @@ const FILLER = {
   ],
 }
 
-export default function PricingSection({ pricing: sanityPricing }) {
+export default function PricingSection() {
+  const sanityPricing = usePricing()
   const pricing = sanityPricing?.plans?.length ? sanityPricing : FILLER
   const [activeKey, setActiveKey] = useState(null)
   const plan = pricing.plans.find((p) => p._key === activeKey) || pricing.plans[0]

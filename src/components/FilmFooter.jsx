@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { gsap } from 'gsap'
 import latimerStudioLogo from '../assets/Latimer-Studio.svg'
@@ -42,12 +42,65 @@ export function SprocketRow() {
   )
 }
 
+// Contact entries that copy to the clipboard instead of navigating: tel: and
+// mailto: links, plus plain-text lines with no href (e.g. coordinates).
+function copyValue({ label, href }) {
+  if (!href) return label
+  if (href.startsWith('tel:')) return href.slice(4).trim()
+  if (href.startsWith('mailto:')) return href.slice(7).split('?')[0].trim()
+  return null
+}
+
+function CopyLine({ value, label, base, dark }) {
+  const [copied, setCopied] = useState(false)
+  const timer = useRef(null)
+
+  useEffect(() => () => clearTimeout(timer.current), [])
+
+  const handleCopy = async (e) => {
+    e.preventDefault()
+    try {
+      await navigator.clipboard.writeText(value)
+    } catch {
+      return
+    }
+    setCopied(true)
+    clearTimeout(timer.current)
+    timer.current = setTimeout(() => setCopied(false), 1500)
+  }
+
+  return (
+    <span className="inline-flex items-baseline gap-3">
+      <button
+        type="button"
+        onClick={handleCopy}
+        className={`${base} ${footerLinkColor(dark)} cursor-pointer border-none bg-transparent p-0 text-left underline-offset-4 transition-colors duration-200 hover:underline`}
+      >
+        {label}
+      </button>
+      <span
+        aria-live="polite"
+        className={`font-embodiment text-sm tracking-[0.14em] uppercase transition-opacity duration-200 ${
+          dark ? 'text-cream/85' : 'text-[#4a4238]'
+        } ${copied ? 'opacity-100' : 'opacity-0'}`}
+      >
+        {copied ? 'Copied' : ''}
+      </span>
+    </span>
+  )
+}
+
+// Slightly grayed at rest; darkens on hover (brightens on the ink variant).
+function footerLinkColor(dark) {
+  return dark ? 'text-cream/85 hover:text-cream' : 'text-[#4a4238]/75 hover:text-[#17130f]'
+}
+
 function LinkLine({ label, href, to, onClick, className = '', dark = false }) {
-  const color = dark
-    ? 'text-cream/85 hover:text-cream'
-    : 'text-[#4a4238] hover:text-maroon'
-  const base = `font-embodiment text-base leading-[145%] tracking-[0.14em] uppercase ${color} ${className}`
-  const linkClass = `${base} no-underline transition-colors duration-200`
+  const base = `font-embodiment text-base leading-[145%] tracking-[0.14em] uppercase ${className}`
+  const linkClass = `${base} ${footerLinkColor(dark)} no-underline underline-offset-4 transition-colors duration-200 hover:underline`
+
+  const value = onClick || to ? null : copyValue({ label, href })
+  if (value) return <CopyLine value={value} label={label} base={base} dark={dark} />
 
   if (onClick) {
     return (
@@ -63,7 +116,6 @@ function LinkLine({ label, href, to, onClick, className = '', dark = false }) {
       </Link>
     )
   }
-  if (!href) return <span className={base}>{label}</span>
   const external = href.startsWith('http')
   return (
     <a
