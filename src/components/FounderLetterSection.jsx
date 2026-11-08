@@ -16,8 +16,8 @@ export default function FounderLetterSection({ letter }) {
         <span className="h-0.5 flex-1 bg-current" />
       </div>
 
-      <div className="mt-10 flex flex-col items-center gap-8 text-center md:mt-16">
-        <div className="flex max-w-3xl flex-col gap-5">
+      <div className="mx-auto mt-10 flex max-w-[1000px] flex-col items-start gap-8 md:mt-16">
+        <div className="flex flex-col gap-5">
           {paragraphs.map((p, i) => (
             <p key={i} className="text-h3 m-0 text-ink">
               {p}
@@ -27,7 +27,7 @@ export default function FounderLetterSection({ letter }) {
         <LetsTalkButton label={letter?.buttonLabel || 'Learn more'} to={letter?.buttonHref || '/info'} />
 
         {letter?.image && (
-          <div className="aspect-[7/5] w-full max-w-4xl overflow-hidden rounded-2xl">
+          <div className="aspect-[7/5] w-full overflow-hidden rounded-2xl">
             <img src={letter.image} alt="" className="h-full w-full object-cover" />
           </div>
         )}
