@@ -142,4 +142,11 @@ export const servicesQuery = `*[_type == "service"] | order(order asc) {
     buttonHref,
     "slides": slides[]{ "image": image.asset->url },
   },
+  "faqs": faqs{
+    label,
+    title,
+    buttonLabel,
+    buttonHref,
+    "items": items[]{ _key, question, overview, buttonLabel, "slug": article->slug.current },
+  },
 }`

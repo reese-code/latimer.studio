@@ -127,6 +127,8 @@
 @utility bg-concrete {
   background-image: url('/concrete-texture.png');
   background-repeat: repeat;
+  background-attachment: fixed;
+  background-position: center top;
 }
 
 /* Concave "scooped" corner button — a quarter-circle notch cut inward at

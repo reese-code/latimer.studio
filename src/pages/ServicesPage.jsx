@@ -63,6 +63,11 @@ export default function ServicesPage() {
     slides: service?.about?.slides,
   }
 
+  // Per-service FAQs from Sanity; the homepage FAQs when this service has none.
+  const faqs = service?.faqs?.items?.length
+    ? { ...service.faqs, title: service.faqs.title || home?.faqs?.title }
+    : home?.faqs
+
   return (
     <>
       <main className="flex flex-col items-center px-2 pb-20 pt-20 md:px-5">
@@ -74,7 +79,7 @@ export default function ServicesPage() {
       <AboutSection about={about} />
       <PricingSection pricing={home?.pricing} />
       <ProjectsSection />
-      <FaqSection faqs={home?.faqs} />
+      <FaqSection faqs={faqs} />
       <FilmFooter />
       <SiteNav />
     </>

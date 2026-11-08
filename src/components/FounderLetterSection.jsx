@@ -16,26 +16,21 @@ export default function FounderLetterSection({ letter }) {
         <span className="h-0.5 flex-1 bg-current" />
       </div>
 
-      <div className="mt-10 flex flex-col gap-5 md:mt-16 md:flex-row">
+      <div className="mt-10 flex flex-col items-center gap-8 text-center md:mt-16">
+        <div className="flex max-w-3xl flex-col gap-5">
+          {paragraphs.map((p, i) => (
+            <p key={i} className="text-h3 m-0 text-ink">
+              {p}
+            </p>
+          ))}
+        </div>
+        <LetsTalkButton label={letter?.buttonLabel || 'Learn more'} to={letter?.buttonHref || '/info'} />
+
         {letter?.image && (
-          <div className="aspect-[7/5] w-full overflow-hidden rounded-2xl md:w-1/2 md:flex-none">
+          <div className="aspect-[7/5] w-full max-w-4xl overflow-hidden rounded-2xl">
             <img src={letter.image} alt="" className="h-full w-full object-cover" />
           </div>
         )}
-
-        <div className="flex min-w-0 flex-1 flex-col items-start justify-between gap-8">
-          <div>
-            <h3 className="text-h3 m-0 mb-4 text-ink">{letter?.title || 'Letter from Reese Latimer'}</h3>
-            <div className="flex max-w-xl flex-col gap-5">
-              {paragraphs.map((p, i) => (
-                <p key={i} className="text-body m-0 text-ink">
-                  {p}
-                </p>
-              ))}
-            </div>
-          </div>
-          <LetsTalkButton label={letter?.buttonLabel || 'Learn more'} to={letter?.buttonHref || '/info'} />
-        </div>
       </div>
     </section>
   )
