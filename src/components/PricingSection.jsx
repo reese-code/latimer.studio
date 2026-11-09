@@ -30,12 +30,13 @@ const money = (n) => `$${Number(n || 0).toLocaleString('en-US')}`
 
 // The wordmark SVGs are dark; masking them onto a white block gives the
 // site's pure white without touching the files.
-function WhiteSvg({ src, ratio }) {
+function WhiteSvg({ src, ratio, mobileWidth = '100%' }) {
   return (
     <span
       aria-hidden="true"
-      className="block bg-white"
+      className="block bg-white max-md:!w-[var(--mw)] max-md:!flex-none"
       style={{
+        '--mw': mobileWidth,
         // Width shares the row in proportion to the ratio, so both end up the same height.
         flex: `${ratio} 1 0`,
         aspectRatio: ratio,
@@ -254,9 +255,10 @@ function Plan({ plan: target, plans }) {
 
       <div className="flex flex-col gap-3 md:self-start">
         <div className="flex aspect-[4/3] flex-col justify-between rounded-2xl border border-[#CFCFCF] bg-ink p-5 text-white max-md:border-2 md:aspect-[5/3]">
-          <div className="flex w-full items-end gap-3 md:gap-5">
+          <div className="flex w-full items-end gap-3 max-md:mb-[40px] max-md:max-w-[200px] max-md:flex-col max-md:items-start max-md:gap-2 md:gap-5">
+            {/* Mobile: stacked, left-aligned, equal height — Latimer fills the width, Studio matches its height. */}
             <WhiteSvg src="/Latimer.svg" ratio={1099 / 354} />
-            <WhiteSvg src="/Studio.svg" ratio={861 / 346} />
+            <WhiteSvg src="/Studio.svg" ratio={861 / 346} mobileWidth={`${((861 / 346) / (1099 / 354)) * 100}%`} />
           </div>
           <div className="flex flex-col gap-2">
             <p className="text-body-caps m-0">
@@ -366,12 +368,12 @@ function MessageMenu({ label }) {
   if (!options.length) return <LetsTalkButton label={label} to="/contact" />
 
   return (
-    <div ref={wrap} className="relative">
+    <div ref={wrap} className="relative max-md:w-fit">
       <LetsTalkButton label={label} to={null} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((v) => !v)} />
       <div
         ref={panelRef}
         role="menu"
-        className="absolute bottom-full left-0 z-20 mb-2 min-w-64 overflow-hidden rounded-2xl bg-white/70 p-1 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
+        className="absolute bottom-full left-0 z-20 mb-2 min-w-64 max-md:w-full max-md:min-w-0 overflow-hidden rounded-2xl bg-white/70 p-1 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
       >
         {/* The card's #CFCFCF border as a gradient ring: full strength along the
             edges, easing to lower opacity toward the corners. Drawn by masking
@@ -398,7 +400,7 @@ function MessageMenu({ label }) {
             onClick={() => copy(o)}
             className="flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-xl border-none bg-transparent px-2 py-1.5 text-left transition-colors hover:bg-black/5"
           >
-            <span className="text-body">
+            <span className="text-body max-md:break-all">
               {o.value}
               {copied === o.key && " Copied"}
             </span>
