@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import SiteNav from '../components/SiteNav'
-import LetsTalkButton from '../components/LetsTalkButton'
 import AboutSection from '../components/AboutSection'
 import FounderLetterSection from '../components/FounderLetterSection'
 import FaqSection from '../components/FaqSection'
@@ -21,8 +20,9 @@ export default function AboutPage() {
   const [aboutDoc, setAboutDoc] = useState(null)
 
   useDocumentHead({
-    title: 'About Latimer Studio — Denver Web Design & Branding Studio',
+    title: aboutDoc?.metaTitle || 'About Latimer Studio — Denver Web Design & Branding Studio',
     description:
+      aboutDoc?.metaDescription ||
       'Latimer Studio is a Denver-based design studio with 50+ custom sites built across industries, blending UI/UX expertise, React development, and branding.',
     path: '/about',
     jsonLd: {
@@ -44,7 +44,7 @@ export default function AboutPage() {
     }
   }, [])
 
-  // Reuse the homepage's Sanity content for the carousel and FAQs.
+  // The homepage's Sanity content supplies the FAQs and fallback carousel slides.
   useEffect(() => {
     let cancelled = false
     sanityClient.fetch(homeQuery).then(
@@ -60,20 +60,22 @@ export default function AboutPage() {
     }
   }, [])
 
-  // Extra copy only applies to this page; slides/label/etc. still come from Sanity.
-  const about = { ...home?.about, paragraphs: ABOUT_PARAGRAPHS, buttonLabel: 'Let’s talk', buttonHref: '/contact' }
+  const aboutContent = aboutDoc?.about
+  const about = {
+    ...home?.about,
+    label: aboutContent?.label || home?.about?.label,
+    paragraphs: aboutContent?.paragraphs?.length ? aboutContent.paragraphs : ABOUT_PARAGRAPHS,
+    buttonLabel: aboutContent?.buttonLabel || 'Let’s talk',
+    buttonHref: aboutContent?.buttonHref || '/contact',
+    slides: aboutContent?.slides?.length ? aboutContent.slides : home?.about?.slides,
+  }
 
   return (
     <>
       <main className="flex flex-col items-center px-2 pb-6 pt-20 md:px-5 md:pt-24">
-        <h1 className="m-0 w-full text-center font-sans text-[12vw] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-ink md:text-[128px]">
-          Latimer Studio is a Denver based design studio specializing in e-com
+        <h1 className="m-0 w-full max-w-250 self-center text-left font-sans text-[12vw] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-ink md:text-[128px]">
+          {aboutDoc?.heading || 'Latimer Studio is a Denver based design studio specializing in e-com'}
         </h1>
-
-        <div className="mt-10 flex w-full flex-wrap items-center gap-4 md:mt-20 md:gap-8">
-          <p className="text-body m-0 text-ink">Do you like what we are about?</p>
-          <LetsTalkButton />
-        </div>
       </main>
 
       <AboutSection about={about} />

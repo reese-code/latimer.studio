@@ -37,8 +37,6 @@ export const projectsQuery = `*[_type == "project"] | order(orderRank asc) { ${P
 export const projectBySlugQuery = `*[_type == "project" && slug.current == $slug][0] { ${PROJECT_FIELDS} }`
 
 export const siteSettingsQuery = `*[_type == "siteSettings"][0]{
-  aboutCopy,
-  "aboutImage": aboutImage.asset->url,
   "heroTrailImages": heroTrailImages[].asset->url,
   footerTaglines,
   contactLinks,
@@ -76,6 +74,16 @@ export const homeQuery = `*[_type == "home"][0]{
 }`
 
 export const aboutPageQuery = `*[_type == "aboutPage"][0]{
+  heading,
+  metaTitle,
+  metaDescription,
+  "about": about{
+    label,
+    paragraphs,
+    buttonLabel,
+    buttonHref,
+    "slides": slides[]{ "image": image.asset->url },
+  },
   "founderLetter": founderLetter{
     label,
     title,
