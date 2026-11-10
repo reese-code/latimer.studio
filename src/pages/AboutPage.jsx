@@ -65,6 +65,7 @@ export default function AboutPage() {
     ...home?.about,
     label: aboutContent?.label || home?.about?.label,
     paragraphs: aboutContent?.paragraphs?.length ? aboutContent.paragraphs : ABOUT_PARAGRAPHS,
+    content: aboutContent?.content,
     buttonLabel: aboutContent?.buttonLabel || 'Let’s talk',
     buttonHref: aboutContent?.buttonHref || '/contact',
     slides: aboutContent?.slides?.length ? aboutContent.slides : home?.about?.slides,

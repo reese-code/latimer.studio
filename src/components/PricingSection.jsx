@@ -188,7 +188,7 @@ function Plan({ plan: target, plans }) {
   return (
     <div
       ref={shell}
-      className="grid gap-[16px] overflow-hidden rounded-2xl border border-[#CFCFCF] bg-white/50 p-3 max-md:border-2 md:grid-cols-2 md:p-4"
+      className="grid gap-[16px] overflow-hidden rounded-2xl border border-[#CFCFCF] bg-white/50 p-3 max-md:border-2 max-md:bg-white md:grid-cols-2 md:p-4"
     >
       <div className="flex flex-col gap-[8px]">
         {/* Title and timeframe switch instantly — no fade. */}
@@ -499,12 +499,26 @@ export default function PricingSection() {
                   role="tab"
                   aria-selected={selected}
                   onClick={() => setActiveKey(p._key)}
-                  className={`text-h3 shrink-0 cursor-pointer whitespace-nowrap rounded-full border-0 px-6 py-3 transition-[background-color,box-shadow,color] duration-200 md:px-8 ${
+                  className={`text-h3 relative shrink-0 cursor-pointer whitespace-nowrap rounded-full border-0 px-6 py-3 transition-[background-color,box-shadow,color] duration-200 md:px-8 ${
                     selected
                       ? 'bg-white text-ink shadow-[0_8px_24px_rgba(0,0,0,0.12)]'
                       : 'bg-transparent text-ink/70 hover:text-ink'
                   }`}
                 >
+                  {selected && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 rounded-full p-px max-md:p-0.5"
+                      style={{
+                        background:
+                          'radial-gradient(ellipse farthest-corner at center, #CFCFCF 0 70%, rgba(207,207,207,0.3) 100%)',
+                        WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+                        WebkitMaskComposite: 'xor',
+                        mask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+                        maskComposite: 'exclude',
+                      }}
+                    />
+                  )}
                   {p.tabLabel || p.name}
                 </button>
               )

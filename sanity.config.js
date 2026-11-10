@@ -9,7 +9,8 @@ export default defineConfig({
   title: 'Latimer Studio',
   projectId: import.meta.env.VITE_SANITY_PROJECT_ID || 'xw7lzt9e',
   dataset: import.meta.env.VITE_SANITY_DATASET || 'production',
-  basePath: '/studio',
+  // embedded in the site at /studio; the hosted studio serves from the root
+  basePath: window.location.pathname.startsWith('/studio') ? '/studio' : '/',
   plugins: [structureTool({ structure: deskStructure }), visionTool()],
   schema: { types: schemaTypes },
 })

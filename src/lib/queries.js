@@ -80,6 +80,10 @@ export const aboutPageQuery = `*[_type == "aboutPage"][0]{
   "about": about{
     label,
     paragraphs,
+    content[]{
+      _type, _key, text, title, style, listType, items, buttonLabel, buttonHref,
+      body[]{ _type, _key, text, listType, items },
+    },
     buttonLabel,
     buttonHref,
     "slides": slides[]{ "image": image.asset->url },

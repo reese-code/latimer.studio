@@ -106,7 +106,7 @@ const paragraphBlock = defineArrayMember({
 // Blocks usable inside a title block.
 const bodyBlocks = [paragraphBlock, listBlock]
 
-const contentBlocks = [
+export const contentBlocks = [
   defineArrayMember({
     name: 'heading',
     title: 'Title',

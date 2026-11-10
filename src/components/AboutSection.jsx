@@ -138,8 +138,13 @@ function Spans({ block }) {
   })
 }
 
-function Paragraphs({ value, lead }) {
-  return value?.map((block, i) => (
+function Paragraphs({ value, lead, plain }) {
+  return value?.map((block, i) =>
+    plain ? (
+      <h3 key={block._key || i} className={`text-h3 m-0 mb-4 text-left text-[24px] text-ink ${TEXT_W}`}>
+        <Spans block={block} />
+      </h3>
+    ) : (
     <p key={block._key || i} className={`${P} ${TEXT_W}`}>
       {i === 0 && lead && (
         <>
@@ -148,7 +153,8 @@ function Paragraphs({ value, lead }) {
       )}
       <Spans block={block} />
     </p>
-  ))
+    )
+  )
 }
 
 const TEXT_W = 'mx-auto max-w-[1000px]'
@@ -245,8 +251,9 @@ function Content({ blocks }) {
   }
   return (
     <>
-      {lead.map((c) => (
-        <Block key={c._key} b={c} />
+      {lead.map((c, i) => (
+        // Only paragraphs ahead of any title are the 24px h3 intro; ones after a title are its body copy.
+        <Block key={c._key} b={c} plain={!lead.slice(0, i).some((p) => p._type === 'heading' || p._type === 'titledSection')} />
       ))}
       <Stack sections={sections} first={!lead.length} expanded={expanded} onEnter={onEnter} onLeave={onLeave} />
     </>
@@ -254,12 +261,12 @@ function Content({ blocks }) {
 }
 
 // Renders service `content` blocks (see schemaTypes/service.js).
-function Block({ b }) {
+function Block({ b, plain }) {
   switch (b._type) {
     case 'heading':
       return <Title>{b.text}</Title>
     case 'paragraph':
-      return <Paragraphs value={b.text} />
+      return <Paragraphs value={b.text} plain={plain} />
     case 'titledParagraph':
       return <Paragraphs value={b.text} lead={b.title} />
     case 'list': {

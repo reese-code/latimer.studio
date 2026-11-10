@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { contentBlocks } from './service'
 
 export default defineType({
   name: 'aboutPage',
@@ -36,7 +37,16 @@ export default defineType({
           name: 'paragraphs',
           title: 'Paragraphs',
           type: 'array',
+          description: 'Plain paragraphs. Ignored when "Content" below has anything in it.',
           of: [{ type: 'text', rows: 4 }],
+        }),
+        defineField({
+          name: 'content',
+          title: 'Content',
+          type: 'array',
+          description:
+            'Build the section from titles, paragraphs, paragraphs with a title at the start, title blocks, bullet lists and numbered lists. Takes priority over "Paragraphs".',
+          of: contentBlocks,
         }),
         defineField({ name: 'buttonLabel', title: 'Button label', type: 'string', initialValue: 'Let’s talk' }),
         defineField({ name: 'buttonHref', title: 'Button link', type: 'string', initialValue: '/contact' }),
