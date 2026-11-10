@@ -1,4 +1,5 @@
 import LetsTalkButton from './LetsTalkButton'
+import defaultSignature from '../assets/reese-latimer-signature.svg'
 
 const DEFAULT_PARAGRAPHS = [
   'Latimer Studio is a Denver-based studio focusing on crafting visual experiences that amaze and convert. With 50+ custom sites built across multiple industries, we blend UI and UX expertise with React branding and an easy-to-edit CRM for even the least tech-savvy people.',
@@ -23,6 +24,8 @@ export default function FounderLetterSection({ letter }) {
               {p}
             </p>
           ))}
+          <img src={letter?.signature || defaultSignature} alt="Reese Latimer" className="mt-3 h-auto w-full max-w-[300px]" />
+          {letter?.signatureText && <p className="text-body m-0 -mt-2 text-ink">{letter.signatureText}</p>}
         </div>
         <LetsTalkButton label={letter?.buttonLabel || 'Learn more'} to={letter?.buttonHref || '/info'} />
 

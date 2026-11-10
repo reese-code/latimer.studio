@@ -92,6 +92,8 @@ export const aboutPageQuery = `*[_type == "aboutPage"][0]{
     label,
     title,
     paragraphs,
+    "signature": signature.asset->url,
+    signatureText,
     "image": image.asset->url,
     buttonLabel,
     buttonHref,
