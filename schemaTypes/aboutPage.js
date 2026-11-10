@@ -100,6 +100,43 @@ export default defineType({
         defineField({ name: 'buttonHref', title: 'Button link', type: 'string', initialValue: '/info' }),
       ],
     }),
+    defineField({
+      name: 'faqs',
+      title: 'FAQs',
+      type: 'object',
+      description: 'Leave the questions empty to show the homepage FAQs.',
+      options: { collapsible: false },
+      fields: [
+        defineField({ name: 'label', title: 'Section label', type: 'string', initialValue: 'FAQs' }),
+        defineField({ name: 'title', title: 'Title', type: 'string' }),
+        defineField({ name: 'buttonLabel', title: 'Button label', type: 'string', initialValue: 'View all articles' }),
+        defineField({ name: 'buttonHref', title: 'Button link', type: 'string', initialValue: '/info' }),
+        defineField({
+          name: 'items',
+          title: 'FAQs',
+          type: 'array',
+          of: [
+            {
+              type: 'object',
+              name: 'faq',
+              fields: [
+                defineField({ name: 'question', title: 'Title', type: 'string', validation: (r) => r.required() }),
+                defineField({ name: 'overview', title: 'Article overview', type: 'text', rows: 4 }),
+                defineField({
+                  name: 'article',
+                  title: 'Article',
+                  type: 'reference',
+                  to: [{ type: 'article' }],
+                  description: 'The "Learn more" button links here. Leave empty until the article is written (links to the articles page).',
+                }),
+                defineField({ name: 'buttonLabel', title: 'Button label', type: 'string', initialValue: 'Learn more' }),
+              ],
+              preview: { select: { title: 'question', subtitle: 'overview' } },
+            },
+          ],
+        }),
+      ],
+    }),
   ],
   preview: { prepare: () => ({ title: 'About' }) },
 })

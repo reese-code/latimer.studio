@@ -71,6 +71,11 @@ export default function AboutPage() {
     slides: aboutContent?.slides?.length ? aboutContent.slides : home?.about?.slides,
   }
 
+  // Per-page FAQs from Sanity; the homepage FAQs when none are added here.
+  const faqs = aboutDoc?.faqs?.items?.length
+    ? { ...aboutDoc.faqs, title: aboutDoc.faqs.title || home?.faqs?.title }
+    : home?.faqs
+
   return (
     <>
       <main className="flex flex-col items-center px-2 pb-6 pt-20 md:px-5 md:pt-24">
@@ -81,7 +86,7 @@ export default function AboutPage() {
 
       <AboutSection about={about} />
       <FounderLetterSection letter={aboutDoc?.founderLetter} />
-      <FaqSection faqs={home?.faqs} />
+      <FaqSection faqs={faqs} />
       <FilmFooter />
       <SiteNav />
     </>

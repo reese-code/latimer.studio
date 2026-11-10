@@ -24,8 +24,8 @@ export default function FounderLetterSection({ letter }) {
               {p}
             </p>
           ))}
-          <img src={letter?.signature || defaultSignature} alt="Reese Latimer" className="mt-3 h-auto w-full max-w-[300px]" />
-          {letter?.signatureText && <p className="text-body m-0 -mt-2 text-ink">{letter.signatureText}</p>}
+          <img src={letter?.signature || defaultSignature} alt="Reese Latimer" className="-ml-10 mt-3 h-auto w-full max-w-[300px]" />
+          {letter?.signatureText && <p className="text-body m-0 -mt-[60px] text-ink">{letter.signatureText}</p>}
         </div>
         <LetsTalkButton label={letter?.buttonLabel || 'Learn more'} to={letter?.buttonHref || '/info'} />
 

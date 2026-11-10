@@ -98,6 +98,13 @@ export const aboutPageQuery = `*[_type == "aboutPage"][0]{
     buttonLabel,
     buttonHref,
   },
+  "faqs": faqs{
+    label,
+    title,
+    buttonLabel,
+    buttonHref,
+    "items": items[]{ _key, question, overview, buttonLabel, "slug": article->slug.current },
+  },
 }`
 
 export const infoPageQuery = `*[_type == "infoPage"][0]{
