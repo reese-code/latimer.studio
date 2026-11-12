@@ -21,6 +21,7 @@ export default function PopSlideCard({ images, className = '' }) {
   const [pops, setPops] = useState(() => [{ id: 0, ratio: randomRatio() }])
   const idRef = useRef(0)
   const [paused, setPaused] = useState(false)
+  const [inView, setInView] = useState(true)
   const slotRef = useRef(null)
   const [slot, setSlot] = useState({ w: 0, h: 0 })
 
@@ -37,15 +38,24 @@ export default function PopSlideCard({ images, className = '' }) {
     return () => ro.disconnect()
   }, [])
 
+  // Scrolled past the hero: stop popping and hide until it's back on screen.
   useEffect(() => {
-    if (paused) return
+    const el = slotRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (paused || !inView) return
     const timer = setInterval(() => {
       idRef.current += 1
       const id = idRef.current
       setPops((p) => [...p.slice(-(MAX_STACK - 1)), { id, ratio: randomRatio() }])
     }, POP_INTERVAL)
     return () => clearInterval(timer)
-  }, [paused])
+  }, [paused, inView])
 
   // Largest pop of the given ratio whose rotated bounding box fits in the slot.
   const popSize = (ratio) => {
@@ -57,7 +67,12 @@ export default function PopSlideCard({ images, className = '' }) {
 
   // Tap toggles pause/play.
   return (
-    <div ref={slotRef} className={`relative ${className}`} onClick={() => setPaused((p) => !p)}>
+    <div
+      ref={slotRef}
+      className={`relative ${className}`}
+      style={{ visibility: inView ? 'visible' : 'hidden' }}
+      onClick={() => setPaused((p) => !p)}
+    >
       {pops.map((p) => (
         <PopImage
           key={p.id}

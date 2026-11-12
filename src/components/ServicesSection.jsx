@@ -51,21 +51,47 @@ export default function ServicesSection() {
 
   // Touch devices (no hover): whichever row crosses the middle of the screen
   // becomes the highlighted one while scrolling. Tapping still selects any row.
+  // Re-runs when the services list changes so every row is measured, not just
+  // the ones present on first render.
+  const serviceCount = SERVICES.length
   useEffect(() => {
-    if (!window.matchMedia('(max-width: 767px)').matches) return
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (!e.isIntersecting) continue
-          const i = Number(e.target.dataset.index)
-          setActive(i)
+    const mq = window.matchMedia('(max-width: 767px)')
+    if (!mq.matches) return
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const mid = window.innerHeight / 2
+      const section = sectionRef.current?.getBoundingClientRect()
+      // Only highlight while the services block is on screen.
+      if (!section || section.bottom < 0 || section.top > window.innerHeight) {
+        setActive(null)
+        return
+      }
+      let best = null
+      let bestDist = Infinity
+      rowRefs.current.slice(0, serviceCount).forEach((el, i) => {
+        if (!el) return
+        const r = el.getBoundingClientRect()
+        const dist = Math.abs(r.top + r.height / 2 - mid)
+        if (dist < bestDist) {
+          bestDist = dist
+          best = i
         }
-      },
-      { rootMargin: '-50% 0px -50% 0px' }
-    )
-    rowRefs.current.forEach((el) => el && io.observe(el))
-    return () => io.disconnect()
-  }, [])
+      })
+      if (best != null) setActive(best)
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [serviceCount])
 
   return (
     <section ref={sectionRef} className="mx-auto w-full max-w-[120rem] px-2 py-10 md:px-4 md:py-20">
