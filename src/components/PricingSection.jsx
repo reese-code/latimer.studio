@@ -103,11 +103,11 @@ function Switch({ color, label, price, on, onToggle }) {
       className={`flex w-full cursor-pointer rounded-xl border p-3 max-md:border-2 text-left ${theme.box}`}
     >
       <span className="text-body flex w-full items-center justify-between gap-3">
-        <span className="flex items-baseline gap-3">
+        <span className="flex min-w-0 flex-wrap items-baseline gap-x-3">
           {label}
           <span className="opacity-60">+{money(price)}</span>
         </span>
-        <span className={`flex h-4 w-7 items-center rounded-full p-0.5 ${theme.track}`}>
+        <span className={`flex h-4 w-7 shrink-0 items-center rounded-full p-0.5 ${theme.track}`}>
           {/* Springy slide — overshoots slightly, then settles. */}
           <span
             className={`h-3 w-3 rounded-full transition-transform duration-[250ms] ease-[cubic-bezier(0.34,1.25,0.64,1)] ${theme.knob} ${
@@ -188,9 +188,9 @@ function Plan({ plan: target, plans }) {
   return (
     <div
       ref={shell}
-      className="grid gap-[16px] overflow-hidden rounded-2xl border border-[#CFCFCF] bg-white/50 p-3 max-md:border-2 max-md:bg-white md:grid-cols-2 md:p-4"
+      className="grid w-full grid-cols-[minmax(0,1fr)] gap-[16px] overflow-hidden rounded-2xl border border-[#CFCFCF] bg-white/50 p-3 max-md:border-2 max-md:bg-white md:grid-cols-2 md:p-4"
     >
-      <div className="flex flex-col gap-[8px]">
+      <div className="flex min-w-0 flex-col gap-[8px]">
         {/* Title and timeframe switch instantly — no fade. */}
         <div className="mb-[16px] flex items-end gap-3">
           <h3 className="text-h3 m-0 text-ink">{head.name}</h3>
@@ -203,7 +203,7 @@ function Plan({ plan: target, plans }) {
         </div>
 
         <div
-          className="flex flex-col gap-[8px] ease-out"
+          className="flex w-full min-w-0 flex-col gap-[8px] ease-out"
           style={{
             opacity: hidden ? 0 : 1,
             filter: hidden ? 'blur(8px)' : 'blur(0)',
@@ -234,7 +234,7 @@ function Plan({ plan: target, plans }) {
           {plan.extras?.map((x, i) => (
             <div
               key={i}
-              className="text-body flex items-center justify-between rounded-xl border border-[#CFCFCF] bg-[var(--color-bg)] p-3 text-ink max-md:border-2"
+              className="text-body flex w-full items-center justify-between gap-3 rounded-xl border border-[#CFCFCF] bg-[var(--color-bg)] p-3 text-ink max-md:border-2"
             >
               <span>{x.label}</span>
               <span>{dev && x.devPrice ? x.devPrice : x.price}</span>
@@ -244,7 +244,7 @@ function Plan({ plan: target, plans }) {
           {plan.features?.length > 0 && (
             <ul className="m-0 mt-[16px] flex list-disc flex-col gap-3 pl-5 marker:text-black">
               {plan.features.map((f, i) => (
-                <li key={i} className="text-body max-w-md text-ink">
+                <li key={i} className="text-body w-full max-w-md text-ink">
                   {f}
                 </li>
               ))}
@@ -253,8 +253,8 @@ function Plan({ plan: target, plans }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 md:self-start">
-        <div className="flex aspect-[4/3] flex-col justify-between rounded-2xl border border-[#CFCFCF] bg-ink p-5 text-white max-md:border-2 md:aspect-[5/3]">
+      <div className="flex min-w-0 flex-col gap-3 md:self-start">
+        <div className="flex aspect-[4/3] w-full flex-col justify-between rounded-2xl border border-[#CFCFCF] bg-ink p-5 text-white max-md:border-2 md:aspect-[5/3]">
           <div className="flex w-full items-end gap-3 max-md:mb-[40px] max-md:max-w-[200px] max-md:flex-col max-md:items-start max-md:gap-2 md:gap-5">
             {/* Mobile: stacked, left-aligned, equal height — Latimer fills the width, Studio matches its height. */}
             <WhiteSvg src="/Latimer.svg" ratio={1099 / 354} />
