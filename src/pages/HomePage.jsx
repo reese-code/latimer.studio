@@ -80,6 +80,7 @@ export default function HomePage() {
           still shrink to fit on short viewports. */}
       <CursorImageTrail
         images={heroImages}
+        aspectRatios={hero?.imageRatios}
         className="hidden min-h-0 w-full max-w-[1400px] flex-1 flex-col items-center justify-center md:flex"
       >
         <img src="/Latimer.svg" alt="" className="w-[min(62vw,1100px)] max-h-[32vh] object-contain" />

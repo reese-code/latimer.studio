@@ -12,12 +12,13 @@ const DESKTOP_QUERY = '(min-width: 768px)'
 // travelled this far since the last one, at most MAX_POPS at once.
 const POP_DISTANCE = 70
 const MAX_POPS = 8
-// Each pop picks a random aspect ratio (w / h) — 1:1, 4:3 or 3:4 — at roughly
-// the same area, so the trail varies in shape without varying in weight.
-const POP_RATIOS = [1, 4 / 3, 3 / 4]
+// The aspect ratio (w / h) of each pop is chosen per image in Sanity (Home →
+// Hero images → Pop-up shape); the area stays the same across ratios so they carry equal weight.
+const POP_RATIOS = { '3:4': 3 / 4, '1:1': 1, '4:3': 4 / 3 }
+const DEFAULT_RATIO = '3:4'
 const POP_AREA = ((370 / 3) * 2 * 0.75) * ((450 / 3) * 2 * 0.75)
-const randomPopSize = () => {
-  const ratio = POP_RATIOS[Math.floor(Math.random() * POP_RATIOS.length)]
+const popSize = (aspectRatio) => {
+  const ratio = POP_RATIOS[aspectRatio] ?? POP_RATIOS[DEFAULT_RATIO]
   const w = Math.sqrt(POP_AREA * ratio)
   return { w, h: w / ratio }
 }
@@ -27,7 +28,7 @@ const randomPopSize = () => {
 // near the cursor as it moves. Below the md breakpoint it's a plain
 // passthrough — no listeners, no pops.
 // ---------------------------------------------------------------------------
-export default function CursorImageTrail({ images, children, className = '' }) {
+export default function CursorImageTrail({ images, aspectRatios, children, className = '' }) {
   const containerRef = useRef(null)
   const popIdRef = useRef(0)
   const lastPopPosRef = useRef(null)
@@ -54,10 +55,10 @@ export default function CursorImageTrail({ images, children, className = '' }) {
         lastPopPosRef.current = { x, y }
         popIdRef.current += 1
         const id = popIdRef.current
-        setPops((p) => [...p.slice(-(MAX_POPS - 1)), { id, x: x + OFFSET, y: y + OFFSET, ...randomPopSize() }])
+        setPops((p) => [...p.slice(-(MAX_POPS - 1)), { id, x: x + OFFSET, y: y + OFFSET, ...popSize(aspectRatios?.[id % aspectRatios.length]) }])
       }
     },
-    [isDesktop]
+    [isDesktop, aspectRatios]
   )
 
   const removePop = useCallback((id) => setPops((p) => p.filter((x) => x.id !== id)), [])

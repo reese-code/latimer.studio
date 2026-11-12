@@ -51,6 +51,7 @@ export const privacyPolicyQuery = `*[_type == "privacyPolicy"][0]{
 export const homeQuery = `*[_type == "home"][0]{
   "hero": hero{
     "images": images[].asset->url,
+    "imageRatios": images[].popAspectRatio,
     text,
   },
   "pricing": pricing{

@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import AspectRatioInput from './components/AspectRatioInput'
 
 export default defineType({
   name: 'home',
@@ -16,7 +17,23 @@ export default defineType({
           name: 'images',
           title: 'Hero images',
           type: 'array',
-          of: [{ type: 'image', options: { hotspot: true } }],
+          of: [
+            {
+              type: 'image',
+              options: { hotspot: true },
+              fields: [
+                defineField({
+                  name: 'popAspectRatio',
+                  title: 'Pop-up shape',
+                  type: 'string',
+                  components: { input: AspectRatioInput },
+                  options: { list: ['3:4', '1:1', '4:3'] },
+                  initialValue: '3:4',
+                  description: 'Aspect ratio this image pops up as at the cursor (desktop).',
+                }),
+              ],
+            },
+          ],
           description:
             'Upload once — used for the popping image cards (desktop and mobile) Cards without an image are not shown.',
         }),
