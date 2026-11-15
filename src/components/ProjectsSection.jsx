@@ -6,7 +6,7 @@ export default function ProjectsSection({ showHeading = true }) {
   if (!projects.length) return null
 
   return (
-    <section className="mx-auto w-full max-w-[120rem] px-2 py-10 md:px-4 md:py-20">
+    <section className="mx-auto w-full max-w-[120rem] px-3 py-10 md:px-5 md:py-20">
       {/* Title row — short bar, label, then a bar filling the rest of the
           width. All at 60% of the dark (ink) color. */}
       {showHeading && (

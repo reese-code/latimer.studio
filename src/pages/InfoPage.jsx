@@ -98,7 +98,7 @@ export default function InfoPage() {
 
   return (
     <div className="min-h-screen w-full bg-concrete">
-      <div className="px-2 pt-20 md:px-5 md:pt-24">
+      <div className="px-3 pt-20 md:px-5 md:pt-24">
         {/* Hero — 80px above and below. The inline-flex wrapper shrinks to
             the title's width, and the w-0/min-w-full body copy wraps to it
             without stretching it. */}

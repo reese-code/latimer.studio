@@ -94,7 +94,7 @@ export default function ServicesSection() {
   }, [serviceCount])
 
   return (
-    <section ref={sectionRef} className="mx-auto w-full max-w-[120rem] px-2 py-10 md:px-4 md:py-20">
+    <section ref={sectionRef} className="mx-auto w-full max-w-[120rem] px-3 py-10 md:px-5 md:py-20">
       <div className="flex items-center gap-3 text-ink/60 md:gap-5">
         <span className="h-0.5 w-8 bg-current md:w-15" />
         <h2 className="text-body m-0 uppercase">Services</h2>

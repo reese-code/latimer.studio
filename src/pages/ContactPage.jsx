@@ -52,7 +52,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen w-full" style={{ background: CONTACT_BG }}>
-      <main className="flex flex-col items-center px-2 md:px-5">
+      <main className="flex flex-col items-center px-3 md:px-5">
         <h1 className="m-0 w-full py-[80px] text-center font-sans text-[12vw] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-ink md:text-[128px]">
           Contact
         </h1>

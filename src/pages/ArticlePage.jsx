@@ -138,7 +138,7 @@ export default function ArticlePage() {
     <div id={ARTICLE_PAGE_ROOT_ID} className="relative min-h-screen w-full bg-concrete">
       <BackToInfoArrow />
 
-      <div className="flex h-dvh flex-col px-2 pt-28 pb-5 md:px-5 md:pt-32">
+      <div className="flex h-dvh flex-col px-3 pt-28 pb-5 md:px-5 md:pt-32">
         <div ref={heroRef} className="mb-10 w-full shrink-0">
           <div className="mx-auto flex w-fit max-w-full flex-col items-center text-center">
             <h1
@@ -174,7 +174,7 @@ export default function ArticlePage() {
         )}
       </div>
 
-      <section className="mx-auto w-full max-w-[120rem] px-2 py-10 md:px-5 md:py-20">
+      <section className="mx-auto w-full max-w-[120rem] px-3 py-10 md:px-5 md:py-20">
         <SectionLabel>Article Overview</SectionLabel>
         {overview && (
           <div className="mx-auto mt-10 max-w-[1000px] md:mt-16">
@@ -184,12 +184,12 @@ export default function ArticlePage() {
       </section>
 
       {article.storySections?.length > 0 && (
-        <div className="w-full px-5">
+        <div className="w-full px-3 md:px-5">
           <StoryAccordion sections={article.storySections} ratio={article.storyRatio} />
         </div>
       )}
 
-      <section className="mx-auto w-full max-w-[120rem] px-2 py-10 md:px-5 md:py-20">
+      <section className="mx-auto w-full max-w-[120rem] px-3 py-10 md:px-5 md:py-20">
         <SectionLabel>Article Summary</SectionLabel>
         {overview && (
           <div className="mx-auto mt-10 max-w-[1000px] md:mt-16">

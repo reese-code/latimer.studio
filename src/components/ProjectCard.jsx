@@ -84,7 +84,7 @@ export default function ProjectCard({ project, className = '' }) {
 
       <div className="pointer-events-none absolute inset-0 transform-gpu bg-[linear-gradient(to_bottom,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.15)_40%,rgba(0,0,0,0.97)_100%)] md:bg-[linear-gradient(to_bottom,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0)_35%,rgba(0,0,0,0)_55%,rgba(0,0,0,0.75)_100%)]" />
 
-      <h3 className="absolute top-8 left-3 m-0 font-embodiment text-[3rem] leading-[0.9] font-light tracking-[-1px] text-cream uppercase md:left-5">
+      <h3 className="absolute top-8 left-3 md:left-5 m-0 font-embodiment text-[3rem] leading-[0.9] font-light tracking-[-1px] text-cream uppercase md:left-5">
         {project.label}
       </h3>
 

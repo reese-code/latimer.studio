@@ -78,7 +78,7 @@ export default function AboutPage() {
 
   return (
     <>
-      <main className="flex flex-col items-center px-2 pb-6 pt-20 md:px-5 md:pt-24">
+      <main className="flex flex-col items-center px-3 pb-6 pt-20 md:px-5 md:pt-24">
         <h1 className="m-0 w-full max-w-250 self-center text-left font-sans text-[12vw] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-ink md:text-[128px]">
           {aboutDoc?.heading || 'Latimer Studio is a Denver based design studio specializing in e-com'}
         </h1>

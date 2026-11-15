@@ -139,7 +139,7 @@ export default function SiteNav({ floating = false, onOpenChange, background }) 
   return (
     <nav
       ref={navRef}
-      className={`fixed inset-x-0 top-0 flex items-center justify-between px-5 py-3 max-md:px-2 ${
+      className={`fixed inset-x-0 top-0 flex items-center justify-between px-5 py-3 max-md:px-3 ${
         floating ? 'pointer-events-none z-[1100] justify-end' : 'z-50 text-ink'
       }`}
       style={floating ? undefined : { background: background ?? "var(--color-bg) url('/concrete-texture.png') repeat fixed center top" }}
@@ -215,7 +215,7 @@ export default function SiteNav({ floating = false, onOpenChange, background }) 
         inert={!isOpen}
       >
         <div
-          className="flex flex-1 flex-col justify-between px-2 pb-3"
+          className="flex flex-1 flex-col justify-between px-3 pb-3"
           style={{ paddingTop: 'calc(var(--navbar-height) + 2rem)' }}
         >
           <div className="flex flex-1 -translate-y-5 flex-col items-start justify-center gap-3 py-8 text-left">

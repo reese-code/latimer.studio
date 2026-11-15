@@ -165,7 +165,7 @@ export default function FilmFooter({ variant = 'default' }) {
     <footer className={`w-full mt-10 sm:mt-30 ${bg}`}>
       {!dark && <SprocketRow />}
 
-      <div className={`flex flex-col gap-2 md:flex-row ${dark ? '' : 'px-2'}`}>
+      <div className="flex flex-col gap-2 px-3 md:flex-row md:px-5">
         <LeftCell bg={bg} dark={dark} contactLinks={contactLinks} />
         <MobileLinksCell bg={bg} dark={dark} navLinks={navLinks} contactLinks={contactLinks} />
         <CenterCell bg={bg} dark={dark} footerTaglines={footerTaglines} />
@@ -186,7 +186,7 @@ function Cell({ children, className = '', bg = '' }) {
 function LeftCell({ bg, dark, contactLinks }) {
   return (
     <Cell bg={bg} className="hidden min-h-64 flex-1 md:flex">
-      <div className={`flex flex-col items-start justify-end gap-1.5 py-5 ${dark ? '' : 'px-5'}`}>
+      <div className={`flex flex-col items-start justify-end gap-1.5 py-5`}>
         {contactLinks.map((link) => (
           <LinkLine key={link.label} {...link} dark={dark} />
         ))}
@@ -197,7 +197,7 @@ function LeftCell({ bg, dark, contactLinks }) {
 
 function CenterCell({ bg, dark, footerTaglines }) {
   return (
-    <Cell bg={bg} className={`flex min-h-40 flex-none flex-col items-center justify-end gap-3 py-5 md:min-h-64 md:w-[38%] ${dark ? '' : 'px-5'}`}>
+    <Cell bg={bg} className={`flex min-h-40 flex-none flex-col items-center justify-end gap-3 py-5 md:min-h-64 md:w-[38%]`}>
       <Link to="/" className="block w-full md:w-105">
         <img
           src={latimerStudioLogo}
@@ -222,7 +222,7 @@ function CenterCell({ bg, dark, footerTaglines }) {
 function RightCell({ bg, dark, navLinks }) {
   return (
     <Cell bg={bg} className="hidden min-h-64 flex-1 md:flex">
-      <div className={`flex w-full flex-col items-end justify-end gap-1.5 py-5 ${dark ? '' : 'px-5'}`}>
+      <div className={`flex w-full flex-col items-end justify-end gap-1.5 py-5`}>
         {navLinks.map((link) => (
           <LinkLine key={link.label} {...link} dark={dark} className="text-right" />
         ))}
@@ -326,7 +326,7 @@ function MobileDropdown({ label, links, align = 'left', dark = false }) {
 
 function MobileLinksCell({ bg, dark, navLinks, contactLinks }) {
   return (
-    <Cell bg={bg} className={`flex min-h-16 flex-row items-start justify-between gap-4 py-5 md:hidden ${dark ? '' : 'px-5'}`}>
+    <Cell bg={bg} className={`flex min-h-16 flex-row items-start justify-between gap-4 py-5 md:hidden`}>
       <MobileDropdown label="CONTACT" links={contactLinks} dark={dark} />
       <MobileDropdown label="MENU" links={navLinks} align="right" dark={dark} />
     </Cell>

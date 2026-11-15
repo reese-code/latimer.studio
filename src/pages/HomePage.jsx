@@ -64,7 +64,7 @@ export default function HomePage() {
 
   return (
     <>
-    <main className="relative flex h-dvh flex-col items-center overflow-hidden px-5 py-3 max-md:px-2 max-md:pt-16">
+    <main className="relative flex h-dvh flex-col items-center overflow-hidden px-5 py-3 max-md:px-3 max-md:pt-16">
       <h1 className="sr-only">
         Websites with the structure of a Nolan plot, where every detail pays off later. Latimer Studio
       </h1>
@@ -98,7 +98,7 @@ export default function HomePage() {
       {/* Mobile — static (non-cursor-following) image card at the top filling
           the remaining space, then the headline and button at the bottom. */}
       <div className="flex min-h-0 w-full flex-1 flex-col items-start gap-5 py-4 md:hidden">
-        <PopSlideCard images={heroImages} className="min-h-0 w-full flex-1" />
+        <PopSlideCard images={heroImages} aspectRatios={hero?.imageRatios} className="min-h-0 w-full flex-1" />
 
         <div className="flex w-full flex-col items-start gap-3">
           <p className="w-full text-left font-sans text-[16px] font-medium leading-[115%] text-ink">

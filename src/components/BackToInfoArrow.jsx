@@ -19,7 +19,7 @@ export default function BackToInfoArrow() {
 
   return (
     <div
-      className="absolute inset-x-0 z-40 flex items-center px-2 py-2 md:px-5"
+      className="absolute inset-x-0 z-40 flex items-center px-3 py-2 md:px-5"
       style={{
         top: 'var(--navbar-height, 56px)',
         background: "var(--color-bg) url('/concrete-texture.png') repeat fixed center top",

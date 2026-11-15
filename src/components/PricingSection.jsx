@@ -473,7 +473,7 @@ export default function PricingSection() {
   const [activeKey, setActiveKey] = useState(null)
   const plan = pricing.plans.find((p) => p._key === activeKey) || pricing.plans[0]
   return (
-    <section className="mx-auto w-full max-w-[120rem] px-2 py-10 md:px-4 md:py-20">
+    <section className="mx-auto w-full max-w-[120rem] px-3 py-10 md:px-5 md:py-20">
       <div className="flex items-center gap-3 text-ink/60 md:gap-5">
         <span className="h-0.5 w-8 bg-current md:w-15" />
         <h2 className="text-body m-0 uppercase">{pricing.label || 'Pricing'}</h2>
@@ -488,7 +488,7 @@ export default function PricingSection() {
         {pricing.plans.length > 1 && (
           <div
             role="tablist"
-            className="-mx-2 flex gap-1 overflow-x-auto px-2 pb-4 [scrollbar-width:none] md:justify-center"
+            className="-mx-3 flex gap-1 overflow-x-auto px-3 pb-4 [scrollbar-width:none] md:justify-center"
           >
             {pricing.plans.map((p) => {
               const selected = p._key === plan._key

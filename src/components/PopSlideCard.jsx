@@ -9,16 +9,18 @@ const MAX_STACK = 4
 const MAX_TILT = (7 * Math.PI) / 180
 // Mobile pops slide up from further below, springing into place with the tilt.
 const RISE = 40
-// Each pop picks a random aspect ratio (w / h): 1:1, 4:3 or 3:4.
-const POP_RATIOS = [1, 4 / 3, 3 / 4]
-const randomRatio = () => POP_RATIOS[Math.floor(Math.random() * POP_RATIOS.length)]
+// Each pop uses the aspect ratio (w / h) set per image in Sanity (Home → Hero
+// images → Pop-up shape), same as the desktop cursor trail.
+const POP_RATIOS = { '3:4': 3 / 4, '1:1': 1, '4:3': 4 / 3 }
+const DEFAULT_RATIO = '3:4'
+const ratioFor = (ratios, id) => POP_RATIOS[ratios?.length ? ratios[id % ratios.length] : DEFAULT_RATIO] ?? POP_RATIOS[DEFAULT_RATIO]
 
 // ---------------------------------------------------------------------------
 // PopSlideCard — mobile version of the "multi" option. Occupies the same slot
 // as the desktop pops, but stacks popped images in place on its own timer (no cursor).
 // ---------------------------------------------------------------------------
-export default function PopSlideCard({ images, className = '' }) {
-  const [pops, setPops] = useState(() => [{ id: 0, ratio: randomRatio() }])
+export default function PopSlideCard({ images, aspectRatios, className = '' }) {
+  const [pops, setPops] = useState(() => [{ id: 0, ratio: ratioFor(aspectRatios, 0) }])
   const idRef = useRef(0)
   const [paused, setPaused] = useState(false)
   const [inView, setInView] = useState(true)
@@ -52,10 +54,10 @@ export default function PopSlideCard({ images, className = '' }) {
     const timer = setInterval(() => {
       idRef.current += 1
       const id = idRef.current
-      setPops((p) => [...p.slice(-(MAX_STACK - 1)), { id, ratio: randomRatio() }])
+      setPops((p) => [...p.slice(-(MAX_STACK - 1)), { id, ratio: ratioFor(aspectRatios, id) }])
     }, POP_INTERVAL)
     return () => clearInterval(timer)
-  }, [paused, inView])
+  }, [paused, inView, aspectRatios])
 
   // Largest pop of the given ratio whose rotated bounding box fits in the slot.
   const popSize = (ratio) => {

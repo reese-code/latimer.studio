@@ -106,7 +106,7 @@ function ProjectContent({ project, projects }) {
     <div className="relative z-5 bg-concrete">
       <CaseStudyHero project={project} />
 
-      <div className="px-2 pt-16 md:px-5">
+      <div className="px-3 pt-16 md:px-5">
         <ProjectDescription project={project} />
         {project.storySections && (
           <ScrollStorySection sections={project.storySections} />
@@ -140,7 +140,7 @@ function MoreProjectsSection({ currentId, projects }) {
 
   return (
     <div className="w-full pt-30">
-      <div className="flex flex-row items-center justify-center gap-2 px-2 py-6 md:px-5">
+      <div className="flex flex-row items-center justify-center gap-2 px-3 py-6 md:px-5">
         <span className="text-[8px] text-maroon">★</span>
         <h2 className="m-0 font-embodiment text-base font-normal tracking-[0.14em] text-[#4a4238]">
           MORE PROJECTS
@@ -357,7 +357,7 @@ function CaseStudyHero({ project }) {
 // locks in at exactly the scroll position where the first image's top
 // would otherwise have scrolled past that same edge — title and image stop
 // moving at the same moment, no gap or jump between them.
-const STICKY_TOP        = 0
+const STICKY_TOP        = 'var(--navbar-height, 56px)'
 const TITLE_STACK_GAP   = 40  // px added per stacked title
 
 // Renders a combo's video when present, falling back to its image. Both
@@ -395,6 +395,18 @@ const ComboMedia = forwardRef(function ComboMedia({ combo, className, alt = '' }
 })
 
 function ScrollStorySection({ sections }) {
+  // Collapsed, every title pins at the same spot under the navbar (later ones
+  // paint over earlier ones); hovering a pinned title fans the stack out.
+  const [expanded, setExpanded] = useState(false)
+  const closeTimer = useRef(null)
+  const onEnter = () => {
+    clearTimeout(closeTimer.current)
+    setExpanded(true)
+  }
+  const onLeave = () => {
+    clearTimeout(closeTimer.current)
+    closeTimer.current = setTimeout(() => setExpanded(false), 120)
+  }
   const containerRef = useRef(null)
   const titleRefs    = useRef([])
   const sectionRefs   = useRef([])
@@ -452,7 +464,9 @@ function ScrollStorySection({ sections }) {
         const title = titles[s]
         const firstMedia = media[comboOffsets[s]]
         if (title && firstMedia) {
-          const titleTop = title.getBoundingClientRect().top
+          // Measure the non-sticky wrapper: a pinned title reports its pinned
+          // position, not its natural one (its margin is 0 here, so they match).
+          const titleTop = (sectionRefs.current[s] || title).getBoundingClientRect().top
           const mediaTop = firstMedia.getBoundingClientRect().top
           let margin = mediaTop - titleTop
           if (previousParaBottom !== null) {
@@ -514,43 +528,6 @@ function ScrollStorySection({ sections }) {
     return () => lenis.off('scroll', nudgeStickyRecalc)
   }, [])
 
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      paraRefs.current.forEach((el) => {
-        if (!el) return
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 32 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power2.out',
-            scrollTrigger: { trigger: el, start: 'top 85%' },
-          }
-        )
-      })
-
-      imageRefs.current.forEach((el) => {
-        if (!el) return
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 48, scale: 1.03 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 1,
-            ease: 'power2.out',
-            scrollTrigger: { trigger: el, start: 'top 90%' },
-          }
-        )
-      })
-    }, containerRef)
-
-    return () => ctx.revert()
-  }, [sections])
-
   function scrollToSection(index) {
     // Scroll target is the section's own (non-sticky) wrapper, not the
     // sticky title button — once a title is pinned, its bounding rect
@@ -560,7 +537,8 @@ function ScrollStorySection({ sections }) {
     const target = sectionRefs.current[index]
     if (!target) return
     const lenis = getLenis()
-    const offset = -(STICKY_TOP + index * TITLE_STACK_GAP)
+    const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height')) || 56
+    const offset = -(navH + index * TITLE_STACK_GAP)
     if (lenis) {
       lenis.scrollTo(target, { offset, duration: 1.1 })
     } else {
@@ -569,7 +547,7 @@ function ScrollStorySection({ sections }) {
   }
 
   return (
-    <div ref={containerRef} className="grid gap-x-10 md:grid-cols-[1fr_2fr]">
+    <div ref={containerRef} className="grid gap-x-10 md:grid-cols-2">
       {/* Pinned, stacking-title scroll story — the titles pin and stack the
           same way on every breakpoint. On mobile each title carries its own
           images inline (no separate scrolling column); on desktop the images
@@ -583,6 +561,9 @@ function ScrollStorySection({ sections }) {
           sectionRefs={sectionRefs}
           paraRefs={paraRefs}
           onSelect={scrollToSection}
+          expanded={expanded}
+          onEnter={onEnter}
+          onLeave={onLeave}
         />
       </div>
 
@@ -605,7 +586,7 @@ function ScrollStorySection({ sections }) {
 // the end of the group, so it stays pinned while later titles lock in below
 // it. Nesting title[i+1..] inside title[i]'s wrapper gives every title
 // exactly that range for free, with no manual height math required.
-function StackingTitles({ sections, index, comboOffsets, titleRefs, sectionRefs, paraRefs, onSelect }) {
+function StackingTitles({ sections, index, comboOffsets, titleRefs, sectionRefs, paraRefs, onSelect, expanded, onEnter, onLeave }) {
   if (index >= sections.length) return null
   const section = sections[index]
   const combos = section.combos || []
@@ -617,8 +598,18 @@ function StackingTitles({ sections, index, comboOffsets, titleRefs, sectionRefs,
         type="button"
         ref={(el) => (titleRefs.current[index] = el)}
         onClick={() => onSelect(index)}
-        style={{ top: STICKY_TOP + index * TITLE_STACK_GAP, height: TITLE_STACK_GAP }}
-        className="sticky z-10 flex w-full cursor-pointer items-center border-t border-[rgba(74,66,56,0.25)] px-0 text-left font-embodiment"
+        onMouseEnter={(e) => {
+          // Only a title that is actually pinned (not one still in the flow) opens the stack.
+          const pinnedTop = parseFloat(getComputedStyle(e.currentTarget).top)
+          if (expanded || e.currentTarget.getBoundingClientRect().top <= pinnedTop + 1) onEnter()
+        }}
+        onMouseLeave={onLeave}
+        style={{
+          top: `calc(${STICKY_TOP} + ${expanded ? index * TITLE_STACK_GAP : 0}px)`,
+          height: TITLE_STACK_GAP,
+          background: "var(--color-bg) url('/concrete-texture.png') repeat fixed center top",
+        }}
+        className="sticky z-10 flex w-full cursor-pointer items-center border-t-2 border-ink/60 px-0 hover:border-ink text-left font-embodiment transition-[top] duration-200"
       >
         <span className="w-9 shrink-0 text-xs tracking-[0.14em] text-[#4a4238] uppercase md:text-base">
           {section.number}
@@ -638,7 +629,7 @@ function StackingTitles({ sections, index, comboOffsets, titleRefs, sectionRefs,
 
           <p
             ref={(el) => (paraRefs.current[comboStart + j] = el)}
-            className="max-w-[85%] text-justify font-embodiment text-base leading-[150%] tracking-[0.14em] text-[#4a4238] uppercase"
+            className="text-body m-0 text-ink"
           >
             {combo.paragraph}
           </p>
@@ -653,6 +644,9 @@ function StackingTitles({ sections, index, comboOffsets, titleRefs, sectionRefs,
         sectionRefs={sectionRefs}
         paraRefs={paraRefs}
         onSelect={onSelect}
+        expanded={expanded}
+        onEnter={onEnter}
+        onLeave={onLeave}
       />
     </div>
   )
@@ -676,7 +670,7 @@ function ProjectDescription({ project }) {
           {paragraphs.map((paragraph, i) => (
             <p
               key={i}
-              className="m-0 font-embodiment text-base leading-[145%] tracking-[0.06em] text-[#4a4238] uppercase"
+              className="text-body m-0 text-ink"
             >
               {paragraph}
             </p>

@@ -10,7 +10,7 @@ export default function FounderLetterSection({ letter }) {
   const paragraphs = letter?.paragraphs?.length ? letter.paragraphs : DEFAULT_PARAGRAPHS
 
   return (
-    <section className="mx-auto w-full max-w-[120rem] px-2 py-10 md:px-4 md:py-20">
+    <section className="mx-auto w-full max-w-[120rem] px-3 py-10 md:px-5 md:py-20">
       <div className="flex items-center gap-3 text-ink/60 md:gap-5">
         <span className="h-0.5 w-8 bg-current md:w-15" />
         <h2 className="text-body m-0 uppercase">{letter?.label || 'Founder Letter'}</h2>
