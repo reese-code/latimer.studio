@@ -149,13 +149,15 @@ function StackingSections({ sections, index, titleRefs, sectionRefs, onSelect, g
               the paragraph runs longer) still has room above it to scroll
               through; otherwise it simply scrolls with the row like normal
               content. */}
-          <div className="h-fit md:sticky" style={{ top: `calc(${NAV_OFFSET} + 20px)` }}>
-            <ComboMedia
-              combo={combo}
-              alt={section.title}
-              className="aspect-square w-full select-none rounded-3xl object-cover"
-            />
-          </div>
+          {(combo.image || combo.video) && (
+            <div className="h-fit md:sticky" style={{ top: `calc(${NAV_OFFSET} + 20px)` }}>
+              <ComboMedia
+                combo={combo}
+                alt={section.title}
+                className="aspect-square w-full select-none rounded-3xl object-cover"
+              />
+            </div>
+          )}
         </div>
       ))}
 

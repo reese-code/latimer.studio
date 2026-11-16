@@ -369,6 +369,9 @@ function CaseStudyHero({ project }) {
 const STICKY_TOP        = 'var(--navbar-height, 56px)'
 const TITLE_STACK_GAP   = 40  // px added per stacked title
 
+// A combo's image/video is optional — text-only combos render just the paragraph.
+const hasMedia = (combo) => Boolean(combo.image || combo.video)
+
 // Renders a combo's video when present, falling back to its image. Both
 // share the same ref (for the gsap reveal animation) and sizing classes.
 const ComboMedia = forwardRef(function ComboMedia({ combo, className, alt = '' }, ref) {
@@ -577,14 +580,16 @@ function ScrollStorySection({ sections }) {
       </div>
 
       <div className="hidden flex-col gap-6 pb-16 md:flex">
-        {flatCombos.map((combo, i) => (
-          <ComboMedia
-            key={i}
-            ref={(el) => (imageRefs.current[i] = el)}
-            combo={combo}
-            className="aspect-square w-full select-none rounded-3xl object-cover"
-          />
-        ))}
+        {flatCombos.map((combo, i) =>
+          hasMedia(combo) ? (
+            <ComboMedia
+              key={i}
+              ref={(el) => (imageRefs.current[i] = el)}
+              combo={combo}
+              className="aspect-square w-full select-none rounded-3xl object-cover"
+            />
+          ) : null,
+        )}
       </div>
     </div>
   )
@@ -630,11 +635,13 @@ function StackingTitles({ sections, index, comboOffsets, titleRefs, sectionRefs,
 
       {combos.map((combo, j) => (
         <div key={j} className="pb-16">
-          <ComboMedia
-            combo={combo}
-            alt={section.title}
-            className="mt-6 mb-6 aspect-square w-full select-none rounded-3xl object-cover md:hidden"
-          />
+          {hasMedia(combo) && (
+            <ComboMedia
+              combo={combo}
+              alt={section.title}
+              className="mt-6 mb-6 aspect-square w-full select-none rounded-3xl object-cover md:hidden"
+            />
+          )}
 
           <p
             ref={(el) => (paraRefs.current[comboStart + j] = el)}

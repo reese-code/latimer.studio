@@ -90,7 +90,7 @@ export default defineType({
             defineField({
               name: 'combos',
               title: 'Image/video + paragraph combos',
-              description: 'Each combo needs a paragraph, plus either an image or a video.',
+              description: 'Each combo needs a paragraph. An image or video is optional — leave both empty for a text-only block.',
               type: 'array',
               validation: (Rule) => Rule.min(1).required(),
               of: [
@@ -121,7 +121,6 @@ export default defineType({
                   validation: (Rule) =>
                     Rule.custom((combo) => {
                       if (combo?.image && combo?.video) return 'Use either an image or a video, not both.'
-                      if (!combo?.image && !combo?.video) return 'Add an image or a video.'
                       return true
                     }),
                   preview: {
