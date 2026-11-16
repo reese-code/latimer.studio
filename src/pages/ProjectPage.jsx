@@ -222,7 +222,15 @@ function CaseStudyHero({ project }) {
   }, [metaOpen])
 
   return (
-    <div className="relative h-[100vh] min-h-[520px] w-full overflow-hidden bg-ink">
+    <div
+      className="relative w-full overflow-hidden bg-ink"
+      // Nav bar + hero together fill exactly one viewport: push the hero
+      // down by the fixed nav's height and shrink it by the same amount.
+      style={{
+        marginTop: 'var(--navbar-height, 60px)',
+        height: 'calc(100vh - var(--navbar-height, 60px))',
+      }}
+    >
       <img
         src={optimizedImageUrl(project.poster, { width: 1920 })}
         srcSet={srcSetFor(project.poster, [768, 1200, 1920, 2560])}
@@ -235,7 +243,8 @@ function CaseStudyHero({ project }) {
       />
 
       {/* Top + bottom gradients for text legibility over the image */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0)_30%,rgba(0,0,0,0)_60%,rgba(0,0,0,0.75)_100%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.3)_0%,rgba(0,0,0,0)_100%)]" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-[linear-gradient(to_bottom,rgba(0,0,0,0)_0%,rgba(0,0,0,0.75)_100%)]" />
 
       {/* Title + tagline */}
       <div className="absolute top-8 left-3 right-3 md:left-5 md:right-5">
