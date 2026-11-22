@@ -15,6 +15,8 @@ const PROJECT_FIELDS = `
   tagline,
   siteUrl,
   "poster": poster.asset->url,
+  "heroImage": heroImage.asset->url,
+  "heroVideo": heroVideo.asset->url,
   tags,
   description,
   overview,
@@ -32,7 +34,7 @@ const PROJECT_FIELDS = `
   testimonial,
 `
 
-export const projectsQuery = `*[_type == "project"] | order(orderRank asc) { ${PROJECT_FIELDS} }`
+export const projectsQuery = `*[_type == "project"] | order(orderRank asc, _createdAt asc) { ${PROJECT_FIELDS} }`
 
 export const projectBySlugQuery = `*[_type == "project" && slug.current == $slug][0] { ${PROJECT_FIELDS} }`
 

@@ -48,6 +48,27 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'heroImage',
+      title: 'Hero image (optional)',
+      type: 'image',
+      description: 'Case study page hero. Leave empty to use the poster image.',
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'heroVideo',
+      title: 'Hero video (optional)',
+      type: 'file',
+      description:
+        'Plays as the case study page hero instead of an image (the hero image, or poster if none, shows while it loads). Leave empty to use the image.',
+      options: { accept: 'video/*' },
+      validation: (Rule) =>
+        Rule.custom((video, ctx) =>
+          video?.asset && ctx.document?.heroImage?.asset
+            ? 'Use either a hero image or a hero video, not both.'
+            : true
+        ),
+    }),
+    defineField({
       name: 'tags',
       title: 'Tags',
       type: 'array',

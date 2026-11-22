@@ -168,6 +168,7 @@ function MoreProjectsSection({ currentId, projects }) {
 // falls back to the plain poster art for projects without a dedicated
 // hero shot. NOW SHOWING / tags moved into ProjectTags below the hero.
 function CaseStudyHero({ project }) {
+  const heroImage = project.heroImage || project.poster
   const [metaOpen, setMetaOpen] = useState(false)
   const panelRef  = useRef(null)
   const fieldRefs = useRef([])
@@ -231,16 +232,29 @@ function CaseStudyHero({ project }) {
         height: 'calc(100vh - var(--navbar-height, 60px))',
       }}
     >
-      <img
-        src={optimizedImageUrl(project.poster, { width: 1920 })}
-        srcSet={srcSetFor(project.poster, [768, 1200, 1920, 2560])}
-        sizes="100vw"
-        alt={project.label}
-        draggable={false}
-        fetchPriority="high"
-        decoding="async"
-        className="absolute inset-0 h-full w-full select-none object-cover object-[center_25%]"
-      />
+      {project.heroVideo ? (
+        <video
+          src={project.heroVideo}
+          poster={project.heroImage || project.poster}
+          aria-label={project.label}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 h-full w-full select-none object-cover object-[center_25%]"
+        />
+      ) : (
+        <img
+          src={optimizedImageUrl(heroImage, { width: 1920 })}
+          srcSet={srcSetFor(heroImage, [768, 1200, 1920, 2560])}
+          sizes="100vw"
+          alt={project.label}
+          draggable={false}
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 h-full w-full select-none object-cover object-[center_25%]"
+        />
+      )}
 
       {/* Top + bottom gradients for text legibility over the image */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.3)_0%,rgba(0,0,0,0)_100%)]" />
