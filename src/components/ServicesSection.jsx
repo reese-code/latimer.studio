@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useServices } from '../hooks/useServices'
 
 // `image` is optional — services without one show a maroon placeholder card.
@@ -10,7 +10,6 @@ function SideNote({ service, className = '' }) {
 export default function ServicesSection() {
   const SERVICES = useServices()
   const [active, setActive] = useState(null) // hovered / scrolled-to row
-  const navigate = useNavigate()
   const [cardTop, setCardTop] = useState(0)
   const rowRefs = useRef([])
   const sectionRef = useRef(null)
@@ -127,13 +126,14 @@ export default function ServicesSection() {
           const isCurrent = current === i
           const dim = current != null && !isCurrent
           return (
-            <div
+            // Real <a href> so crawlers can discover the service pages.
+            <Link
               key={s.label}
+              to={`/services/${s.slug}`}
               ref={(el) => (rowRefs.current[i] = el)}
               data-index={i}
               onMouseEnter={() => setActive(i)}
-              onClick={() => navigate(`/services/${s.slug}`)}
-              className="relative w-full flex cursor-pointer justify-center"
+              className="relative w-full flex cursor-pointer justify-center text-inherit no-underline"
             >
               <span
                 ref={(el) => (labelRefs.current[i] = el)}
@@ -150,7 +150,7 @@ export default function ServicesSection() {
                   }`}
                 />
               </span>
-            </div>
+            </Link>
           )
         })}
       </div>
