@@ -19,6 +19,7 @@ export default function ContactPage() {
     description:
       'Get in touch with Latimer Studio to start a custom website, brand identity, or UI/UX project with our Denver-based design team.',
     path: '/contact',
+    image: 'https://latimer.studio/contact-link-card.png',
     jsonLd: {
       '@context': 'https://schema.org',
       '@type': 'ContactPage',

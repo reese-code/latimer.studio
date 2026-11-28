@@ -57,8 +57,11 @@ async function fetchDocs() {
   }
 }
 
-function withMeta(html, { title, description, route, ogType = 'website' }) {
+function withMeta(html, { title, description, route, ogType = 'website', image }) {
   const url = `${SITE_URL}${route}`
+  const imageTags = image
+    ? `    <meta property="og:image" content="${SITE_URL}${image}" />\n    <meta name="twitter:image" content="${SITE_URL}${image}" />\n  </head>`
+    : '</head>'
   return html
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(title)}</title>`)
     .replace(/(<meta\s+name="description"\s+content=")[^"]*(")/, `$1${esc(description)}$2`)
@@ -69,6 +72,7 @@ function withMeta(html, { title, description, route, ogType = 'website' }) {
     .replace(/(<meta property="og:type" content=")[^"]*(")/, `$1${ogType}$2`)
     .replace(/(<meta name="twitter:title"\s+content=")[^"]*(")/, `$1${esc(title)}$2`)
     .replace(/(<meta\s+name="twitter:description"\s+content=")[^"]*(")/, `$1${esc(description)}$2`)
+    .replace('</head>', imageTags)
 }
 
 async function write(route, html) {
@@ -111,6 +115,7 @@ const pages = [
     title: 'Contact Latimer Studio — Start Your Denver Web Design Project',
     description:
       'Get in touch with Latimer Studio to start a custom website, brand identity, or UI/UX project with our Denver-based design team.',
+    image: '/contact-link-card.png',
   },
   {
     route: '/info',
